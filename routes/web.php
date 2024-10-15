@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SignUpController;
 use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\MotorcycleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Middleware\PreventBackHistory;
@@ -25,11 +26,24 @@ Route::get('success-verification', [SignUpController::class, 'successVerificatio
 
 Route::get('/admin/admin-login', [AdminLoginController::class, 'showLoginForm'])->name('admin.admin-login')->middleware(\App\Http\Middleware\PreventBackHistory::class);
 Route::post('admin/admin-login', [AdminLoginController::class, 'loginDashboard'])->middleware(\App\Http\Middleware\PreventBackHistory::class);
-// Route::post('logout', [SignUpController::class, 'logoutCustomer'])->name('customer.logout');
-Route::get('/details-motorcycle/{id}', [HomeController::class, 'viewDetailsMotorcycle'])->name('motorcycle.details-motorcycle');
+
+//Motorcycle Customer
+Route::get('/motorcycle/details/{id}', [HomeController::class, 'viewDetailsMotorcycle'])->name('motorcycle.details-motorcycle');
 
 Route::middleware([PreventBackHistory::class, 'customer'])->group(function () {
     Route::post('logoutCustomer', [SignUpController::class, 'logoutCustomer'])->name('customer.logout');
+
+    //Reservation Transaction
+    Route::get('/motorcycle/reservation/details', [HomeController::class, 'viewReservationDetails'])->name('reservation.details');
+    Route::post('/reservation/process', [HomeController::class, 'process'])->name('reservation.process');
+    Route::get('/payment/{reservation_id}', [HomeController::class, 'showPayment'])->name('motorcycle.payment');
+    Route::post('/payment/process', [HomeController::class, 'processPayment'])->name('payment.process');
+    Route::get('/reservation/confirmation/{reservation_id}', [HomeController::class, 'confirmation'])->name('reservation.confirmation');
+
+    //Dashboard
+    Route::get('/customer/dashboard', [CustomerDashboardController::class, 'viewDashboard'])->name('customer.customer-dashboard');
+
+
 });
 
 Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {

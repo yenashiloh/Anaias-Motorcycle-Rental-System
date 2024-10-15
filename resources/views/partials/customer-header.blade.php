@@ -40,7 +40,7 @@
         <div class="container">
             <nav class="navbar navbar-expand-lg navbar-light">
                 <a href="" class="navbar-brand p-0">
-                    <img src="../assets/img/logo.png" class="logo" alt="Logo">
+                    <img src="../../assets/img/logo.png" class="logo" alt="Logo">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarCollapse">
@@ -115,7 +115,7 @@
                                             <hr class="dropdown-divider">
                                         </li>
                                     @endif
-                                    <li><a class="dropdown-item" href="">Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('customer.customer-dashboard')}}">Dashboard</a></li>
                                     <li><a class="dropdown-item" href="">Settings</a></li>
                                     <li>
                                         <hr class="dropdown-divider">

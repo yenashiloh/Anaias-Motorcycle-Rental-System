@@ -2,7 +2,7 @@
 <meta content="" name="keywords">
 <meta content="" name="description">
 
-<link rel="icon" href="../assets/img/logo.png" type="image/x-icon">
+<link rel="icon" href="../../../assets/img/logo.png" type="image/x-icon">
 <!-- Google Web Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,4 +49,17 @@
     .notification-bell{
         font-size: 20px;
     }
+    .reservation-details {
+            background-color: #fdfdfd;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .text-danger {
+            color: red;
+        }
+
+        .shadow {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 </style>

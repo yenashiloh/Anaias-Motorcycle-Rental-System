@@ -46,8 +46,8 @@
                             </div>
                             <p class="rental-card-price">₱{{ number_format($motorcycle->price, 2) }} / day</p>
                             <div class="d-flex justify-content-between mt-3"> 
-                                <a href="{{ route('motorcycle.details-motorcycle', $motorcycle->motor_id) }}" class="btn-details">Details</a>
-                                <a href="#" class="btn-rent-now ms-2">Rent Now</a> 
+            
+                                <a href="{{ route('motorcycle.details-motorcycle', $motorcycle->motor_id) }}" class="btn-rent-now ms-2">View Details</a> 
                             </div>
                         </div>
                     </div>

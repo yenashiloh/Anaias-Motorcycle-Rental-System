@@ -1,0 +1,36 @@
+dt {
+    color: rgb(19, 19, 19);
+}
+
+.daterangepicker {
+    font-family: Arial, sans-serif;
+}
+
+.daterangepicker .calendars-container {
+    display: flex;
+}
+
+.daterangepicker .drp-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.daterangepicker .drp-selected {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.daterangepicker .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.daterangepicker .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+#dateRangePicker {
+    caret-color: transparent;
+}

@@ -16,14 +16,7 @@ class Customer extends Authenticatable
     protected $primaryKey = 'customer_id';
 
     protected $fillable = [
-        'first_name',
-        'last_name',
         'email',
-        'address',
-        'birthdate',
-        'gender',
-        'contact_number',
-        'driver_license',
         'password',
         'otp',
         'email_verified_at',
@@ -36,6 +29,5 @@ class Customer extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'birthdate' => 'date',
     ];
 }

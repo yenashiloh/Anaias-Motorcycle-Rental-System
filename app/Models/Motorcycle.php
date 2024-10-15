@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Motorcycle extends Model
 {
-    use HasFactory;
+use HasFactory;
 
     protected $primaryKey = 'motor_id';
     
@@ -24,5 +24,6 @@ class Motorcycle extends Model
         'price',
         'description',
         'images',
+        'status'
     ];
 }

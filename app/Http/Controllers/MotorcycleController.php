@@ -73,6 +73,7 @@ class MotorcycleController extends Controller
         return response()->json(['success' => false], 500);
     }
     
+    //view edit
     public function edit($motor_id)
     {
         $admin = Auth::guard('admin')->user();
@@ -80,6 +81,7 @@ class MotorcycleController extends Controller
         return view('admin.motorcycles.edit-motorcycle', compact('admin','motorcycle'));
     }
 
+    //update motorcycle
     public function update(Request $request, $id)
     {
         $motorcycle = Motorcycle::findOrFail($id);
@@ -102,27 +104,21 @@ class MotorcycleController extends Controller
             'removed_images.*' => 'integer',
         ]);
     
-        // Decode existing images
         $existingImages = json_decode($motorcycle->images) ?? [];
         $updatedImages = [];
     
-        // Process existing images
         foreach ($existingImages as $index => $image) {
             if (in_array($index, $request->input('removed_images', []))) {
-                // Delete the image from storage
                 Storage::disk('public')->delete($image);
             } elseif ($request->hasFile("replaced_images.$index")) {
-                // Delete the old image and store the new one
                 Storage::disk('public')->delete($image);
                 $path = $request->file("replaced_images.$index")->store('motorcycle_images', 'public');
                 $updatedImages[] = $path;
             } else {
-                // Keep the existing image
                 $updatedImages[] = $image;
             }
         }
     
-        // Handle new images
         if ($request->hasFile('new_images')) {
             foreach ($request->file('new_images') as $image) {
                 $path = $image->store('motorcycle_images', 'public');
@@ -130,17 +126,14 @@ class MotorcycleController extends Controller
             }
         }
     
-        // Update the motorcycle with validated data
         $motorcycle->update($validatedData);
-    
-        // Update the images attribute
+
         $motorcycle->images = json_encode(array_values($updatedImages));
         $motorcycle->save();
     
         return redirect()->route('admin.motorcycles.edit-motorcycle', $motorcycle->motor_id)
             ->with('success', 'Motorcycle updated successfully');
     }
-    
 
     //view motorcycle
     public function viewMotorcycle($motor_id)

@@ -28,7 +28,7 @@
                                         getaway or a long road trip, we’ve got the perfect ride for you. Embrace the
                                         freedom of the journey with safety, style, and comfort—your adventure begins
                                         here!</p>
-                                    <a href="#" class="btn btn-primary rounded-pill py-2 px-4">Rent</a>
+                                    <a href="{{route('motorcycles')}}" class="btn btn-primary rounded-pill py-2 px-4">Rent</a>
                                 </div>
                             </div>
                         </div>
