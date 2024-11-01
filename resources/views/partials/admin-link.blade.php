@@ -30,6 +30,3 @@ WebFont.load({
 <link rel="stylesheet" href="../../admin-assets-final/css/bootstrap.min.css" />
 <link rel="stylesheet" href="../../admin-assets-final/css/plugins.min.css" />
 <link rel="stylesheet" href="../../admin-assets-final/css/kaiadmin.min.css" />
-
-<!-- CSS Just for demo purpose, don't include it in your project -->
-<link rel="stylesheet" href="../../admin-assets-final/css/demo.css" />

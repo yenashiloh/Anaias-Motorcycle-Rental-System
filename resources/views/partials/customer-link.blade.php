@@ -24,6 +24,8 @@
 
 <!-- Template Stylesheet -->
 <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
 <style>
    .notification-item:hover {
         background-color: #f8f9fa;

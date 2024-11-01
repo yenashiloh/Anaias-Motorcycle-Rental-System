@@ -86,7 +86,7 @@
                                     <dt class="col-4">Model:</dt>
                                     <dd class="col-6">{{ $motorcycle->model}}</dd>
 
-                                    <dt class="col-4">CC:</dt>
+                                    <dt class="col-4">Engine Capacity (CC):</dt>
                                     <dd class="col-6">{{ $motorcycle->cc}}</dd>
 
                                     <dt class="col-4">Year:</dt>

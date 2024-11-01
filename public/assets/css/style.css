@@ -1056,4 +1056,30 @@
     background-color: #f1f1f1; 
     color:  #00205b; 
 }
+.check-circle {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 15px rgba(76, 175, 80, 0.1);
+    margin-bottom: 30px;
+    margin-top: 10px;
+}
+
+.check-mark {
+    width: 40px;
+    height: 40px;
+}
+
+.check-mark path {
+    stroke: white;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
 

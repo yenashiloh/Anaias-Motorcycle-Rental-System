@@ -26,4 +26,10 @@ use HasFactory;
         'images',
         'status'
     ];
+
+    
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'motor_id');
+    }
 }

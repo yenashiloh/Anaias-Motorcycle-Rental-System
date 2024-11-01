@@ -16,7 +16,9 @@
 
             <div class="row">
                 <div class="col-md-8">
-                    <form action="{{ route('reservation.process') }}" method="POST" enctype="multipart/form-data">
+                    <form id="registrationForm" action="{{ route('reservation.process') }}" method="POST"
+                        enctype="multipart/form-data">
+
                         @csrf
                         <h4 class="fw-bold">Driver Information</h4>
                         <p>This is the information that will be used for the Rental Confirmation</p>
@@ -64,6 +66,8 @@
                                 <label for="dob" class="form-label">Date of Birth <span
                                         class="text-danger">*</span></label>
                                 <input type="date" class="form-control" name="birthdate" id="dob" required>
+                                <div id="ageError" class="text-danger mt-1" style="display: none;"> You must be at
+                                    least 18 years of age to rent a motorcycle.</div>
                             </div>
                         </div>
 
@@ -94,11 +98,14 @@
                 </div>
                 @php
                     $dates = explode(' - ', $reservationData['rental_dates']);
-                    $pickupDate = \Carbon\Carbon::createFromFormat('d/m/Y', $dates[0]);
-                    $dropoffDate = \Carbon\Carbon::createFromFormat('d/m/Y', $dates[1]);
-                    $days = abs($dropoffDate->diffInDays($pickupDate));
+                    $pickupDate = \Carbon\Carbon::createFromFormat('d/m/Y', trim($dates[0]));
+                    $dropoffDate = \Carbon\Carbon::createFromFormat('d/m/Y', trim($dates[1]));
+
+                    // Calculate days WITHOUT adding 1
+                    $days = $pickupDate->diffInDays($dropoffDate);
                     $total = $days * $motorcycle->price;
                 @endphp
+
                 <div class="col-md-4">
                     <div class="card reservation-details shadow">
                         <div class="card-body">
@@ -133,9 +140,10 @@
                                 </div>
                             </div>
                             <hr>
+
                             <div class="d-flex justify-content-between">
                                 <span>Motorbike Rental ({{ $days }} day{{ $days > 1 ? 's' : '' }})</span>
-                                <span>₱{{ number_format(abs($total), 2) }}</span>
+                                <span>₱{{ number_format($total, 2) }}</span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span>Daily Price</span>
@@ -147,7 +155,12 @@
                                 <h6 class="fw-bold">₱{{ number_format(abs($total), 2) }}</h6>
 
                             </div>
-                            <button type="submit" class="btn btn-secondary w-100 mt-3">Pay</button>
+                            <div class="text-center mt-3">
+                                <button type="submit" class="btn btn-secondary w-100" name="payment_method" value="gcash">Pay via GCash</button>
+                                <div class="mt-2">or</div>
+                                <button type="submit" class="btn btn-primary w-100 mt-2" name="payment_method" value="cash">Pay via Cash</button>
+                            </div>
+                            
                         </div>
                     </div>
                     </form>
@@ -162,3 +175,41 @@
 </body>
 
 </html>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dobInput = document.getElementById('dob');
+        const ageError = document.getElementById('ageError');
+
+        // Function to check age
+        function checkAge() {
+            const dob = new Date(dobInput.value);
+            const today = new Date();
+
+            // Calculate the age
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+
+            // Adjust age if the birthday hasn't occurred yet this year
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+
+            // Check if the age is below 18
+            if (age < 18) {
+                ageError.style.display = 'block'; // Show error message
+            } else {
+                ageError.style.display = 'none'; // Hide error message if age is valid
+            }
+        }
+
+        // Add event listener for DOB input
+        dobInput.addEventListener('change', checkAge);
+
+        // Initial check when the page loads
+        if (dobInput.value) {
+            checkAge();
+        }
+    });
+</script>

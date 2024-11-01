@@ -86,5 +86,8 @@
 <script src="{{ asset('assets/lib/owlcarousel/owl.carousel.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
+<!-- SweetAlert JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
 <!-- Template Javascript -->
 <script src="{{ asset('assets/js/main.js') }}"></script>

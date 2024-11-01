@@ -3,38 +3,12 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Reservation Details</title>
+    <title>Payment</title>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.css">
     @include('partials.customer-link')
     <style>
-        .check-circle {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto;
-            background-color: #4CAF50;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 0 15px rgba(76, 175, 80, 0.1);
-            margin-bottom: 30px;
-            margin-top: 10px;
-        }
-
-        .check-mark {
-            width: 40px;
-            height: 40px;
-        }
-
-        .check-mark path {
-            stroke: white;
-            stroke-width: 4;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            fill: none;
-        }
-
+       
         #reservationDetails {
             text-align: left;
             margin-top: 20px;
@@ -116,7 +90,6 @@
                                 <label for="amount" class="form-label">Amount</label>
                                 <input type="number" class="form-control" id="amount" name="amount" required>
                                 <div id="amount-error" class="text-danger" style="display: none;"></div>
-                                <!-- Error message div -->
                             </div>
                         </div>
 
@@ -141,7 +114,6 @@
                             <div class="modal-header">
                                 <h6 class="modal-title text-center fw-bold" id="successModalLabel">Successfully Booked
                                 </h6>
-
                             </div>
                             <div class="modal-body">
                                 <div class="text-center">

@@ -30,4 +30,11 @@ class Customer extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function driverInformation()
+    {
+        return $this->hasOne(DriverInformation::class, 'customer_id', 'customer_id');
+    }
 }
+
+

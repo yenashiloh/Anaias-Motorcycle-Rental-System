@@ -26,21 +26,74 @@ class HomeController extends Controller
     }
 
     //view list motorcycle
-    public function viewMotorcycleCategories()
+    public function viewMotorcycleCategories(Request $request) 
     {
-       $motorcycles = Motorcycle::all();
-       $isCustomerLoggedIn = Auth::guard('customer')->check();
-
-       return view('motorcycles', compact('motorcycles', 'isCustomerLoggedIn'));
+        $searchQuery = $request->input('search', '');
+    
+        $motorcycles = Motorcycle::where(function($query) use ($searchQuery) {
+            $query->where('name', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('brand', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('model', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('cc', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('year', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('gas', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('color', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('body_number', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('price', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('description', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('status', 'like', '%' . $searchQuery . '%');
+        })->get();
+    
+        $isCustomerLoggedIn = Auth::guard('customer')->check();
+    
+        return view('motorcycles', compact('motorcycles', 'isCustomerLoggedIn', 'searchQuery'));
     }
+
+    //filter and search
+    public function search(Request $request)
+    {
+        $searchQuery = $request->input('search', '');
+        $priceRange = $request->input('price', '');
+        $status = $request->input('status', '');
+    
+        $motorcycles = Motorcycle::where(function($query) use ($searchQuery) {
+                $query->where('name', 'like', '%' . $searchQuery . '%')
+                      ->orWhere('brand', 'like', '%' . $searchQuery . '%')
+                      ->orWhere('model', 'like', '%' . $searchQuery . '%')
+                      ->orWhere('cc', 'like', '%' . $searchQuery . '%')
+                      ->orWhere('year', 'like', '%' . $searchQuery . '%')
+                      ->orWhere('gas', 'like', '%' . $searchQuery . '%')
+                      ->orWhere('color', 'like', '%' . $searchQuery . '%')
+                      ->orWhere('body_number', 'like', '%' . $searchQuery . '%')
+                      ->orWhere('description', 'like', '%' . $searchQuery . '%')
+                      ->orWhere('status', 'like', '%' . $searchQuery . '%');
+            });
+    
+        if ($priceRange) {
+            [$minPrice, $maxPrice] = explode('-', $priceRange);
+            $motorcycles->whereBetween('price', [(float)$minPrice, (float)$maxPrice]);
+        }
+    
+        if ($status) {
+            $motorcycles->where('status', $status);
+        }
+    
+        $motorcycles = $motorcycles->get();
+    
+        return view('motorcycle.motorcycle_list', compact('motorcycles'))->render();
+    }
+    
+
 
     //view details motorcycle
     public function viewDetailsMotorcycle($id)
     {
        $motorcycle = Motorcycle::findOrFail($id);
        $isCustomerLoggedIn = Auth::guard('customer')->check();
+
+       $status = $motorcycle->status;
    
-       return view('motorcycle.details-motorcycle', compact('motorcycle', 'isCustomerLoggedIn'));
+       return view('motorcycle.details-motorcycle', compact('motorcycle', 'status', 'isCustomerLoggedIn'));
     }
    
     //view reservation details
@@ -73,28 +126,30 @@ class HomeController extends Controller
         $validatedData = $request->validate([
             'motorcycle_id' => 'required|exists:motorcycles,motor_id',
             'rental_dates' => 'required',
-            'pick_up' => 'required',
+            'pick_up' => 'required', 
             'drop_off' => 'required',
             'riding' => 'required',
             'total' => 'required|numeric',
             'first_name' => 'required',
-            'last_name' => 'required',
+            'last_name' => 'required', 
             'email' => 'required|email',
             'contact_number' => 'required',
             'address' => 'required',
             'birthdate' => 'required|date',
             'gender' => 'required',
             'driver_license' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'payment_method' => 'required|in:gcash,cash',
         ]);
-    
+
         $rentalDates = explode(' - ', $validatedData['rental_dates']);
         $startDate = Carbon::createFromFormat('d/m/Y', trim($rentalDates[0]));
         $endDate = Carbon::createFromFormat('d/m/Y', trim($rentalDates[1]));
-    
-        $days = $endDate->diffInDays($startDate) + 1; 
+
+        $days = $startDate->diffInDays($endDate);
+
         $motorcycle = Motorcycle::findOrFail($validatedData['motorcycle_id']);
-        $total = abs($days * $motorcycle->price); 
-    
+        $total = $days * $motorcycle->price;
+
         $driverInfo = new DriverInformation();
         $driverInfo->customer_id = Auth::guard('customer')->id();
         $driverInfo->first_name = $validatedData['first_name'];
@@ -104,32 +159,54 @@ class HomeController extends Controller
         $driverInfo->address = $validatedData['address'];
         $driverInfo->birthdate = $validatedData['birthdate'];
         $driverInfo->gender = $validatedData['gender'];
-    
+
         if ($request->hasFile('driver_license')) {
             $path = $request->file('driver_license')->store('driver_licenses', 'public');
             $driverInfo->driver_license = $path;
         }
-    
+
         $driverInfo->save();
-    
+
         $pickUpTime = Carbon::createFromFormat('h:i A', trim($validatedData['pick_up']));
         $dropOffTime = Carbon::createFromFormat('h:i A', trim($validatedData['drop_off']));
-    
+
         $pickUpDateTime = $startDate->copy()->setTime($pickUpTime->hour, $pickUpTime->minute);
         $dropOffDateTime = $endDate->copy()->setTime($dropOffTime->hour, $dropOffTime->minute);
-    
+
         $reservation = new Reservation();
         $reservation->customer_id = Auth::guard('customer')->id();
+        $reservation->driver_id = $driverInfo->driver_id;
         $reservation->motor_id = $validatedData['motorcycle_id'];
         $reservation->rental_start_date = $startDate->toDateString();
         $reservation->rental_end_date = $endDate->toDateString();
         $reservation->pick_up = $pickUpDateTime;
         $reservation->drop_off = $dropOffDateTime;
         $reservation->riding = $validatedData['riding'];
-        $reservation->total = $total; 
+        $reservation->total = $total;
+        $reservation->payment_method = $validatedData['payment_method'];
+        $reservation->reference_id = $this->generateUniqueReferenceId();
         $reservation->save();
-    
-        return redirect()->route('motorcycle.payment', ['reservation_id' => $reservation->reservation_id]);
+
+        if ($validatedData['payment_method'] === 'cash') {
+            $motorcycle->status = 'Not Available';
+            $motorcycle->save();
+        }
+
+        if ($validatedData['payment_method'] === 'gcash') {
+            return redirect()->route('motorcycle.payment', ['reservation_id' => $reservation->reservation_id]);
+        } else {
+            return redirect()->route('motorcycle.success', ['reservation_id' => $reservation->reservation_id]);
+        }
+    }
+
+    private function generateUniqueReferenceId()
+    {
+        do {
+           
+            $referenceId = Str::random(10); 
+        } while (Reservation::where('reference_id', $referenceId)->exists());
+
+        return $referenceId;
     }
     
     //show payment page
@@ -189,7 +266,7 @@ class HomeController extends Controller
             'reservation_id' => 'required|exists:reservations,reservation_id',
             'receipt' => 'required|string|max:255',
         ]);
-    
+        
         $reservation = Reservation::findOrFail($validatedData['reservation_id']);
     
         $payment = new Payment();
@@ -200,14 +277,18 @@ class HomeController extends Controller
         $payment->name = $validatedData['name'];
         $payment->number = $validatedData['number'];
         $payment->receipt = $validatedData['receipt'];
-
+        
         $payment->booking_id = Str::random(10);  
-    
+        
         if ($request->hasFile('image')) {
             $payment->image = $request->file('image')->store('receipts', 'public');
         }
-    
+        
         $payment->save();
+    
+        $motorcycle = Motorcycle::findOrFail($payment->motor_id); 
+        $motorcycle->status = 'Not Available'; 
+        $motorcycle->save(); 
     
         return response()->json([
             'success' => true,
@@ -216,6 +297,36 @@ class HomeController extends Controller
             'payment_image' => $payment->image, 
         ]);
     }
-    
 
+    //show success reservation page
+    public function showSuccessPage($reservation_id)
+    {
+        // Check if the customer is logged in
+        $isCustomerLoggedIn = Auth::guard('customer')->check();
+    
+        // Retrieve the reservation along with related customer and driver information
+        $reservation = Reservation::with(['customer', 'motorcycle', 'payment', 'driverInformation'])
+            ->where('reservation_id', $reservation_id)
+            ->first();
+    
+        // Check if the reservation exists
+        if (!$reservation) {
+            // Handle the case where the reservation does not exist (e.g., redirect or show an error)
+            return redirect()->route('reservations.index')->with('error', 'Reservation not found.');
+        }
+
+        $startDate = Carbon::parse($reservation->rental_start_date);
+        $endDate = Carbon::parse($reservation->rental_end_date);
+        $duration = $startDate->diffInDays($endDate) ?: 1;
+
+        $images = json_decode($reservation->motorcycle->images, true) ?: [];
+        $firstImage = !empty($images) ? $images[0] : 'images/placeholder.jpg';
+
+        $driverLicensePath = optional($reservation->driverInformation)->driver_license;
+    
+        // Return the success view with the reservation data
+        return view('motorcycle.success', compact('reservation', 'isCustomerLoggedIn',  'driverLicensePath',  'duration',      'firstImage',));
+    }
+    
+    
 }

@@ -200,7 +200,8 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="image-upload">Upload Image</label>
+                                                <label for="image-upload">Upload Image <span
+                                                        class="text-danger">*</span></label>
                                                 <div class="image-upload-container">
                                                     <div id="image-upload-area" class="mb-3">
                                                         <input type="file" id="image-upload" accept="image/*"
@@ -211,8 +212,9 @@
                                                             </div>
                                                             <div class="upload-text">Click to upload or drag and drop
                                                             </div>
+
+                                                        </label>
                                                     </div>
-                                                    </label>
                                                 </div>
                                                 <div id="image-preview-container" class="d-flex flex-wrap">
                                                     @if ($motorcycle->images)
@@ -241,16 +243,21 @@
                                                         @endforeach
                                                     @endif
                                                 </div>
+                                                @error('images')
+                                                    <div class="alert alert-danger mt-2">{{ $message }}</div>
+                                                @enderror
+                                                @error('image_processing')
+                                                    @foreach ($errors->get('image_processing') as $error)
+                                                        <div class="alert alert-danger mt-2">{{ $error }}</div>
+                                                    @endforeach
+                                                @enderror
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                         <!-- Submit/Cancel Buttons -->
-
                         <div class="card-action mt-4">
                             <button class="btn btn-success">Update</button>
                         </div>
@@ -260,9 +267,8 @@
         </div>
     </div>
 
-    </div>
-    </div>
-    </div>
+
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
@@ -275,21 +281,40 @@
     function handleImageUpload(event) {
         const files = event.target.files;
         const previewContainer = document.getElementById('image-preview-container');
+        const maxFileSize = 2 * 1024 * 1024; // 2MB
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+
+        // clear previous error messages
+        clearErrorMessages();
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
+
+            // validate file type
+            if (!allowedTypes.includes(file.type)) {
+                showError(
+                    `File "${file.name}" is not a valid image type. Allowed types are: JPEG, PNG, JPG, GIF, WEBP`);
+                continue;
+            }
+
+            // validate file size
+            if (file.size > maxFileSize) {
+                showError(`File "${file.name}" is too large. Maximum file size is 2MB`);
+                continue;
+            }
+
             const reader = new FileReader();
 
             reader.onload = function(e) {
                 const previewDiv = document.createElement('div');
                 previewDiv.className = 'image-preview';
                 previewDiv.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview" style="max-width: 100px; margin: 5px;">
-                    <div class="image-actions">
-                        <button type="button" class="btn btn-image-action mb-1" style="background-color:white; color:black;" onclick="replaceImage(this)">Replace</button>
-                        <button type="button" class="btn btn-image-action" style="background-color:white; color:black;" onclick="removeImage(this)">Remove</button>
-                    </div>
-                `;
+                <img src="${e.target.result}" alt="Preview" style="max-width: 100px; margin: 5px;">
+                <div class="image-actions">
+                    <button type="button" class="btn btn-image-action mb-1" style="background-color:white; color:black;" onclick="replaceImage(this)">Replace</button>
+                    <button type="button" class="btn btn-image-action" style="background-color:white; color:black;" onclick="removeImage(this)">Remove</button>
+                </div>
+            `;
 
                 const fileInput = document.createElement('input');
                 fileInput.type = 'file';
@@ -306,15 +331,73 @@
 
             reader.readAsDataURL(file);
         }
+
+        validateImageCount();
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageUpload = document.getElementById('image-upload');
+        if (imageUpload) {
+            imageUpload.addEventListener('change', handleImageUpload);
+        }
+
+        // add drag and drop functionality
+        const uploadArea = document.getElementById('image-upload-area');
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                const input = document.getElementById('image-upload');
+
+                // update the input's files
+                const dataTransfer = new DataTransfer();
+                Array.from(files).forEach(file => dataTransfer.items.add(file));
+                input.files = dataTransfer.files;
+
+                // trigger the handleImageUpload function
+                handleImageUpload({
+                    target: {
+                        files: files
+                    }
+                });
+            });
+        }
+
+        // initialize validation on page load
+        validateImageCount();
+    });
 
     function replaceImage(button, index) {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
+
         input.onchange = function(event) {
             const file = event.target.files[0];
             if (file) {
+                // validate file size and type
+                if (file.size > 2 * 1024 * 1024) {
+                    showError('Replacement image is too large. Maximum file size is 2MB');
+                    return;
+                }
+
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    showError('Invalid file type. Please upload a JPEG, PNG, JPG, GIF, or WEBP image');
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const previewDiv = button.closest('.image-preview');
@@ -357,19 +440,56 @@
         hiddenInput.value = index;
         previewDiv.style.display = 'none';
         previewDiv.classList.add('removed-image');
+
+        validateImageCount();
     }
 
-    document.getElementById('image-upload').addEventListener('change', handleImageUpload);
+    function validateImageCount() {
+        const visibleImages = document.querySelectorAll('.image-preview:not(.removed-image)').length;
+        const errorContainer = document.getElementById('image-error-container');
 
-    document.addEventListener('click', function(event) {
-        if (event.target.matches('.btn-image-action')) {
-            event.preventDefault();
+        if (visibleImages === 0) {
+            if (!errorContainer) {
+                const container = document.createElement('div');
+                container.id = 'image-error-container';
+                container.className = 'alert alert-danger mt-2';
+                container.textContent = 'At least one image is required for the motorcycle.';
+                document.getElementById('image-preview-container').parentNode.appendChild(container);
+            }
+            return false;
+        } else {
+            if (errorContainer) {
+                errorContainer.remove();
+            }
+            return true;
         }
-    });
+    }
 
+    function showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger mt-2 image-error';
+        errorDiv.textContent = message;
+        document.getElementById('image-preview-container').parentNode.appendChild(errorDiv);
+    }
+
+    function clearErrorMessages() {
+        document.querySelectorAll('.image-error').forEach(error => error.remove());
+    }
+
+    // form submission validation
     document.querySelector('form').addEventListener('submit', function(event) {
+        if (!validateImageCount()) {
+            event.preventDefault();
+            return;
+        }
+
         document.querySelectorAll('.removed-image').forEach(div => {
             div.style.display = 'none';
         });
+    });
+
+    // initialize validation on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        validateImageCount();
     });
 </script>

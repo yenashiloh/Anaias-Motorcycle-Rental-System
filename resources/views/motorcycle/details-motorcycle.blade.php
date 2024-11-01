@@ -9,6 +9,7 @@
     @include('partials.customer-link')
     <link href="{{ asset('assets/css/details.css') }}" rel="stylesheet">
 </head>
+
 <body>
     @include('partials.customer-header')
     <section class="py-5">
@@ -54,18 +55,21 @@
                                 <div class="col-12">
                                     <div class="input-group mb-1">
                                         <div class="d-flex align-items-center bg-light text-body rounded-start p-2">
-                                            <span class="fas fa-calendar-alt"></span><span class="ms-1">Rental Dates</span>
+                                            <span class="fas fa-calendar-alt"></span><span class="ms-1">Rental
+                                                Dates</span>
                                         </div>
-                                        <input type="text" id="dateRangePicker" name="rental_dates" class="form-control" readonly>
+                                        <input type="text" id="dateRangePicker" name="rental_dates"
+                                            class="form-control" readonly>
                                     </div>
                                 </div>
-                        
+
                                 <div class="col-md-6">
                                     <div class="input-group mb-1">
                                         <div class="d-flex align-items-center bg-light text-body rounded-start p-2">
                                             <span class="fas fa-clock"></span><span class="ms-2">Pick Up</span>
                                         </div>
-                                        <select class="form-select" id="pickUpTimePicker" name="pick_up" aria-label="Pick Up Time">
+                                        <select class="form-select" id="pickUpTimePicker" name="pick_up"
+                                            aria-label="Pick Up Time">
                                         </select>
                                     </div>
                                 </div>
@@ -74,14 +78,16 @@
                                         <div class="d-flex align-items-center bg-light text-body rounded-start p-2">
                                             <span class="fas fa-clock"></span><span class="ms-1">Drop off</span>
                                         </div>
-                                        <select class="form-select" id="dropOffTimePicker" name="drop_off" aria-label="Drop off Time">
+                                        <select class="form-select" id="dropOffTimePicker" name="drop_off"
+                                            aria-label="Drop off Time">
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="input-group mb-1">
                                         <div class="d-flex align-items-center bg-light text-body rounded-start p-2">
-                                            <span class="fas fa-user"></span><span class="ms-2">How are you riding?</span>
+                                            <span class="fas fa-user"></span><span class="ms-2">How are you
+                                                riding?</span>
                                         </div>
                                         <select class="form-select" name="riding" aria-label="riding">
                                             <option value="Alone">Alone</option>
@@ -90,13 +96,21 @@
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    @guest('customer')     
-                                        <a href="{{ route('login') }}" class="btn btn-light w-100 py-2">Login to Rent Now</a>
+                                    @guest('customer')
+                                    <a href="{{ route('login') }}" class="btn btn-light w-100 py-2">Login to Rent Now</a>
+                                @else
+                                    @if($status === 'Available')
+                                        <button type="submit" class="btn btn-light w-100 py-2 mb-2" id="rent-now-button">
+                                            Rent Now
+                                        </button>
                                     @else
-                                        <button type="submit" class="btn btn-light w-100 py-2">Rent Now</button>
-                                    @endguest
+                                        <button type="button" class="btn btn-light w-100 py-2 mb-2" id="not-available-button">
+                                            Rent Now
+                                        </button>
+                                    @endif
+                                @endguest
                                 </div>
-                                
+
                             </div>
                         </form>
                     </div>
@@ -123,7 +137,7 @@
                         <dt class="col-2">Model:</dt>
                         <dd class="col-9">{{ $motorcycle->model }}</dd>
 
-                        <dt class="col-2">CC:</dt>
+                        <dt class="col-2">Engine Capacity (CC):</dt>
                         <dd class="col-9">{{ $motorcycle->cc }}</dd>
 
                         <dt class="col-2">Year:</dt>
@@ -138,8 +152,6 @@
                         <dt class="col-2">Body Number:</dt>
                         <dd class="col-9">{{ $motorcycle->body_number }}</dd>
 
-                        <dt class="col-2">Plate Number:</dt>
-                        <dd class="col-9">{{ $motorcycle->plate_number }}</dd>
                     </div>
                 </div>
             </div>
@@ -171,7 +183,7 @@
         var motorcyclePrice = <?php echo json_encode($motorcycle->price); ?>;
 
         function updateRentalInfo(start, end) {
-            var days = end.diff(start, 'days'); 
+            var days = end.diff(start, 'days');
             $('#dateRangePicker').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
             $('#rentalDays').text(days + ' Day' + (days !== 1 ? 's' : '') + ' Rental');
             var totalPrice = days * motorcyclePrice;
@@ -223,4 +235,19 @@
         generateTimeOptions('pickUpTimePicker');
         generateTimeOptions('dropOffTimePicker');
     };
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const notAvailableBtn = document.getElementById('not-available-button');
+    if (notAvailableBtn) {
+        notAvailableBtn.addEventListener('click', function() {
+            Swal.fire({
+                title: 'Not Available',
+                text: 'Sorry, this motorcycle is currently not available for rent. Please check back later or browse our other available motorcycles.',
+                icon: 'info',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6'
+            });
+        });
+    }
+});
 </script>

@@ -115,7 +115,7 @@
                                             <hr class="dropdown-divider">
                                         </li>
                                     @endif
-                                    <li><a class="dropdown-item" href="{{ route('customer.customer-dashboard')}}">Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('customer.customer-dashboard')}}">History Bookings</a></li>
                                     <li><a class="dropdown-item" href="">Settings</a></li>
                                     <li>
                                         <hr class="dropdown-divider">

@@ -15,6 +15,7 @@ class Reservation extends Model
 
     protected $fillable = [
         'customer_id',
+        'driver_id', 
         'rental_start_date',
         'rental_end_date',
         'pick_up',
@@ -32,5 +33,15 @@ class Reservation extends Model
     public function motorcycle()
     {
         return $this->belongsTo(Motorcycle::class, 'motor_id');
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'reservation_id');
+    }
+
+    public function driverInformation() // Add a relationship to DriverInformation
+    {
+        return $this->belongsTo(DriverInformation::class, 'driver_id');
     }
 }

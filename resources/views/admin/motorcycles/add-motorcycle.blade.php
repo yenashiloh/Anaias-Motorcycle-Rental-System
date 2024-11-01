@@ -94,7 +94,7 @@
                 <h3 class="fw-bold mb-3">Add Motorcycle</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
-                        <a href="{{route ('admin.admin-dashboard')}}">
+                        <a href="{{ route('admin.admin-dashboard') }}">
                             <i class="icon-home"></i>
                         </a>
                     </li>
@@ -102,13 +102,13 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{route ('admin.motorcycles.manage-motorcycles')}}">Manage Motorcycles</a>
+                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}">Manage Motorcycles</a>
                     </li>
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{route ('admin.motorcycles.add-motorcycle')}}">Add Motorcycle</a>
+                        <a href="{{ route('admin.motorcycles.add-motorcycle') }}">Add Motorcycle</a>
                     </li>
                 </ul>
             </div>
@@ -116,8 +116,7 @@
                 <div class="col-md-12">
 
                     <!-- Basic Information Card -->
-
-                    @if ($errors->any())
+                    {{-- @if ($errors->any())
                         <div class="alert alert-danger alert-dismissible fade show" role="alert" style="color:red;">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
@@ -128,7 +127,7 @@
                                 @endforeach
                             </ul>
                         </div>
-                    @endif
+                    @endif --}}
 
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert"
@@ -151,21 +150,31 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="name">Name</label>
-                                            <input type="text" class="form-control" id="name" name="name"
-                                                required placeholder="Enter Name" />
+                                            <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                                id="name" name="name" required 
+                                                value="{{ old('name') }}"
+                                                placeholder="Enter Name" />
+                                            @error('name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="brand">Brand</label>
-                                            <input type="text" class="form-control" id="brand" name="brand"
-                                                required placeholder="Enter Brand" />
+                                            <input type="text" class="form-control @error('brand') is-invalid @enderror" 
+                                                id="brand" name="brand" required 
+                                                value="{{ old('brand') }}"
+                                                placeholder="Enter Brand" />
+                                            @error('brand')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
+                    
                         <!-- Vehicle Specifications Card -->
                         <div class="card mb-3">
                             <div class="card-header">
@@ -176,44 +185,61 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="model">Model</label>
-                                            <input type="text" class="form-control" id="model" name="model"
-                                                required placeholder="Enter Model" />
+                                            <input type="text" class="form-control @error('model') is-invalid @enderror" 
+                                                id="model" name="model" required 
+                                                value="{{ old('model') }}"
+                                                placeholder="Enter Model" />
+                                            @error('model')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="cc">CC</label>
-                                            <input type="number" class="form-control" id="cc" name="cc"
-                                                required placeholder="Enter CC" />
+                                            <input type="number" class="form-control @error('cc') is-invalid @enderror" 
+                                                id="cc" name="cc" required 
+                                                value="{{ old('cc') }}"
+                                                placeholder="Enter CC" />
+                                            @error('cc')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="year">Year</label>
-                                            <select class="form-select form-control" id="year" name="year"
-                                                required>
+                                            <select class="form-select form-control @error('year') is-invalid @enderror" 
+                                                id="year" name="year" required>
                                                 @php
                                                     $startYear = 2000;
                                                     $endYear = date('Y');
                                                 @endphp
                                                 @for ($i = $endYear; $i >= $startYear; $i--)
-                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                    <option value="{{ $i }}" {{ old('year') == $i ? 'selected' : '' }}>{{ $i }}</option>
                                                 @endfor
                                             </select>
+                                            @error('year')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
-
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="gas">Gas</label>
-                                            <input type="text" class="form-control" id="gas" name="gas"
-                                                required placeholder="Enter Gas Type" />
+                                            <input type="text" class="form-control @error('gas') is-invalid @enderror" 
+                                                id="gas" name="gas" required 
+                                                value="{{ old('gas') }}"
+                                                placeholder="Enter Gas Type" />
+                                            @error('gas')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
+                    
                         <!-- Additional Details Card -->
                         <div class="card mb-3">
                             <div class="card-header">
@@ -224,35 +250,55 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="color">Color</label>
-                                            <input type="text" class="form-control" id="color" name="color"
-                                                required placeholder="Enter Color" />
+                                            <input type="text" class="form-control @error('color') is-invalid @enderror" 
+                                                id="color" name="color" required 
+                                                value="{{ old('color') }}"
+                                                placeholder="Enter Color" />
+                                            @error('color')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="body_number">Body Number</label>
-                                            <input type="text" class="form-control" id="body_number"
-                                                name="body_number" required placeholder="Enter Body Number" />
+                                            <input type="text" class="form-control @error('body_number') is-invalid @enderror" 
+                                                id="body_number" name="body_number" required 
+                                                value="{{ old('body_number') }}"
+                                                placeholder="Enter Body Number" />
+                                            @error('body_number')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="plate_number">Plate Number</label>
-                                            <input type="text" class="form-control" id="plate_number"
-                                                name="plate_number" required placeholder="Enter Plate Number" />
+                                            <input type="text" class="form-control @error('plate_number') is-invalid @enderror" 
+                                                id="plate_number" name="plate_number" required 
+                                                value="{{ old('plate_number') }}"
+                                                placeholder="Enter Plate Number" />
+                                            @error('plate_number')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="price">Price</label>
-                                            <input type="number" class="form-control" id="price" name="price"
-                                                required placeholder="Enter Price" />
+                                            <input type="number" class="form-control @error('price') is-invalid @enderror" 
+                                                id="price" name="price" required 
+                                                value="{{ old('price') }}"
+                                                placeholder="Enter Price" />
+                                            @error('price')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
+                    
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-header">
@@ -263,8 +309,13 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="image-description">Description</label>
-                                                <textarea class="form-control" id="image-description" rows="10" placeholder="Enter description here"
-                                                    name="description" required></textarea>
+                                                <textarea class="form-control @error('description') is-invalid @enderror" 
+                                                    id="image-description" rows="10" 
+                                                    placeholder="Enter description here"
+                                                    name="description" required>{{ old('description') }}</textarea>
+                                                @error('description')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -273,45 +324,51 @@
                                                 <div class="image-upload-container">
                                                     <div id="image-upload-area" class="mb-3">
                                                         <input type="file" id="image-upload" accept="image/*"
-                                                            name="images[]" required multiple style="display: none;">
+                                                            name="images[]" multiple style="display: none;">
                                                         <label for="image-upload" class="upload-label">
                                                             <div class="upload-icon">
                                                                 <i class="fas fa-cloud-upload-alt"></i>
                                                             </div>
-                                                            <div class="upload-text">Click to upload or drag and drop
-                                                            </div>
+                                                            <div class="upload-text">Click to upload or drag and drop</div>
                                                         </label>
                                                     </div>
                                                     <div id="image-preview-container" class="d-flex flex-wrap">
-                                                        <!-- Preview images will be added here dynamically -->
+                                                        @if(old('image_data'))
+                                                            @foreach(old('image_data') as $index => $imageData)
+                                                                <div class="image-preview">
+                                                                    <img src="{{ $imageData }}" alt="Preview">
+                                                                    <input type="hidden" name="image_data[]" value="{{ $imageData }}">
+                                                                    <div class="image-actions">
+                                                                        <button type="button" class="btn btn-image-action mb-1" style="background-color:white; color:black;" onclick="replaceImage(this)">Replace</button>
+                                                                        <button type="button" class="btn btn-image-action" style="background-color:white; color:black;" onclick="removeImage(this)">Remove</button>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        @endif
                                                     </div>
+                                                    @error('images')
+                                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                    @enderror
+                                                    @error('images.*')
+                                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
-                                        
                                     </div>
                                 </div>
                             </div>
                         </div>
-
+                        
+                    
                         <!-- Submit/Cancel Buttons -->
-
                         <div class="card-action mt-4">
-                            <button class="btn btn-success">Submit</button>
-                            <button class="btn btn-danger">Cancel</button>
-
+                            <button type="submit" class="btn btn-success">Submit</button>
+                            <button type="button" class="btn btn-danger">Cancel</button>
                         </div>
-
-                </div>
-
-
-                </form>
+                    </form>
             </div>
         </div>
-    </div>
-
-    </div>
-    </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
@@ -322,60 +379,72 @@
 
 </html>
 <script>
-    function handleImageUpload(event) {
-        const files = event.target.files;
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadInput = document.getElementById('image-upload');
         const previewContainer = document.getElementById('image-preview-container');
-
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                const previewDiv = document.createElement('div');
-                previewDiv.className = 'image-preview';
-                previewDiv.innerHTML = `
-        <img src="${e.target.result}" alt="Preview">
-        <div class="image-actions">
-          <button type="button" class="btn btn-image-action mb-1" style="background-color:white; color:black;" onclick="replaceImage(this)">Replace</button>
-          <button type="button" class="btn btn-image-action" style="background-color:white; color:black;" onclick="removeImage(this)">Remove</button>
-        </div>
-      `;
-                previewContainer.appendChild(previewDiv);
-            }
-
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function replaceImage(button) {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = function(event) {
-            const file = event.target.files[0];
-            if (file) {
+        
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
                 const reader = new FileReader();
+                
                 reader.onload = function(e) {
-                    const img = button.parentElement.parentElement.querySelector('img');
-                    img.src = e.target.result;
+                    addImagePreview(e.target.result);
                 }
+                
                 reader.readAsDataURL(file);
             }
-        };
-        input.click();
-    }
-
-    function removeImage(button) {
-        const previewDiv = button.parentElement.parentElement;
-        previewDiv.remove();
-    }
-
-    document.getElementById('image-upload').addEventListener('change', handleImageUpload);
-
-    // Prevent form submission on button clicks
-    document.addEventListener('click', function(event) {
-        if (event.target.matches('.btn-image-action')) {
-            event.preventDefault();
         }
+        
+        function addImagePreview(imageData) {
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'image-preview';
+            previewDiv.innerHTML = `
+                <img src="${imageData}" alt="Preview">
+                <input type="hidden" name="image_data[]" value="${imageData}">
+                <div class="image-actions">
+                    <button type="button" class="btn btn-image-action mb-1" style="background-color:white; color:black;" onclick="replaceImage(this)">Replace</button>
+                    <button type="button" class="btn btn-image-action" style="background-color:white; color:black;" onclick="removeImage(this)">Remove</button>
+                </div>
+            `;
+            previewContainer.appendChild(previewDiv);
+        }
+        
+        window.replaceImage = function(button) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewDiv = button.closest('.image-preview');
+                        const img = previewDiv.querySelector('img');
+                        const hiddenInput = previewDiv.querySelector('input[type="hidden"]');
+                        img.src = e.target.result;
+                        hiddenInput.value = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+        
+        window.removeImage = function(button) {
+            const previewDiv = button.closest('.image-preview');
+            previewDiv.remove();
+        }
+        
+        uploadInput.addEventListener('change', handleImageUpload);
+        
+        // Prevent form submission on button clicks
+        document.addEventListener('click', function(event) {
+            if (event.target.matches('.btn-image-action')) {
+                event.preventDefault();
+            }
+        });
     });
-</script>
+    </script>
