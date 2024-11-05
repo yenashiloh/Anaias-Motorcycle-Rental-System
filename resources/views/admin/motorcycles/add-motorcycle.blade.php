@@ -35,7 +35,6 @@
         margin: 5px;
         overflow: hidden;
         border-radius: 10px;
-        /* Adjust this value for more or less curvature */
         transition: background-color 0.3s;
     }
 
