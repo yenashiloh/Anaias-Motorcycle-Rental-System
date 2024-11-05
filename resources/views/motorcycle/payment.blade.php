@@ -8,7 +8,6 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.css">
     @include('partials.customer-link')
     <style>
-       
         #reservationDetails {
             text-align: left;
             margin-top: 20px;
@@ -106,51 +105,6 @@
 
                     </form>
 
-                </div>
-                <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h6 class="modal-title text-center fw-bold" id="successModalLabel">Successfully Booked
-                                </h6>
-                            </div>
-                            <div class="modal-body">
-                                <div class="text-center">
-
-                                    <div class="check-circle">
-                                        <svg class="check-mark" viewBox="0 0 52 52">
-                                            <path d="M14 27l7.8 7.8L38 14" />
-                                        </svg>
-                                    </div>
-                                    <p class="fw-bold">Please wait for the admin to review and confirm your booking. You
-                                        will receive a
-                                        notification once it's approved. Thank you!</p>
-                                </div>
-                                <div id="reservationDetails">
-                                    <p><strong>Booking ID:</strong> <span id="bookingId"></span></p>
-                                    <p><strong>Motorcycle Name:</strong> <span id="motorcycleName"></span></p>
-                                    <p><strong>Pickup:</strong> <span id="pickupInfo"></span></p>
-                                    <p><strong>Drop-off:</strong> <span id="dropoffInfo"></span></p>
-                                    <p><strong>Rental Start Date:</strong> <span id="rentalStartDate"></span></p>
-                                    <p><strong>Rental End Date:</strong> <span id="rentalEndDate"></span></p>
-                                    <p><strong>GCash Name:</strong> <span id="gcashName"></span></p>
-                                    <p><strong>GCash Number:</strong> <span id="gcashNumber"></span></p>
-                                    <p><strong>Receipt Number:</strong> <span id="receiptNumber"></span></p>
-                                    <p><strong>Total:</strong> <span id="totalPrice"></span></p>
-                                    <div id="paymentImageContainer" class="text-center mt-3">
-                                        <h6>Payment Receipt</h6>
-                                        <img id="paymentImage" src="" alt="Payment Receipt"
-                                            class="img-fluid mt-2" style="max-height: 300px;">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" id="modalOkButton">Proceed to
-                                    dashboard</button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 @php
                     $dates = explode(' - ', $reservationData['rental_dates']);
@@ -284,8 +238,7 @@
                 </div>
             </div>
         </div>
-        </div>
-        </div>
+      
     </section>
 
     @include('partials.customer-footer')
@@ -301,10 +254,12 @@
 
             const totalAmount = {{ abs($total) }};
 
+            // Format number with commas
             function formatNumber(num) {
                 return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             }
 
+            // Event listener to validate amount input
             amountInput.addEventListener('input', function() {
                 const enteredAmount = parseFloat(this.value.replace(/,/g, '')) || 0;
 
@@ -318,15 +273,17 @@
                 }
             });
 
+            // Enable all input fields and the submit button
             document.querySelectorAll('input').forEach(input => {
                 input.disabled = false;
             });
 
             submitButton.disabled = false;
         });
+
         $(document).ready(function() {
             $('form').on('submit', function(e) {
-                e.preventDefault();
+                e.preventDefault(); // Prevent the default form submission
                 var formData = new FormData(this);
 
                 $.ajax({
@@ -337,57 +294,8 @@
                     contentType: false,
                     success: function(response) {
                         if (response.success) {
-                            var pickUpDate = new Date('{{ $reservation->pick_up }}');
-                            var dropOffDate = new Date('{{ $reservation->drop_off }}');
-
-                            var options = {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: 'numeric',
-                                minute: '2-digit',
-                                hour12: true
-                            };
-                            $('#bookingId').text(response.booking_id);
-                            $('#motorcycleName').text('{{ $motorcycle->name }}');
-                            $('#pickupInfo').text(
-                                '{{ \Carbon\Carbon::parse($reservation->pick_up)->format('Y-m-d, g:iA') }}'
-                            );
-                            $('#dropoffInfo').text(
-                                '{{ \Carbon\Carbon::parse($reservation->drop_off)->format('Y-m-d, g:iA') }}'
-                            );
-
-                            $('#rentalStartDate').text(
-                                '{{ $reservation->rental_start_date }}');
-                            $('#rentalEndDate').text('{{ $reservation->rental_end_date }}');
-                            $('#totalPrice').text('₱{{ number_format(abs($total), 2) }}');
-                            $('#gcashName').text($('#name').val());
-                            $('#gcashNumber').text($('#number').val());
-                            $('#receiptNumber').text($('#receipt').val());
-
-                            if (response.payment_image) {
-                                var imagePath = '/storage/receipts/' + response
-                                    .payment_image;
-                                $('#paymentImage').attr('src', imagePath)
-                                    .on('load', function() {
-                                        $('#paymentImageContainer').show();
-                                    })
-                                    .on('error', function() {
-                                        console.error('Failed to load image:', imagePath);
-                                        $('#paymentImageContainer').hide();
-                                    });
-                            } else {
-                                $('#paymentImageContainer').hide();
-                            }
-
-                            var successModal = new bootstrap.Modal(document.getElementById(
-                                'successModal'));
-                            successModal.show();
-
-                            $('#modalOkButton').on('click', function() {
-                                window.location.href =
-                                    '{{ route('customer.customer-dashboard') }}';
-                            });
+                            // Redirect using the URL returned from the server
+                            window.location.href = response.redirectUrl;
                         }
                     },
                     error: function(xhr) {

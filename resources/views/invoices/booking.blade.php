@@ -1,154 +1,10 @@
-{{-- <!DOCTYPE html>
-<html>
-<head>
-    <title>Booking Confirmation</title>
-    <style>
-        body { 
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            font-size: 14px;
-        }
-        .header {
-            text-align: right;
-            margin-bottom: 30px;
-        }
-        .booking-title {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            margin: 30px 0;
-        }
-        .booking-info {
-            margin: 15px 0;
-        }
-        .booking-date {
-            text-align: left;
-        }
-        .booking-reference {
-            text-align: right;
-            margin-top: 5px;
-        }
-        .details-section {
-            margin: 15px 0;
-        }
-        .details-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-        }
-        .date-column {
-            flex: 0 0 50%;
-            text-align: left;
-        }
-        .time-column {
-            flex: 0 0 50%;
-            text-align: right;
-        }
-        .booked-by {
-            margin: 20px 0;
-        }
-        .booked-by-grid {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 8px;
-            margin-top: 8px;
-        }
-        .booked-by-label {
-            font-weight: normal;
-            margin-right: 10px;
-        }
-        .motorcycle-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            font-size: 14px;
-        }
-        .motorcycle-table th, .motorcycle-table td {
-            border: 1px solid black;
-            padding: 6px;
-            text-align: left;
-        }
-        .total {
-            text-align: right;
-            margin-top: 15px;
-        }
-        .section-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div style="font-weight: bold;">ANAIA'S MOTORCYCLE RENTAL</div>
-        <div>Bacoor, Philippines</div>
-        <div>0917 623 1426</div>
-    </div>
-
-    <div class="booking-title">BOOKING CONFIRMATION</div>
-
-    <div class="booking-info">
-        <div class="booking-date">BOOKING DATE: {{ $bookingDate }}</div>
-        <div class="booking-reference">BOOKING REFERENCE: {{ $bookingReference }}</div>
-    </div>
-
-    <div class="details-section">
-        <div class="section-title">BOOKING DETAILS</div>
-        <div class="details-row">
-            <div class="date-column">Rental Start Date: {{ $rentalStartDate }}</div>
-            <div class="time-column">Pick Up: {{ $pickUp }}</div>
-        </div>
-        <div class="details-row">
-            <div class="date-column">Rental End Date: {{ $rentalEndDate }}</div>
-            <div class="time-column">Drop Off: {{ $dropOff }}</div>
-        </div>
-    </div>
-
-    <div class="booked-by">
-        <div class="section-title">BOOKED BY</div>
-        <div class="booked-by-grid">
-            <div class="booked-by-label">Name:</div>
-            <div>{{ $driverName }}</div>
-            
-            <div class="booked-by-label">Email:</div>
-            <div>{{ $email }}</div>
-            
-            <div class="booked-by-label">Phone Number:</div>
-            <div>{{ $contactNumber }}</div>
-            
-            <div class="booked-by-label">Address:</div>
-            <div>{{ $address }}</div>
-        </div>
-    </div>
-
-    <table class="motorcycle-table">
-        <tr>
-            <th>Booked Motorcycle</th>
-            <th>Duration</th>
-            <th>Daily Price</th>
-        </tr>
-        <tr>
-            <td>{{ $motorcycleName }}</td>
-            <td>{{ $duration }}</td>
-            <td>₱{{ $dailyPrice }}</td>
-        </tr>
-    </table>
-
-    <div class="total">
-        Total ₱{{ $totalAmount }}
-    </div>
-</body>
-</html> --}}
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Download Invoice</title>
 
   <style>
 *,
@@ -909,7 +765,7 @@ video {
               <td class="w-1/2 align-top">
                 <div class="text-sm text-neutral-600">
                   <p class="font-bold">{{ $driverName }}</p>
-                  <p>Contact Number: {{ $contactNumber }}</p>
+                  <p>{{ $contactNumber }}</p>
                   <p>{{ $address }}</p>
                   <p>{{ $email }}</p>
                 </div>
@@ -917,7 +773,7 @@ video {
               <td class="w-1/2 align-top text-right">
                 <div class="text-sm text-neutral-600">
                     <p class="font-bold">Anaia's Motorcycle Rental</p>
-                    <p>Contact Number: 09176231426</p>
+                    <p>09176231426</p>
                     <p>Bacoor, Philippines</p>
                     <p>jpineda132020@gmail.com</p>
                 </div>
@@ -980,10 +836,19 @@ video {
 
       <div class="px-14 text-sm text-neutral-700">
         <p class="text-main font-bold">PAYMENT DETAILS</p>
-        <p></p>
-        <p>Payment Method: {{ $paymentMethod }}</p>
-        <p>Amount Payable: {{ $totalAmount }}</p>
-        <p>Gcash Number</p>
+        @if ($paymentMethod == 'Cash')
+            <p>Payment Method: {{ $paymentMethod }}</p>
+            <p>Amount Payable: {{ $totalAmount }}</p>
+        @elseif ($paymentMethod == 'Gcash')
+            <p>Payment Method: {{ $paymentMethod }}</p>
+            <p>Amount Sent: {{ $totalAmount }}</p>
+            <p>Receipt: {{ $gcashReceipt }}</p>
+            <p>Gcash Number: {{ $gcashNumber }}</p>
+        @else
+            <p>Payment Method: {{ $paymentMethod }}</p>
+            <p>Amount Payable: {{ $totalAmount }}</p>
+        @endif
+
       </div>
 
       <div class="px-14 py-10 text-sm text-neutral-700">

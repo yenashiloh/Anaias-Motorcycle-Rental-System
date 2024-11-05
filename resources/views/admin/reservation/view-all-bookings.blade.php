@@ -211,6 +211,10 @@
                             @if ($reservation->payment_method === 'cash')
                                 <div class="ps-3">
                                     <div class="row mb-2">
+                                        <div class="col-md-2 text-muted">Payment Status:</div>
+                                        <div class="col-md-10">{{ $reservation->payment->status ?? 'N/A' }}</div>
+                                    </div>
+                                    <div class="row mb-2">
                                         <div class="col-md-2 text-muted">Total Amount:</div>
                                         <div class="col-md-10">₱{{ number_format($reservation->total, 2) }}</div>
                                     </div>
@@ -223,6 +227,10 @@
 
                             @if ($reservation->payment_method !== 'cash' && $reservation->payment)
                                 <div class="ps-3">
+                                    <div class="row mb-2">
+                                        <div class="col-md-2 text-muted">Payment Status:</div>
+                                        <div class="col-md-10">{{ $reservation->payment->status ?? 'N/A' }}</div>
+                                    </div>
                                     <div class="row mb-2">
                                         <div class="col-md-2 text-muted">Total Amount:</div>
                                         <div class="col-md-10">₱{{ number_format($reservation->total, 2) }}</div>
@@ -263,7 +271,27 @@
                                 </div>
                         </div>
                         @endif
-                        <!-- Action Buttons -->
+                       
+                        @if($reservation->violation_status === 'Violator')
+                        <div class="mb-4 mt-3">
+                            <h5 class="fw-bold mb-3 mt-5">Violations</h5>
+                            <hr>
+                            <div class="ps-3">
+                                <div class="row mb-2">
+                                    <div class="col-md-2 text-muted">Penalty Type:</div>
+                                    <div class="col-md-10">
+                                        <span>{{ $reservation->penalty->penalty_type ?? 'N/A' }}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-5">
+                                    <div class="col-md-2 text-muted">Description:</div>
+                                    <div class="col-md-10">
+                                        <span>{{ $reservation->penalty->description ?? 'N/A' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                        </div>
                     </div>
                 </div>
             </div>

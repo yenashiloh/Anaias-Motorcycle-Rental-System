@@ -150,9 +150,9 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="name">Name</label>
-                                            <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                                id="name" name="name" required 
-                                                value="{{ old('name') }}"
+                                            <input type="text"
+                                                class="form-control @error('name') is-invalid @enderror" id="name"
+                                                name="name" required value="{{ old('name') }}"
                                                 placeholder="Enter Name" />
                                             @error('name')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -162,9 +162,9 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="brand">Brand</label>
-                                            <input type="text" class="form-control @error('brand') is-invalid @enderror" 
-                                                id="brand" name="brand" required 
-                                                value="{{ old('brand') }}"
+                                            <input type="text"
+                                                class="form-control @error('brand') is-invalid @enderror" id="brand"
+                                                name="brand" required value="{{ old('brand') }}"
                                                 placeholder="Enter Brand" />
                                             @error('brand')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -174,7 +174,7 @@
                                 </div>
                             </div>
                         </div>
-                    
+
                         <!-- Vehicle Specifications Card -->
                         <div class="card mb-3">
                             <div class="card-header">
@@ -185,9 +185,9 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="model">Model</label>
-                                            <input type="text" class="form-control @error('model') is-invalid @enderror" 
-                                                id="model" name="model" required 
-                                                value="{{ old('model') }}"
+                                            <input type="text"
+                                                class="form-control @error('model') is-invalid @enderror" id="model"
+                                                name="model" required value="{{ old('model') }}"
                                                 placeholder="Enter Model" />
                                             @error('model')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -197,9 +197,8 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="cc">CC</label>
-                                            <input type="number" class="form-control @error('cc') is-invalid @enderror" 
-                                                id="cc" name="cc" required 
-                                                value="{{ old('cc') }}"
+                                            <input type="number" class="form-control @error('cc') is-invalid @enderror"
+                                                id="cc" name="cc" required value="{{ old('cc') }}"
                                                 placeholder="Enter CC" />
                                             @error('cc')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -209,14 +208,16 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="year">Year</label>
-                                            <select class="form-select form-control @error('year') is-invalid @enderror" 
+                                            <select class="form-select form-control @error('year') is-invalid @enderror"
                                                 id="year" name="year" required>
                                                 @php
                                                     $startYear = 2000;
                                                     $endYear = date('Y');
                                                 @endphp
                                                 @for ($i = $endYear; $i >= $startYear; $i--)
-                                                    <option value="{{ $i }}" {{ old('year') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                                    <option value="{{ $i }}"
+                                                        {{ old('year') == $i ? 'selected' : '' }}>{{ $i }}
+                                                    </option>
                                                 @endfor
                                             </select>
                                             @error('year')
@@ -227,9 +228,9 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="gas">Gas</label>
-                                            <input type="text" class="form-control @error('gas') is-invalid @enderror" 
-                                                id="gas" name="gas" required 
-                                                value="{{ old('gas') }}"
+                                            <input type="text"
+                                                class="form-control @error('gas') is-invalid @enderror" id="gas"
+                                                name="gas" required value="{{ old('gas') }}"
                                                 placeholder="Enter Gas Type" />
                                             @error('gas')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -239,7 +240,7 @@
                                 </div>
                             </div>
                         </div>
-                    
+
                         <!-- Additional Details Card -->
                         <div class="card mb-3">
                             <div class="card-header">
@@ -250,9 +251,9 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="color">Color</label>
-                                            <input type="text" class="form-control @error('color') is-invalid @enderror" 
-                                                id="color" name="color" required 
-                                                value="{{ old('color') }}"
+                                            <input type="text"
+                                                class="form-control @error('color') is-invalid @enderror"
+                                                id="color" name="color" required value="{{ old('color') }}"
                                                 placeholder="Enter Color" />
                                             @error('color')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -262,10 +263,10 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="body_number">Body Number</label>
-                                            <input type="text" class="form-control @error('body_number') is-invalid @enderror" 
-                                                id="body_number" name="body_number" required 
-                                                value="{{ old('body_number') }}"
-                                                placeholder="Enter Body Number" />
+                                            <input type="text"
+                                                class="form-control @error('body_number') is-invalid @enderror"
+                                                id="body_number" name="body_number" required
+                                                value="{{ old('body_number') }}" placeholder="Enter Body Number" />
                                             @error('body_number')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -274,10 +275,10 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="plate_number">Plate Number</label>
-                                            <input type="text" class="form-control @error('plate_number') is-invalid @enderror" 
-                                                id="plate_number" name="plate_number" required 
-                                                value="{{ old('plate_number') }}"
-                                                placeholder="Enter Plate Number" />
+                                            <input type="text"
+                                                class="form-control @error('plate_number') is-invalid @enderror"
+                                                id="plate_number" name="plate_number" required
+                                                value="{{ old('plate_number') }}" placeholder="Enter Plate Number" />
                                             @error('plate_number')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -286,9 +287,9 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="price">Price</label>
-                                            <input type="number" class="form-control @error('price') is-invalid @enderror" 
-                                                id="price" name="price" required 
-                                                value="{{ old('price') }}"
+                                            <input type="number"
+                                                class="form-control @error('price') is-invalid @enderror"
+                                                id="price" name="price" required value="{{ old('price') }}"
                                                 placeholder="Enter Price" />
                                             @error('price')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -298,7 +299,7 @@
                                 </div>
                             </div>
                         </div>
-                    
+
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-header">
@@ -309,10 +310,8 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="image-description">Description</label>
-                                                <textarea class="form-control @error('description') is-invalid @enderror" 
-                                                    id="image-description" rows="10" 
-                                                    placeholder="Enter description here"
-                                                    name="description" required>{{ old('description') }}</textarea>
+                                                <textarea class="form-control @error('description') is-invalid @enderror" id="image-description" rows="10"
+                                                    placeholder="Enter description here" name="description" required>{{ old('description') }}</textarea>
                                                 @error('description')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
@@ -329,18 +328,26 @@
                                                             <div class="upload-icon">
                                                                 <i class="fas fa-cloud-upload-alt"></i>
                                                             </div>
-                                                            <div class="upload-text">Click to upload or drag and drop</div>
+                                                            <div class="upload-text">Click to upload or drag and drop
+                                                            </div>
                                                         </label>
                                                     </div>
                                                     <div id="image-preview-container" class="d-flex flex-wrap">
-                                                        @if(old('image_data'))
-                                                            @foreach(old('image_data') as $index => $imageData)
+                                                        @if (old('image_data'))
+                                                            @foreach (old('image_data') as $index => $imageData)
                                                                 <div class="image-preview">
                                                                     <img src="{{ $imageData }}" alt="Preview">
-                                                                    <input type="hidden" name="image_data[]" value="{{ $imageData }}">
+                                                                    <input type="hidden" name="image_data[]"
+                                                                        value="{{ $imageData }}">
                                                                     <div class="image-actions">
-                                                                        <button type="button" class="btn btn-image-action mb-1" style="background-color:white; color:black;" onclick="replaceImage(this)">Replace</button>
-                                                                        <button type="button" class="btn btn-image-action" style="background-color:white; color:black;" onclick="removeImage(this)">Remove</button>
+                                                                        <button type="button"
+                                                                            class="btn btn-image-action mb-1"
+                                                                            style="background-color:white; color:black;"
+                                                                            onclick="replaceImage(this)">Replace</button>
+                                                                        <button type="button"
+                                                                            class="btn btn-image-action"
+                                                                            style="background-color:white; color:black;"
+                                                                            onclick="removeImage(this)">Remove</button>
                                                                     </div>
                                                                 </div>
                                                             @endforeach
@@ -359,16 +366,18 @@
                                 </div>
                             </div>
                         </div>
-                        
-                    
-                        <!-- Submit/Cancel Buttons -->
-                        <div class="card-action mt-4">
-                            <button type="submit" class="btn btn-success">Submit</button>
-                            <button type="button" class="btn btn-danger">Cancel</button>
-                        </div>
-                    </form>
+                </div>
             </div>
+
+
+            <!-- Submit/Cancel Buttons -->
+            <div class="card-action mt-4">
+                <button type="submit" class="btn btn-success">Submit</button>
+                <button type="button" class="btn btn-danger">Cancel</button>
+            </div>
+            </form>
         </div>
+    </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
@@ -382,22 +391,24 @@
     document.addEventListener('DOMContentLoaded', function() {
         const uploadInput = document.getElementById('image-upload');
         const previewContainer = document.getElementById('image-preview-container');
-        
+        const form = uploadInput.closest('form'); // Adjust according to your form structure
+
         function handleImageUpload(event) {
             const files = event.target.files;
-            
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const reader = new FileReader();
-                
+
                 reader.onload = function(e) {
                     addImagePreview(e.target.result);
                 }
-                
+
                 reader.readAsDataURL(file);
             }
+            uploadInput.value = ''; 
         }
-        
+
         function addImagePreview(imageData) {
             const previewDiv = document.createElement('div');
             previewDiv.className = 'image-preview';
@@ -411,7 +422,7 @@
             `;
             previewContainer.appendChild(previewDiv);
         }
-        
+
         window.replaceImage = function(button) {
             const input = document.createElement('input');
             input.type = 'file';
@@ -432,19 +443,28 @@
             };
             input.click();
         }
-        
+
         window.removeImage = function(button) {
             const previewDiv = button.closest('.image-preview');
             previewDiv.remove();
         }
-        
+
         uploadInput.addEventListener('change', handleImageUpload);
-        
+
         // Prevent form submission on button clicks
         document.addEventListener('click', function(event) {
             if (event.target.matches('.btn-image-action')) {
                 event.preventDefault();
             }
         });
+
+        // Disable submit button to prevent double submission
+        form.addEventListener('submit', function(event) {
+            const submitButton = event.target.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true; 
+                submitButton.innerHTML = 'Submitting...'; 
+            }
+        });
     });
-    </script>
+</script>

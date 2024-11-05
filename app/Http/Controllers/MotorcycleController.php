@@ -48,10 +48,12 @@ class MotorcycleController extends Controller
             'description' => 'required',
         ];
 
-        if ($request->hasFile('images')) {
-            $validationRules['images.*'] = 'required|image|mimes:jpeg,png,jpg,gif,webp';
-        } elseif (!$request->has('image_data')) {
+        if (!$request->hasFile('images') && !$request->has('image_data')) {
             $validationRules['images'] = 'required';
+        }
+
+        if ($request->hasFile('images')) {
+            $validationRules['images.*'] = 'image|mimes:jpeg,png,jpg,gif,webp';
         }
 
         $validated = $request->validate($validationRules, [
@@ -61,6 +63,7 @@ class MotorcycleController extends Controller
 
         $imagePaths = [];
 
+        // Handle file uploads
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('motorcycle_images', 'public');
@@ -68,24 +71,26 @@ class MotorcycleController extends Controller
             }
         }
 
-        if ($request->has('image_data')) {
+        // Handle base64 images separately, only if we don't have file uploads
+        if (empty($imagePaths) && $request->has('image_data')) {
             foreach ($request->image_data as $base64Image) {
+                // Skip if it's already a stored path
                 if (Str::startsWith($base64Image, 'motorcycle_images/')) {
                     $imagePaths[] = $base64Image;
                     continue;
                 }
 
-                try {
-                    $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64Image));
-                    
-                    $filename = 'motorcycle_images/' . uniqid() . '.png';
-                    
-                    Storage::disk('public')->put($filename, $imageData);
-                    
-                    $imagePaths[] = $filename;
-                } catch (\Exception $e) {
-                    \Log::error('Failed to process base64 image: ' . $e->getMessage());
-                    continue;
+                // Only process if it's actually a base64 image
+                if (Str::startsWith($base64Image, 'data:image')) {
+                    try {
+                        $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64Image));
+                        $filename = 'motorcycle_images/' . uniqid() . '.png';
+                        Storage::disk('public')->put($filename, $imageData);
+                        $imagePaths[] = $filename;
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to process base64 image: ' . $e->getMessage());
+                        continue;
+                    }
                 }
             }
         }
@@ -107,6 +112,7 @@ class MotorcycleController extends Controller
                 ->route('admin.motorcycles.manage-motorcycles')
                 ->with('success', 'Motorcycle created successfully!');
         } catch (\Exception $e) {
+            // Clean up any stored images if the motorcycle creation fails
             foreach ($imagePaths as $path) {
                 Storage::disk('public')->delete($path);
             }

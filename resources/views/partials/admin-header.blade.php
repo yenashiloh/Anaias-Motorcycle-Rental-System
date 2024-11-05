@@ -33,22 +33,11 @@
         <nav
           class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex"
         >
-          <div class="input-group">
-            <div class="input-group-prepend">
-              <button type="submit" class="btn btn-search pe-1">
-                <i class="fa fa-search search-icon"></i>
-              </button>
-            </div>
-            <input
-              type="text"
-              placeholder="Search ..."
-              class="form-control"
-            />
-          </div>
+          
         </nav>
 
         <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-          <li class="nav-item topbar-icon dropdown hidden-caret">
+          {{-- <li class="nav-item topbar-icon dropdown hidden-caret">
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -59,7 +48,7 @@
               aria-expanded="false"
             >
               <i class="fa fa-bell"></i>
-              {{-- <span class="notification">4</span> --}}
+              <span class="notification">4</span>
             </a>
             <ul
               class="dropdown-menu notif-box animated fadeIn"
@@ -125,7 +114,7 @@
                 </a>
               </li>
             </ul>
-          </li>
+          </li> --}}
 
           <li class="nav-item topbar-user dropdown hidden-caret">
             <a

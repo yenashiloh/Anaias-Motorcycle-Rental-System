@@ -18,7 +18,7 @@
                 <h3 class="fw-bold mb-3">Bookings Management</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
-                        <a href="{{ route('admin.admin-dashboard') }}">
+                    <a href="{{ route('admin.admin-dashboard') }}">
                             <i class="icon-home"></i>
                         </a>
                     </li>
@@ -26,7 +26,8 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}" class="fw-bold">Manage Bookings</a>
+                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}" class="fw-bold">Manage
+                            Bookings</a>
                     </li>
 
                 </ul>
@@ -51,7 +52,7 @@
                             <h4 class="card-title">List of Bookings</h4>
                             <a href="{{ route('export.reservations') }}" class="btn btn-secondary btn-round ms-auto">
                                 <i class="fas fa-file-export"></i>
-                                Export 
+                                Export
                             </a>
                         </div>
                     </div>
@@ -61,13 +62,14 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Booked Date</th>
+                                        <th>Booking Date</th>
                                         <th>Motorcycle</th>
                                         <th>Name</th>
                                         <th>Rental Start Date</th>
                                         <th>Duration</th>
                                         <th>Total Price</th>
-                                        <th>Status</th>
+                                        <th>Booking Status</th>
+                                        <th>Payment Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -75,7 +77,8 @@
                                     @foreach ($bookings as $index => $booking)
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($booking['created_at'])->format('F d, Y, g:i A') }}</td> 
+                                            <td>{{ \Carbon\Carbon::parse($booking['created_at'])->format('F d, Y, g:i A') }}
+                                            </td>
                                             <td>
                                                 <img src="{{ asset('storage/' . $booking['motorcycle_image']) }}"
                                                     alt="Motorcycle Image" style="width: 100px; height: auto;">
@@ -96,28 +99,88 @@
                                                 </span>
                                             </td>
                                             <td>
+                                                @if ($booking['payment_status'] === 'Paid')
+                                                    <span class="badge bg-success">Paid</span>
+                                                @else
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-link" type="button" 
+                                                                id="paymentStatusDropdown{{ $booking['reservation_id'] }}" 
+                                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                            @if ($booking['payment_status'] === 'Unpaid')
+                                                                <span class="badge bg-danger">Unpaid <i class="fas fa-chevron-down"></i></span>
+                                                            @elseif ($booking['payment_status'] === 'Pending')
+                                                                <span class="badge bg-warning">Pending <i class="fas fa-chevron-down"></i></span>
+                                                            @endif
+                                                        </button>
+                                                        <ul class="dropdown-menu" aria-labelledby="paymentStatusDropdown{{ $booking['reservation_id'] }}">
+                                                            @if ($booking['payment_status'] === 'Unpaid')
+                                                                <li>
+                                                                    <form action="{{ route('reservations.update-payment-status', $booking['reservation_id']) }}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="status" value="Paid">
+                                                                        <button type="submit" class="dropdown-item">Set to Paid</button>
+                                                                    </form>
+                                                                </li>
+                                                                {{-- <li>
+                                                                    <form action="{{ route('reservations.update-payment-status', $booking['reservation_id']) }}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="status" value="Pending">
+                                                                        <button type="submit" class="dropdown-item">Set to Pending</button>
+                                                                    </form>
+                                                                </li> --}}
+                                                            @elseif ($booking['payment_status'] === 'Pending')
+                                                                <li>
+                                                                    <form action="{{ route('reservations.update-payment-status', $booking['reservation_id']) }}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="status" value="Paid">
+                                                                        <button type="submit" class="dropdown-item">Set to Paid</button>
+                                                                    </form>
+                                                                </li>
+                                                                <li>
+                                                                    <form action="{{ route('reservations.update-payment-status', $booking['reservation_id']) }}" method="POST">
+                                                                        @csrf
+                                                                        <input type="hidden" name="status" value="Unpaid">
+                                                                        <button type="submit" class="dropdown-item">Set to Unpaid</button>
+                                                                    </form>
+                                                                </li>
+                                                            @endif
+                                                        </ul>
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td>
                                                 <div class="form-button-action">
                                                     @if ($booking['status'] == 'To Review')
-                                                        <form action="{{ route('reservations.approve', $booking['reservation_id']) }}" method="POST" style="display: inline;">
+                                                        <form action="{{ route('reservations.approve', $booking['reservation_id']) }}"
+                                                            method="POST" style="display: inline;">
                                                             @csrf
-                                                            <button type="submit" class="btn btn-link btn-success" data-bs-toggle="tooltip" title="Approve">
+                                                            <button type="submit" class="btn btn-link btn-success"
+                                                                data-bs-toggle="tooltip" title="Approve">
                                                                 <i class="fa fa-check"></i>
                                                             </button>
                                                         </form>
-                                                        <form action="{{ route('reservations.decline', $booking['reservation_id']) }}" method="POST" style="display: inline;">
+                                                        <form action="{{ route('reservations.decline', $booking['reservation_id']) }}"
+                                                            method="POST" style="display: inline;">
                                                             @csrf
-                                                            <button type="submit" class="btn btn-link btn-danger" data-bs-toggle="tooltip" title="Decline">
+                                                            <button type="submit" class="btn btn-link btn-danger"
+                                                                data-bs-toggle="tooltip" title="Decline">
                                                                 <i class="fa fa-times"></i>
                                                             </button>
                                                         </form>
-                                                        @elseif ($booking['status'] == 'Approved')
-                                                        <div class="dropdown" style="display: inline;">
-                                                            <button class="btn btn-link btn-info" type="button" id="dropdownMenuButton{{ $booking['reservation_id'] }}" aria-expanded="false" data-bs-toggle="tooltip" title="More Actions" onclick="toggleDropdown(event, '{{ $booking['reservation_id'] }}')">
+                                                    @elseif ($booking['status'] == 'Approved')
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-link btn-info" type="button"
+                                                                id="moreActionsDropdown{{ $booking['reservation_id'] }}"
+                                                                data-bs-toggle="dropdown"
+                                                                aria-expanded="false" 
+                                                                data-bs-tooltip="tooltip"
+                                                                title="More Actions">
                                                                 <i class="fas fa-ellipsis-h"></i>
                                                             </button>
-                                                            <ul class="dropdown-menu" id="dropdownMenu{{ $booking['reservation_id'] }}" style="display: none;">
+                                                            <ul class="dropdown-menu" aria-labelledby="moreActionsDropdown{{ $booking['reservation_id'] }}">
                                                                 <li>
-                                                                    <form action="{{ route('reservations.markOngoing', $booking['reservation_id']) }}" method="POST" class="m-0">
+                                                                    <form action="{{ route('reservations.markOngoing', $booking['reservation_id']) }}"
+                                                                        method="POST" class="m-0">
                                                                         @csrf
                                                                         <button type="submit" class="dropdown-item">
                                                                             <i class="fas fa-check"></i> Ongoing
@@ -125,7 +188,8 @@
                                                                     </form>
                                                                 </li>
                                                                 <li>
-                                                                    <form action="{{ route('reservations.cancel', $booking['reservation_id']) }}" method="POST" class="m-0">
+                                                                    <form action="{{ route('reservations.cancel', $booking['reservation_id']) }}"
+                                                                        method="POST" class="m-0">
                                                                         @csrf
                                                                         <button type="submit" class="dropdown-item">
                                                                             <i class="fas fa-times"></i> Cancel
@@ -135,12 +199,13 @@
                                                             </ul>
                                                         </div>
                                                     @endif
-                                                    <a href="{{ route('admin.reservation.view-bookings', $booking['reservation_id']) }}" class="btn btn-link btn-primary" data-bs-toggle="tooltip" title="View Bookings">
+                                                    <a href="{{ route('admin.reservation.view-bookings', $booking['reservation_id']) }}"
+                                                        class="btn btn-link btn-primary" data-bs-toggle="tooltip"
+                                                        title="View Bookings">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
                                                 </div>
                                             </td>
-                                            
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -161,25 +226,16 @@
 
 </html>
 <script>
-   function toggleDropdown(event, reservationId) {
-    event.stopPropagation(); 
-    const dropdownMenu = document.getElementById('dropdownMenu' + reservationId);
-    dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-
-    // Hide other dropdowns
-    document.querySelectorAll('.dropdown-menu').forEach(menu => {
-        if (menu.id !== dropdownMenu.id) {
-            menu.style.display = 'none';
-        }
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
     });
-}
 
-window.onclick = function(event) {
-    const dropdownMenus = document.querySelectorAll('.dropdown-menu');
-    dropdownMenus.forEach(menu => {
-        if (event.target.closest('.dropdown') === null) {
-            menu.style.display = 'none';
-        }
-    });
-}
+    // Initialize datatables
+    if ($.fn.DataTable) {
+        $("#basic-datatables").DataTable();
+    }
+})
 </script>

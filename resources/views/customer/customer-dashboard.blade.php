@@ -14,14 +14,11 @@
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        /* Smooth scrolling on iOS */
     }
 
     table.dataTable {
         width: 100%;
-        /* Ensure the table takes full width */
         margin: 0;
-        /* Reset margin for proper alignment */
     }
 
     #example tbody tr:nth-child(even) {
@@ -35,9 +32,7 @@
 </style>
 
 <body>
-
     @include('partials.customer-header')
-
     <div class="container-fluid">
         <div class="container pt-5 pb-3">
 
@@ -69,9 +64,13 @@
                                                 Duration</th>
                                             <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Total
                                                 Price</th>
-                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Status
+                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Booking
+                                                Status
                                             </th>
-                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Action
+                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Payment
+                                                Status
+                                            </th>
+                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Actions
                                             </th>
                                         </tr>
                                     </thead>
@@ -80,7 +79,8 @@
                                             <tr style="border-bottom: 1px solid #ddd;">
                                                 <td>{{ $index + 1 }}</td>
                                                 <td style="padding: 10px;">
-                                                    {{ $reservation->created_at->format('F d, Y') }}</td>
+                                                    {{ $reservation->created_at->format('F d, Y, g:i A') }}
+                                                </td>
                                                 <td style="padding: 10px;">
                                                     @if ($reservation->motorcycle && $reservation->motorcycle->images)
                                                         @php
@@ -113,12 +113,24 @@
                                                     @endphp
                                                     {{ $duration }} {{ $duration === 1 ? 'day' : 'days' }}
                                                 </td>
-
                                                 <td style="padding: 10px;">₱{{ number_format($reservation->total, 2) }}
                                                 </td>
                                                 <td style="padding: 10px;">{{ $reservation->status }}</td>
-                                                <td style="padding: 10px;"><button type="button"
-                                                        class="btn btn-warning">View</button></td>
+                                                <td style="padding: 10px;">
+                                                    {{ $reservation->payment->status ?? 'N/A' }}
+                                                </td>
+                                                <td style="padding: 10px; display: flex; align-items: center;">
+                                                    <a href="{{ route('view.history', ['reservation_id' => $reservation->reservation_id]) }}"
+                                                        data-toggle="tooltip" title="View"
+                                                        style="margin-right: 10px;">
+                                                        <i class="fas fa-eye text-secondary"></i>
+                                                    </a>
+
+                                                    <a href="{{ route('reservations.invoice', $reservation['reservation_id']) }}"
+                                                        data-toggle="tooltip" title="Download Invoice">
+                                                        <i class="fas fa-download text-success"></i>
+                                                    </a>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -157,8 +169,11 @@
     <script>
         $(document).ready(function() {
             $('#example').DataTable({
-                responsive: true // Enable responsive feature
+                responsive: true
             });
+        });
+        $(document).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
 </body>

@@ -14,12 +14,12 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Carbon\Carbon;
 
-class ReservationsExport implements FromCollection, WithHeadings, WithStyles, WithEvents 
+class OngoingExport implements FromCollection, WithHeadings, WithStyles, WithEvents 
 {
     public function collection()
     {
         return Reservation::with(['driverInformation', 'payment', 'motorcycle'])
-            ->whereIn('status', ['Approved', 'To Review']) 
+            ->whereIn('status', ['Ongoing']) 
             ->get()
             ->map(function ($reservation) {
                 $startDate = Carbon::parse($reservation->rental_start_date);
@@ -31,9 +31,10 @@ class ReservationsExport implements FromCollection, WithHeadings, WithStyles, Wi
     
                 return [
                     'Booking Date' => $createdAt->format('F j, Y, h:i A'),
+                    'Booking Status' => ucfirst($reservation->status),
+                    'Booking Reference' => $reservation->reference_id,
                     'Motorcycle Name' => $reservation->motorcycle->name, 
                     'Plate Number' => $reservation->motorcycle->plate_number, 
-                    'Booking Reference' => $reservation->reference_id,
                     'Driver Name' => $reservation->driverInformation->first_name . ' ' . $reservation->driverInformation->last_name,
                     'Email' => $reservation->driverInformation->email,
                     'Address' => $reservation->driverInformation->address,
@@ -45,7 +46,6 @@ class ReservationsExport implements FromCollection, WithHeadings, WithStyles, Wi
                     'Rental End Date' => $endDate->format('F j, Y'), 
                     'Drop Off' => $endDate->format('h:i A'), 
                     'Duration' => $durationText, 
-                    'Booking Status' => ucfirst($reservation->status),
                     'Payment Method' => ucfirst($reservation->payment_method ?? 'N/A'),
                     'GCash Number' => $reservation->payment->number ?? 'N/A', 
                     'GCash Receipt' => $reservation->payment->receipt ?? 'N/A',
@@ -59,9 +59,10 @@ class ReservationsExport implements FromCollection, WithHeadings, WithStyles, Wi
     {
         return [
             'Booking Date',
+            'Booking Status',
+            'Booking Reference',
             'Booked Motorcycle',
             'Plate Number',
-            'Booking Reference',
             'Driver Name',
             'Email',
             'Address',
@@ -73,7 +74,6 @@ class ReservationsExport implements FromCollection, WithHeadings, WithStyles, Wi
             'Rental End Date',
             'Drop Off',
             'Duration',
-            'Booking Status',
             'Payment Method',
             'GCash Number',
             'GCash Receipt',

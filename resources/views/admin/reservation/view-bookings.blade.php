@@ -211,6 +211,10 @@
                             @if ($reservation->payment_method === 'cash')
                                 <div class="ps-3">
                                     <div class="row mb-2">
+                                        <div class="col-md-2 text-muted">Payment Status:</div>
+                                        <div class="col-md-10">{{ $reservation->payment->status ?? 'N/A' }}</div>
+                                    </div>
+                                    <div class="row mb-2">
                                         <div class="col-md-2 text-muted">Total Amount:</div>
                                         <div class="col-md-10">₱{{ number_format($reservation->total, 2) }}</div>
                                     </div>
@@ -223,6 +227,10 @@
 
                             @if ($reservation->payment_method !== 'cash' && $reservation->payment)
                                 <div class="ps-3">
+                                     <div class="row mb-2">
+                                        <div class="col-md-2 text-muted">Payment Status:</div>
+                                        <div class="col-md-10">{{ $reservation->payment->status ?? 'N/A' }}</div>
+                                    </div>
                                     <div class="row mb-2">
                                         <div class="col-md-2 text-muted">Total Amount:</div>
                                         <div class="col-md-10">₱{{ number_format($reservation->total, 2) }}</div>

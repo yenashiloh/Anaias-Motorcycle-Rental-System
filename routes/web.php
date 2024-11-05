@@ -7,10 +7,13 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\BookingsController;
 use App\Http\Controllers\MotorcycleController;
+use App\Http\Controllers\PenaltyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Middleware\PreventBackHistory;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReservationsExport;
+use App\Exports\OngoingExport;
+use App\Exports\AllBookingsExport;
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 
@@ -31,7 +34,8 @@ Route::get('/admin/admin-login', [AdminLoginController::class, 'showLoginForm'])
 Route::post('admin/admin-login', [AdminLoginController::class, 'loginDashboard'])->middleware(\App\Http\Middleware\PreventBackHistory::class);
 
 Route::get('/motorcycles/search', [HomeController::class, 'search'])->name('motorcycles.search');
-
+   
+Route::get('/reservations/invoice/{reservationId}', [BookingsController::class, 'generateInvoice'])->name('reservations.invoice');
 
 //Motorcycle Customer
 Route::get('/motorcycle/details/{id}', [HomeController::class, 'viewDetailsMotorcycle'])->name('motorcycle.details-motorcycle');
@@ -46,6 +50,7 @@ Route::middleware([PreventBackHistory::class, 'customer'])->group(function () {
     Route::post('/payment/process', [HomeController::class, 'processPayment'])->name('payment.process');
     Route::get('/reservation/confirmation/{reservation_id}', [HomeController::class, 'confirmation'])->name('reservation.confirmation');
     Route::get('/reservation/success/{reservation_id}', [HomeController::class, 'showSuccessPage'])->name('motorcycle.success');
+    Route::get('/view-history/{reservation_id}', [HomeController::class, 'viewHistory'])->name('view.history');
 
     //Dashboard
     Route::get('/customer/dashboard', [CustomerDashboardController::class, 'viewDashboard'])->name('customer.customer-dashboard');
@@ -84,10 +89,20 @@ Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
     Route::post('reservations/mark-ongoing/{reservation}', [BookingsController::class, 'markOngoing'])->name('reservations.markOngoing');
     Route::post('reservations/completed/{reservation}', [BookingsController::class, 'completed'])->name('reservations.completed');
 
-   
-    Route::get('/reservations/invoice/{reservationId}', [BookingsController::class, 'generateInvoice'])->name('reservations.invoice');
+    Route::post('reservations/update-payment-status/{reservation_id}', [BookingsController::class, 'updatePaymentStatus'])->name('reservations.update-payment-status');
+
+    Route::post('/penalties', [PenaltyController::class, 'storePenalty'])->name('penalties.store');
+    Route::get('/reservation/penalties', [PenaltyController::class, 'showPenaltiesPage'])->name('admin.reservation.penalties');
 
     Route::get('/export-reservations', function () {
-        return Excel::download(new ReservationsExport, 'reservations.xlsx');
+        return Excel::download(new ReservationsExport, 'bookings.xlsx');
     })->name('export.reservations');
+
+    Route::get('/export-ongoing-export', function () {
+        return Excel::download(new OngoingExport, 'ongoing-bookings.xlsx');
+    })->name('export.ongoing-bookings');
+
+    Route::get('/export-all-bookings-record', function () {
+        return Excel::download(new AllBookingsExport, 'all-bookings-record.xlsx');
+    })->name('export.all-bookings-record');
 });

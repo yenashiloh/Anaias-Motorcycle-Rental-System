@@ -48,7 +48,6 @@
                         <h6 class="text-white text-center" id="rentalDays"></h6>
                         <h4 class="text-white text-center fw-bold mb-4" id="rentalPrice"></h4>
                         <hr>
-                        {{-- <h4 class="text-white mb-4 text-center"> MOTORCYCLE RESERVATION</h4> --}}
                         <form action="{{ route('reservation.details') }}" method="GET">
                             <input type="hidden" name="motorcycle_id" value="{{ $motorcycle->motor_id }}">
                             <div class="row g-3">
@@ -181,6 +180,15 @@
         var today = moment().startOf('day');
         var tomorrow = moment(today).add(1, 'days');
         var motorcyclePrice = <?php echo json_encode($motorcycle->price); ?>;
+        var reservedDates = <?php echo json_encode($reservedDates); ?>;
+
+        function isDateReserved(date) {
+            return reservedDates.some(function(reservation) {
+                var start = moment(reservation.start);
+                var end = moment(reservation.end);
+                return date.isBetween(start, end, 'day', '[]'); // [] means inclusive
+            });
+        }
 
         function updateRentalInfo(start, end) {
             var days = end.diff(start, 'days');
@@ -201,11 +209,38 @@
                 format: 'DD/MM/YYYY'
             },
             minDate: today,
+            isInvalidDate: function(date) {
+                return isDateReserved(date);
+            }
         });
 
         updateRentalInfo(today, tomorrow);
 
         $('#dateRangePicker').on('apply.daterangepicker', function(ev, picker) {
+            var start = picker.startDate;
+            var end = picker.endDate;
+            var hasConflict = false;
+
+            var current = moment(start);
+            while (current.isSameOrBefore(end, 'day')) {
+                if (isDateReserved(current)) {
+                    hasConflict = true;
+                    break;
+                }
+                current.add(1, 'day');
+            }
+
+            if (hasConflict) {
+                Swal.fire({
+                    title: 'Date Not Available',
+                    text: 'One or more selected dates are already reserved. Please choose different dates.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6'
+                });
+                return;
+            }
+
             updateRentalInfo(picker.startDate, picker.endDate);
         });
 
@@ -213,7 +248,7 @@
             updateRentalInfo(today, tomorrow);
         });
 
-        $('#dateRangePicker').prop('readonly', false);
+        $('#dateRangePicker').prop('readonly', true);
     });
 
     //pick up and drop off

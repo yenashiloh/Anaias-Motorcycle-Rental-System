@@ -57,12 +57,13 @@
                         </span>
                         <h4 class="text-section">Reservation Management</h4>
                     </li>
-                    <li class="nav-item">
+
+                    {{-- <li class="nav-item">
                         <a href="#sidebarLayouts">
                             <i class="fas fa-users"></i>
                             <p>Customers</p>
                         </a>
-                    </li>
+                    </li> --}}
                     <li class="nav-item {{ request()->routeIs('admin.reservation.bookings', 'admin.reservation.view-bookings') ? 'active' : '' }}">
                         <a href="{{ route('admin.reservation.bookings') }}">
                             <i class="fas fa-calendar"></i>
@@ -79,6 +80,12 @@
                         <a href="{{ route('admin.reservation.all-bookings-record') }}">
                             <i class="fas fa-clipboard-list"></i>
                             <p>All Bookings Record</p>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ request()->routeIs('admin.reservation.penalties') ? 'active' : '' }}">
+                        <a href="{{ route('admin.reservation.penalties') }}">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Penalties</p>
                         </a>
                     </li>
                 </ul>

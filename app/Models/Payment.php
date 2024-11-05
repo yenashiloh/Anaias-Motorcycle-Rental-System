@@ -23,6 +23,7 @@ class Payment extends Model
         'receipt',
         'amount',
         'image',
+        'status'
     ];
 
     public function customer()

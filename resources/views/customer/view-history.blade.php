@@ -29,19 +29,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <div class="text-center mb-4">
-                        <div class="check-circle">
-                            <svg class="check-mark" viewBox="0 0 52 52">
-                                <path d="M14 27l7.8 7.8L38 14" />
-                            </svg>
-                        </div>
-                        <h4 class="fw-bold">Reservation Successfully!</h4>
-                        <p class="fw-bold mb-4">Please wait for admin confirmation. You'll be notified once approved.
-                            Thank
-                            you!</p>
-                    </div>
-                    <br>
+
                     @if ($isCustomerLoggedIn)
+                        <a href="{{ route('customer.customer-dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+
 
                         <div class="col-md-12">
                             <div class="bg-light-blue text-dark rounded p-3 mt-5">
@@ -51,6 +44,7 @@
 
                             </div>
                         </div>
+
                         <div class="row align-items-center mt-2">
                             <div class="col-md-6">
                                 <h5 class="fw-bold mb-0 mt-5">Driver Information</h5>
@@ -139,6 +133,7 @@
                     </div>
                 </div>
 
+
                 <!-- Motorbike Details Section -->
                 <div class="mb-4">
                     <h5 class="fw-bold mb-3 mt-5">Motorbike Details</h5>
@@ -172,6 +167,12 @@
                                 <div class="row mb-2">
                                     <div class="col-md-3 fw-bold">Color:</div>
                                     <div class="col-md-8">{{ $reservation->motorcycle->color }}</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-md-3 fw-bold">Daily Price:</div>
+                                    <div class="col-md-8">₱{{ number_format($reservation->motorcycle->price, 2) }}
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -249,18 +250,29 @@
                 </div>
                 @endif
 
-                <br>
-                <div class="d-flex justify-content-between">
-                    <!-- Left-aligned Button -->
-                    <div class="text-start">
-                        <a href="{{ route('customer.customer-dashboard') }}" class="btn btn-primary p-2 mt-4">
-                            Go to History Booking
-                        </a>
-                    </div>
-                </div>
+                @if ($reservation->violation_status === 'Violator')
+                    <div class="mb-4 mt-3">
+                        <h5 class="fw-bold mb-3 mt-5 text-danger">Violations</h5>
+                        <hr>
+                        <div class="ps-3">
+                            <div class="row mb-2">
+                                <div class="col-md-2 fw-bold">Penalty Type:</div>
+                                <div class="col-md-10">
+                                    <span>{{ $reservation->penalty->penalty_type ?? 'N/A' }}</span>
+                                </div>
+                            </div>
+                            <div class="row mb-5">
+                                <div class="col-md-2 fw-bold">Description:</div>
+                                <div class="col-md-10">
+                                    <span>{{ $reservation->penalty->description ?? 'N/A' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                @endif
             </div>
         </div>
         @endif
+        </div>
         <br>
     </section>
 

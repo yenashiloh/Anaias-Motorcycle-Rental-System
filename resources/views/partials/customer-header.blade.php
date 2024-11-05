@@ -66,6 +66,20 @@
                                     aria-expanded="false">
                                     <i class="fas fa-bell notification-bell" style="color: black;"></i>
                                     <span class="visually-hidden">unread notifications</span>
+                                    <!-- Notification Count Badge -->
+                                    <span
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                        style="color: white; 
+                                             min-width: 20px; 
+                                             height: 20px; 
+                                             padding: 0 6px; 
+                                             display: flex; 
+                                             align-items: center; 
+                                             justify-content: center; 
+                                             font-size: 0.75rem;">
+                                        1
+                                        <span class="visually-hidden">unread notifications</span>
+                                    </span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
                                     <li>
@@ -97,6 +111,7 @@
                                 </ul>
                             </div>
 
+
                             <!-- User Dropdown -->
                             <div class="me-3 position-relative">
                                 <a href="#" id="userDropdown" role="button" data-bs-toggle="dropdown"
@@ -115,7 +130,8 @@
                                             <hr class="dropdown-divider">
                                         </li>
                                     @endif
-                                    <li><a class="dropdown-item" href="{{ route('customer.customer-dashboard')}}">History Bookings</a></li>
+                                    <li><a class="dropdown-item"
+                                            href="{{ route('customer.customer-dashboard') }}">History Bookings</a></li>
                                     <li><a class="dropdown-item" href="">Settings</a></li>
                                     <li>
                                         <hr class="dropdown-divider">

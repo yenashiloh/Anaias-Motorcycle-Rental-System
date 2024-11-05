@@ -23,6 +23,7 @@ class Reservation extends Model
         'riding',
         'total',
         'motor_id',
+        'violation_status',
     ];
 
     public function customer()
@@ -40,8 +41,15 @@ class Reservation extends Model
         return $this->hasOne(Payment::class, 'reservation_id');
     }
 
-    public function driverInformation() // Add a relationship to DriverInformation
+    public function driverInformation() 
     {
-        return $this->belongsTo(DriverInformation::class, 'driver_id');
+        // Change this to use driver_id directly
+        return $this->belongsTo(DriverInformation::class, 'driver_id', 'driver_id');
+    }
+
+
+    public function penalty()
+    {
+        return $this->belongsTo(Penalty::class, 'reservation_id', 'reservation_id');
     }
 }
