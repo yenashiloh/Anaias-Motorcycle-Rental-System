@@ -391,7 +391,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const uploadInput = document.getElementById('image-upload');
         const previewContainer = document.getElementById('image-preview-container');
-        const form = uploadInput.closest('form'); // Adjust according to your form structure
+        const form = uploadInput.closest('form'); 
 
         function handleImageUpload(event) {
             const files = event.target.files;
@@ -451,14 +451,12 @@
 
         uploadInput.addEventListener('change', handleImageUpload);
 
-        // Prevent form submission on button clicks
         document.addEventListener('click', function(event) {
             if (event.target.matches('.btn-image-action')) {
                 event.preventDefault();
             }
         });
 
-        // Disable submit button to prevent double submission
         form.addEventListener('submit', function(event) {
             const submitButton = event.target.querySelector('button[type="submit"]');
             if (submitButton) {
