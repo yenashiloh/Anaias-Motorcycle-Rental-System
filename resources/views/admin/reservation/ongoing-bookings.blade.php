@@ -26,7 +26,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}">Ongoing Bookings</a>
+                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}" class="fw-bold">Ongoing Bookings</a>
                     </li>
 
                 </ul>

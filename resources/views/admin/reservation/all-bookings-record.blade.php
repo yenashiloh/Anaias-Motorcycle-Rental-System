@@ -26,7 +26,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}">All Bookings Record</a>
+                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}" class="fw-bold">All Bookings Record</a>
                     </li>
 
                 </ul>
@@ -157,16 +157,32 @@
                             <input type="hidden" id="driver_id" name="driver_id">
                             
                             <div class="mb-3">
-                                <label for="penalty_type" class="form-label fw-bold">Penalty Type</label>
+                                <label for="penalty_type" class="form-label fw-bold">
+                                    Penalty Type
+                                    <span style="color: red;">*</span> 
+                                </label>
                                 <input type="text" class="form-control" id="penalty_type" name="penalty_type" required>
                             </div>
+                            
                             <div class="mb-3">
-                                <label for="description" class="form-label fw-bold">Description</label>
+                                <label for="additional_payment" class="form-label fw-bold">
+                                    Additional Payment
+                                    <span style="color: red;">*</span> 
+                                </label>
+                                <input type="number" class="form-control" id="additional_payment" name="additional_payment" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label fw-bold">
+                                    Description
+                                    <span style="color: red;">*</span> 
+                                </label>
                                 <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
                             </div>
+                            
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">Add Penalty</button>
                         </div>
                     </form>

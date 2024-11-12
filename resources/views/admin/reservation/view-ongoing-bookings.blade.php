@@ -43,7 +43,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('admin.reservation.ongoing-bookings') }}">All Bookings Record</a>
+                        <a href="{{ route('admin.reservation.ongoing-bookings') }}"> Ongoing Bookings</a>
                     </li>
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
@@ -142,17 +142,17 @@
 
                                 <div class="row mb-2">
                                     <div class="col-md-5">
-                                        <div class="col-md-2 text-muted">Pick-up</div>
+                                        <div class="col-md-2 fw-bold">Pick-up</div>
                                         <div class="mt-2">
                                             {{ Carbon\Carbon::parse($reservation->rental_start_date)->format('M. d, Y') }}<br>
-                                            <span>{{ Carbon\Carbon::parse($reservation->rental_start_date)->format('h:i A') }}</span>
+                                            <span>{{ Carbon\Carbon::parse($reservation->pick_up)->format('h:i A') }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-5">
-                                        <div class="col-md-2 text-muted">Drop-off</div>
+                                        <div class="col-md-2 fw-bold">Drop-off</div>
                                         <div class="mt-2">
                                             {{ Carbon\Carbon::parse($reservation->rental_end_date)->format('M. d, Y') }}<br>
-                                            <span>{{ Carbon\Carbon::parse($reservation->rental_end_date)->format('h:i A') }}</span>
+                                            <span>{{ Carbon\Carbon::parse($reservation->drop_off)->format('h:i A') }}</span>
                                         </div>
                                     </div>
                                 </div>

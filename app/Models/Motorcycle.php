@@ -24,7 +24,13 @@ use HasFactory;
         'price',
         'description',
         'images',
-        'status'
+        'status',
+        'engine_status', 
+        'brake_status', 
+        'tire_condition', 
+        'oil_status', 
+        'lights_status', 
+        'overall_condition'
     ];
 
     

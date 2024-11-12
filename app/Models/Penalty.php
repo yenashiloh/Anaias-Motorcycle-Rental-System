@@ -21,6 +21,7 @@ class Penalty extends Model
         'driver_id',
         'penalty_type',
         'description',
+        'additional_payment'
     ];
 
     public function reservation()

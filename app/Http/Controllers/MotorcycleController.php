@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Admin;
 use App\Models\Motorcycle;
+use App\Models\Reservation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 
 class MotorcycleController extends Controller
 {
-    //show manage motorcycles admin
+    //show manage motorcycles admin page
     public function showManageMotorcycles(Request $request)
     {
         if (!Auth::guard('admin')->check()) {
@@ -20,11 +22,23 @@ class MotorcycleController extends Controller
         }
     
         $admin = Auth::guard('admin')->user();
-        $motorcycles = Motorcycle::all();
+        $motorcycles = Motorcycle::whereIn('status', ['Available', 'Not Available'])->get();
         return view('admin.motorcycles.manage-motorcycles', compact('admin', 'motorcycles'));
     }
     
+    //show motorcycle maintenance page
+    public function showMotorcycleMaintenance(Request $request)
+    {
+        if (!Auth::guard('admin')->check()) {
+            return redirect()->route('admin.admin-login');
+        }
+    
+        $admin = Auth::guard('admin')->user();
+        $motorcycles = Motorcycle::whereIn('status', ['Maintenance'])->get();
+        return view('admin.motorcycles.maintenance-motorcycles', compact('admin', 'motorcycles'));
+    }
 
+    //show add motorcycle page
     public function showaddMotorcycles()
     {
         $admin = Auth::guard('admin')->user();
@@ -190,7 +204,6 @@ class MotorcycleController extends Controller
         $updatedImages = [];
         $errors = [];
     
-        // Process existing images
         foreach ($existingImages as $index => $image) {
             try {
                 if (in_array($index, $request->input('removed_images', []))) {
@@ -240,19 +253,129 @@ class MotorcycleController extends Controller
     {
         $admin = Auth::guard('admin')->user();
         $motorcycle = Motorcycle::findOrFail($motor_id);
-        return view('admin.motorcycles.view-motorcycle', compact('admin', 'motorcycle'));
+    
+        $bookings = Reservation::with(['motorcycle', 'driverInformation', 'payment'])
+            ->where('motor_id', $motor_id) 
+            ->whereIn('status', ['To Review', 'Approved', 'Declined', 'Completed', 'Ongoing'])
+            ->get()
+            ->map(function ($reservation) {
+                $startDate = Carbon::parse($reservation->rental_start_date);
+                $endDate = Carbon::parse($reservation->rental_end_date);
+                $duration = $startDate->diffInDays($endDate) ?: 1;
+    
+                $images = json_decode($reservation->motorcycle->images, true);
+                $firstImage = $images[0] ?? 'images/placeholder.jpg';
+    
+                $paymentStatus = $reservation->payment->status ?? 'Pending'; 
+    
+                $driverName = $reservation->driverInformation 
+                    ? $reservation->driverInformation->first_name . ' ' . $reservation->driverInformation->last_name
+                    : 'N/A';
+    
+                return [
+                    'reservation_id' => $reservation->reservation_id,
+                    'created_at' => $reservation->created_at,
+                    'driver_name' => $driverName,
+                    'rental_start_date' => $reservation->rental_start_date,
+                    'duration' => $duration . ' ' . ((int)$duration === 1 ? 'day' : 'days'),
+                    'total' => $reservation->total,
+                    'motorcycle_image' => $firstImage,
+                    'status' => $reservation->status ?? 'To Review',
+                    'payment_status' => $paymentStatus,
+                ];
+            });
+    
+        return view('admin.motorcycles.view-motorcycle', compact('admin', 'motorcycle', 'bookings'));
     }
+    
+    
 
+
+    //update the status of motorcycle
     public function updateStatus(Request $request, $motor_id)
     {
         if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.admin-login');
         }
-
+    
         $motorcycle = Motorcycle::findOrFail($motor_id);
+        $oldStatus = $motorcycle->status; 
+    
+        if ($oldStatus === 'Maintenance' && $request->input('status') === 'Available') {
+            $fields = [
+                'engine_status', 
+                'brake_status', 
+                'tire_condition', 
+                'oil_status', 
+                'lights_status', 
+                'overall_condition'
+            ];
+    
+            foreach ($fields as $field) {
+                if ($motorcycle->$field !== 1) {
+                    return redirect()->back()->withErrors([
+                        'status' => 'All the checkboxes need to be checked to set them to be available.'
+                    ]);
+                }
+            }
+    
+            $motorcycle->engine_status = 0;
+            $motorcycle->brake_status = 0;
+            $motorcycle->tire_condition = 0;
+            $motorcycle->oil_status = 0;
+            $motorcycle->lights_status = 0;
+            $motorcycle->overall_condition = 0;
+        }
+    
         $motorcycle->status = $request->input('status');
         $motorcycle->save();
-
+    
+        $referrer = $request->headers->get('referer');
+    
+        if (strpos($referrer, 'maintenance') !== false) {
+            return redirect()->route('admin.motorcycles.maintenance-motorcycles')->with('success', 'Motorcycle Status Updated Successfully!');
+        }
+    
         return redirect()->route('admin.motorcycles.manage-motorcycles')->with('success', 'Motorcycle Status Updated Successfully!');
+    }
+    
+    //update the motorcycle maintenance
+    public function updateMotorcycleMaintenance(Request $request, $motorcycleId)
+    {
+        try {
+            $motorcycle = Motorcycle::findOrFail($motorcycleId);
+            $field = $request->input('field');
+            $status = $request->input($field);
+    
+            $allowedFields = [
+                'engine_status',
+                'brake_status',
+                'tire_condition',
+                'oil_status',
+                'lights_status',
+                'overall_condition'
+            ];
+
+            if (in_array($field, $allowedFields)) {
+                $motorcycle->$field = $status;
+                $motorcycle->save();
+    
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Maintenance status updated successfully'
+                ]);
+            }
+    
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid field'
+            ], 400);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating maintenance status'
+            ], 500);
+        }
     }
 }

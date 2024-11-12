@@ -64,23 +64,29 @@ Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
     Route::get('/motorcycles/manage-motorcycles', [MotorcycleController::class, 'showManageMotorcycles'])->name('admin.motorcycles.manage-motorcycles');
     Route::post('/motorcycles/update-status/{motor_id}', [MotorcycleController::class, 'updateStatus'])->name('admin.motorcycles.update-status');
     Route::post('motorcycles', [MotorcycleController::class, 'store'])->name('motorcycles.store');
-    Route::get('/motorcycles/add-motorcycles', [MotorcycleController::class, 'showaddMotorcycles'])->name('admin.motorcycles.add-motorcycle');
+    Route::get('/motorcycles/manage-motorcycles/add-motorcycles', [MotorcycleController::class, 'showaddMotorcycles'])->name('admin.motorcycles.add-motorcycle');
     Route::delete('/motorcycles/{id}', [MotorcycleController::class, 'destroy'])->name('motorcycles.destroy');
-    Route::get('edit-motorcycle/{motor_id}', [MotorcycleController::class, 'edit'])->name('admin.motorcycles.edit-motorcycle');
+    Route::get('motorcycles/manage-motorcycles/edit-motorcycle/{motor_id}', [MotorcycleController::class, 'edit'])->name('admin.motorcycles.edit-motorcycle');
     Route::put('/motorcycles/{motor_id}', [MotorcycleController::class, 'update'])->name('admin.motorcycles.update');
-    Route::get('/view-motorcycle/{motor_id}', [MotorcycleController::class, 'viewMotorcycle'])->name('admin.motorcycles.view-motorcycle');
+    Route::get('motorcycles/manage-motorcycles/view-motorcycle/{motor_id}', [MotorcycleController::class, 'viewMotorcycle'])->name('admin.motorcycles.view-motorcycle');
     Route::post('/logout', [AdminLoginController::class, 'logoutAdmin'])->name('logout');
+
+    Route::get('/motorcycles/maintenance', [MotorcycleController::class, 'showMotorcycleMaintenance'])->name('admin.motorcycles.maintenance-motorcycles');
+    Route::post('/admin/motorcycles/update-maintenance/{motorcycleId}', [MotorcycleController::class, 'updateMotorcycleMaintenance'])->name('admin.motorcycles.update-maintenance');
+
 
     //bookings
     Route::get('/reservation/bookings', [BookingsController::class, 'showBookings'])->name('admin.reservation.bookings');
-    Route::get('/bookings/view/{id}', [BookingsController::class, 'viewBookings'])->name('admin.reservation.view-bookings');
+    Route::get('reservation/bookings/view/{id}', [BookingsController::class, 'viewBookings'])->name('admin.reservation.view-bookings');
 
     //all bookings record
     Route::get('/reservation/all-bookings-record', [BookingsController::class, 'showAllBookings'])->name('admin.reservation.all-bookings-record');
-    Route::get('/all-bookings-record/view/{id}', [BookingsController::class, 'viewAllBookingsRecord'])->name('admin.reservation.view-all-bookings');
+    Route::get('/reservation/all-bookings-record/view/{id}', [BookingsController::class, 'viewAllBookingsRecord'])->name('admin.reservation.view-all-bookings');
 
     Route::get('/reservation/ongoing-bookings', [BookingsController::class, 'showOngoingBookings'])->name('admin.reservation.ongoing-bookings');
-    Route::get('/ongoing-bookings/view/{id}', [BookingsController::class, 'viewOngoingBookings'])->name('admin.reservation.view-ongoing-bookings');
+    Route::get('/reservation/ongoing-bookings/view/{id}', [BookingsController::class, 'viewOngoingBookings'])->name('admin.reservation.view-ongoing-bookings');
+
+    Route::get('/motorcycles/manage-motorcycles/view-motorcycle/view-booking/{id}', [BookingsController::class, 'viewBookingSpecific'])->name('admin.reservation.view-bookings-specific');
 
     //change status
     Route::post('reservations/approve/{id}', [BookingsController::class, 'approve'])->name('reservations.approve');
@@ -105,4 +111,6 @@ Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
     Route::get('/export-all-bookings-record', function () {
         return Excel::download(new AllBookingsExport, 'all-bookings-record.xlsx');
     })->name('export.all-bookings-record');
+
+  
 });

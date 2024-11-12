@@ -48,7 +48,7 @@
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
                     </li>
-                    <li class="nav-item" >
+                    <li class="nav-item">
                         <a href="" class="fw-bold">View Booking Record</a>
                     </li>
                 </ul>
@@ -142,17 +142,17 @@
 
                                 <div class="row mb-2">
                                     <div class="col-md-5">
-                                        <div class="col-md-2 text-muted">Pick-up</div>
+                                        <div class="col-md-2 fw-bold">Pick-up</div>
                                         <div class="mt-2">
                                             {{ Carbon\Carbon::parse($reservation->rental_start_date)->format('M. d, Y') }}<br>
-                                            <span>{{ Carbon\Carbon::parse($reservation->rental_start_date)->format('h:i A') }}</span>
+                                            <span>{{ Carbon\Carbon::parse($reservation->pick_up)->format('h:i A') }}</span>
                                         </div>
                                     </div>
                                     <div class="col-md-5">
-                                        <div class="col-md-2 text-muted">Drop-off</div>
+                                        <div class="col-md-2 fw-bold">Drop-off</div>
                                         <div class="mt-2">
                                             {{ Carbon\Carbon::parse($reservation->rental_end_date)->format('M. d, Y') }}<br>
-                                            <span>{{ Carbon\Carbon::parse($reservation->rental_end_date)->format('h:i A') }}</span>
+                                            <span>{{ Carbon\Carbon::parse($reservation->drop_off)->format('h:i A') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -271,31 +271,37 @@
                                 </div>
                         </div>
                         @endif
-                       
-                        @if($reservation->violation_status === 'Violator')
-                        <div class="mb-4 mt-3">
-                            <h5 class="fw-bold mb-3 mt-5">Violations</h5>
-                            <hr>
-                            <div class="ps-3">
-                                <div class="row mb-2">
-                                    <div class="col-md-2 text-muted">Penalty Type:</div>
-                                    <div class="col-md-10">
-                                        <span>{{ $reservation->penalty->penalty_type ?? 'N/A' }}</span>
+
+                        @if ($reservation->violation_status === 'Violator')
+                            <div class="mb-4 mt-3">
+                                <h5 class="fw-bold mb-3 mt-5 text-danger">Violations</h5>
+                                <hr>
+                                <div class="ps-3">
+                                    <div class="row mb-2">
+                                        <div class="col-md-3 text-muted">Penalty Type:</div>
+                                        <div class="col-md-6">
+                                            <span>{{ $reservation->penalty->penalty_type ?? 'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-md-3 text-muted">Additional Payment:</div>
+                                        <div class="col-md-6">
+                                            <span>{{ isset($reservation->penalty->additional_payment) ? '₱' . number_format($reservation->penalty->additional_payment, 2) : 'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-5">
+                                        <div class="col-md-3 text-muted">Description:</div>
+                                        <div class="col-md-6">
+                                            <span>{{ $reservation->penalty->description ?? 'N/A' }}</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row mb-5">
-                                    <div class="col-md-2 text-muted">Description:</div>
-                                    <div class="col-md-10">
-                                        <span>{{ $reservation->penalty->description ?? 'N/A' }}</span>
-                                    </div>
-                                </div>
-                            </div>
                         @endif
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     @include('partials.admin-footer')
 </body>

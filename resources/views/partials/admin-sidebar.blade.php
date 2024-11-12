@@ -6,7 +6,7 @@
             <div class="logo-header" data-background-color="white">
                 <a href="index.html" class="logo mt-3">
 
-                    <img src="../../assets/img/logo.png" alt="navbar brand" class="navbar-brand" height="60" />
+                    <img src="../../../../assets/img/logo.png" alt="navbar brand" class="navbar-brand" height="60" />
                 </a>
                 <div class="nav-toggle">
                     <button class="btn btn-toggle toggle-sidebar">
@@ -50,6 +50,13 @@
                             <p>Motorcycles</p>
                         </a>
                     </li>
+                    <li
+                    class="nav-item {{ request()->routeIs('admin.motorcycles.maintenance-motorcycles', 'admin.reservation.view-bookings-specific') ? 'active' : '' }}">
+                    <a href="{{ route('admin.motorcycles.maintenance-motorcycles') }}">
+                        <i class="fa fa-wrench"></i>
+                        <p>Motorcycle Maintenance</p>
+                    </a>
+                </li>
                   
                     <li class="nav-section">
                         <span class="sidebar-mini-icon">

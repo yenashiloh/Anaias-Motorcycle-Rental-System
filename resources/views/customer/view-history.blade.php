@@ -261,6 +261,12 @@
                                     <span>{{ $reservation->penalty->penalty_type ?? 'N/A' }}</span>
                                 </div>
                             </div>
+                            <div class="row mb-2">
+                                <div class="col-md-2 fw-bold">Additional Payment:</div>
+                                <div class="col-md-10">
+                                    <span>{{ isset($reservation->penalty->additional_payment) ? '₱' . number_format($reservation->penalty->additional_payment, 2) : 'N/A' }}</span>
+                                </div>
+                            </div>
                             <div class="row mb-5">
                                 <div class="col-md-2 fw-bold">Description:</div>
                                 <div class="col-md-10">
