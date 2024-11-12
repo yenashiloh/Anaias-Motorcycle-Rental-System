@@ -34,7 +34,7 @@ Route::get('/admin/admin-login', [AdminLoginController::class, 'showLoginForm'])
 Route::post('admin/admin-login', [AdminLoginController::class, 'loginDashboard'])->middleware(\App\Http\Middleware\PreventBackHistory::class);
 
 Route::get('/motorcycles/search', [HomeController::class, 'search'])->name('motorcycles.search');
-   
+
 Route::get('/reservations/invoice/{reservationId}', [BookingsController::class, 'generateInvoice'])->name('reservations.invoice');
 
 //Motorcycle Customer
@@ -55,10 +55,10 @@ Route::middleware([PreventBackHistory::class, 'customer'])->group(function () {
     //Dashboard
     Route::get('/customer/dashboard', [CustomerDashboardController::class, 'viewDashboard'])->name('customer.customer-dashboard');
 
-    
+
 });
 
-//ADMIN SIDE 
+//ADMIN SIDE
 Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
     Route::get('admin-dashboard', [AdminDashboardController::class, 'showAdminDashboard'])->name('admin.admin-dashboard');
     Route::get('/motorcycles/manage-motorcycles', [MotorcycleController::class, 'showManageMotorcycles'])->name('admin.motorcycles.manage-motorcycles');

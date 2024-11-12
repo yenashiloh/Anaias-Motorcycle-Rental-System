@@ -148,8 +148,8 @@
                         <dt class="col-2">Color:</dt>
                         <dd class="col-9">{{ $motorcycle->color }}</dd>
 
-                        <dt class="col-2">Body Number:</dt>
-                        <dd class="col-9">{{ $motorcycle->body_number }}</dd>
+                        <!-- <dt class="col-2">Body Number:</dt>
+                        <dd class="col-9">{{ $motorcycle->body_number }}</dd> -->
 
                     </div>
                 </div>
