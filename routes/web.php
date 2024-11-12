@@ -59,7 +59,6 @@ Route::middleware([PreventBackHistory::class, 'customer'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead']);
 
-
 });
 
 //ADMIN SIDE 
