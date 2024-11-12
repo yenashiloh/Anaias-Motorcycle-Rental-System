@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>View Bookings</title>
+    <title>View Booking</title>
     @include('partials.admin-link')
 </head>
 <style>
@@ -32,25 +32,29 @@
     <div class="container">
         <div class="page-inner">
             <div class="page-header">
-                <h3 class="fw-bold mb-3">View Bookings</h3>
+                <h3 class="fw-bold mb-3">View Booking</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         <a href="{{ route('admin.admin-dashboard') }}">
                             <i class="icon-home"></i>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}">Manage Motorcycles</a>
+                    </li>
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('admin.reservation.bookings') }}">Manage Bookings</a>
+                        <a href="{{ route('admin.motorcycles.view-motorcycle', $motorcycle->motor_id) }}">View Motorcycle</a>
                     </li>
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
                     </li>
-                    <li class="nav-item" >
-                        <a href="" class="fw-bold">View Bookings</a>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.reservation.view-bookings-specific', $reservation->reservation_id) }}" class="fw-bold">View Booking</a>
                     </li>
+                    
                 </ul>
             </div>
             <div class="col-md-12">
@@ -139,7 +143,7 @@
                                     <div class="col-md-2 text-muted">Duration:</div>
                                     <div class="col-md-10">{{ $duration }} day(s)</div>
                                 </div>
-
+                              
                                 <div class="row mb-2">
                                     <div class="col-md-5">
                                         <div class="col-md-2 fw-bold">Pick-up</div>
@@ -227,7 +231,7 @@
 
                             @if ($reservation->payment_method !== 'cash' && $reservation->payment)
                                 <div class="ps-3">
-                                     <div class="row mb-2">
+                                    <div class="row mb-2">
                                         <div class="col-md-2 text-muted">Payment Status:</div>
                                         <div class="col-md-10">{{ $reservation->payment->status ?? 'N/A' }}</div>
                                     </div>
@@ -271,11 +275,38 @@
                                 </div>
                         </div>
                         @endif
-                        <!-- Action Buttons -->
+
+                        @if ($reservation->violation_status === 'Violator')
+                            <div class="mb-4 mt-3">
+                                <h5 class="fw-bold mb-3 mt-5 text-danger">Violations</h5>
+                                <hr>
+                                <div class="ps-3">
+                                    <div class="row mb-2">
+                                        <div class="col-md-3 text-muted">Penalty Type:</div>
+                                        <div class="col-md-6">
+                                            <span>{{ $reservation->penalty->penalty_type ?? 'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-md-3 text-muted">Additional Payment:</div>
+                                        <div class="col-md-6">
+                                            <span>{{ isset($reservation->penalty->additional_payment) ? '₱' . number_format($reservation->penalty->additional_payment, 2) : 'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-5">
+                                        <div class="col-md-3 text-muted">Description:</div>
+                                        <div class="col-md-6">
+                                            <span>{{ $reservation->penalty->description ?? 'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     @include('partials.admin-footer')
 </body>

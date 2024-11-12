@@ -26,7 +26,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}">Penalties</a>
+                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}" class="fw-bold">Penalties</a>
                     </li>
 
                 </ul>
@@ -55,6 +55,7 @@
                                         <th>Driver Name</th>
                                         <th>Email</th>
                                         <th>Penalty Type</th>
+                                        <th>Additional Payment</th>
                                         <th>Description</th>
                                     </tr>
                                 </thead>
@@ -66,6 +67,7 @@
                                                 {{ $penalty->driver->last_name ?? '' }}</td>
                                             <td>{{ $penalty->driver->email ?? '' }}</td>
                                             <td>{{ $penalty->penalty_type }}</td>
+                                            <td>{{ '₱' . number_format($penalty->additional_payment, 2) }}</td>
                                             <td>{{ $penalty->description }}</td>
                                         </tr>
                                     @endforeach

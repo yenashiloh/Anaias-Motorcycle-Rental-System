@@ -5,7 +5,7 @@
       <div class="logo-header" data-background-color="white">
         <a href="index.html" class="logo">
           <img
-            src="../../admin-assets-final/img/kaiadmin/logo_light.svg"
+            src="../../../../admin-assets-final/img/kaiadmin/logo_light.svg"
             alt="navbar brand"
             class="navbar-brand"
             height="20"
@@ -85,7 +85,7 @@
                     <a href="#">
                       <div class="notif-img">
                         <img
-                          src="../../admin-assets-final/img/profile2.jpg"
+                          src="../../../../admin-assets-final/img/profile2.jpg"
                           alt="Img Profile"
                         />
                       </div>

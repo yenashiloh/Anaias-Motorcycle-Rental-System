@@ -361,8 +361,14 @@ class HomeController extends Controller
         $firstImage = !empty($images) ? $images[0] : 'images/placeholder.jpg';
     
         $driverLicensePath = optional($reservation->driverInformation)->driver_license;
-
-        return view('customer.view-history', compact('reservation', 'isCustomerLoggedIn', 'driverLicensePath', 'duration', 'firstImage'));
+    
+        return view('customer.view-history', compact(
+            'reservation',
+            'isCustomerLoggedIn',
+            'driverLicensePath',
+            'duration',
+            'firstImage'
+        ));
     }
     
     

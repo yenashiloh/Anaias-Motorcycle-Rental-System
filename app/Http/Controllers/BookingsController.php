@@ -431,4 +431,55 @@ class BookingsController extends Controller
         return $pdf->download('invoice_' . $reservation->reference_id . '.pdf');
     }
     
+    public function viewBookingSpecific($id)
+    {
+        if (!Auth::guard('admin')->check()) {
+            return redirect()->route('admin.admin-login');
+        }
+    
+        $admin = Auth::guard('admin')->user();
+    
+        try {
+            if (!$id) {
+                return back()->with('error', 'Invalid reservation ID');
+            }
+    
+            $reservation = Reservation::with([
+                'motorcycle',
+                'customer',
+                'driverInformation',
+                'payment',
+                'penalty'
+            ])->findOrFail($id);
+    
+            $motorcycle = $reservation->motorcycle;
+    
+            $driverLicensePath = optional($reservation->driverInformation)->driver_license;
+    
+            \Log::info('Driver License Path: ' . $driverLicensePath);
+    
+            $startDate = Carbon::parse($reservation->rental_start_date);
+            $endDate = Carbon::parse($reservation->rental_end_date);
+            $duration = $startDate->diffInDays($endDate) ?: 1;
+    
+            $images = json_decode(optional($motorcycle)->images, true) ?: [];
+            $firstImage = !empty($images) ? $images[0] : 'images/placeholder.jpg';
+    
+            return view('admin.reservation.view-bookings-specific', compact(
+                'admin',
+                'reservation',
+                'motorcycle',
+                'duration',
+                'firstImage',
+                'driverLicensePath'
+            ));
+    
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return back()->with('error', 'Reservation not found.');
+        } catch (\Exception $e) {
+            \Log::error('Error loading booking details: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred while loading the booking details.');
+        }
+    }
+    
 }

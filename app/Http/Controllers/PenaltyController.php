@@ -11,6 +11,9 @@ use App\Models\Penalty;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Events\PenaltyAdded;
+use App\Models\Notification;
+use Illuminate\Validation\ValidationException;
 
 
 class PenaltyController extends Controller
@@ -25,12 +28,20 @@ class PenaltyController extends Controller
                 'driver_id' => 'required|integer',
                 'penalty_type' => 'required|string|max:255',
                 'description' => 'required|string',
+                'additional_payment' => 'required|numeric',
             ]);
     
-            Penalty::create($validated);
+            $penalty = Penalty::create($validated);
     
             Reservation::where('reservation_id', $validated['reservation_id'])
                 ->update(['violation_status' => 'Violator']);
+    
+            $notification = Notification::create([
+                'customer_id' => $validated['customer_id'],
+                'type' => 'penalty',
+                'message' => "New penalty added: {$validated['penalty_type']} - ₱{$validated['additional_payment']}",
+                'read' => false
+            ]);
     
             return redirect()->back()->with('success', 'Penalty Added Successfully!');
         } catch (ValidationException $e) {
@@ -42,7 +53,8 @@ class PenaltyController extends Controller
             return redirect()->back()->with('error', 'Failed to add penalty. Please try again.');
         }
     }
-
+    
+    //show penalty page
     public function showPenaltiesPage()
     {
         if (!Auth::guard('admin')->check()) {
@@ -50,8 +62,7 @@ class PenaltyController extends Controller
         }
     
         $admin = Auth::guard('admin')->user();
-    
-        // Fetch all penalties with their associated driver information
+
         $penalties = Penalty::with('driver')->get();
     
         return view('admin.reservation.penalties', compact('admin', 'penalties'));
