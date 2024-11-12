@@ -350,7 +350,6 @@ class HomeController extends Controller
         $payment->save();
     
         $motorcycle = Motorcycle::findOrFail($payment->motor_id);
-        $motorcycle->status = 'Not Available';
         $motorcycle->save();
     
         return response()->json([
