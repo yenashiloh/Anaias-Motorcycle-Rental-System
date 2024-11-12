@@ -1,6 +1,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
 <meta content="" name="keywords">
 <meta content="" name="description">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <link rel="icon" href="../../../assets/img/logo.png" type="image/x-icon">
 <!-- Google Web Fonts -->
@@ -27,41 +28,50 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
 <style>
-   .notification-item:hover {
+    .notification-item:hover {
         background-color: #f8f9fa;
         transition: background-color 0.3s ease;
     }
-    
+
     #notificationDropdown:hover {
         color: #dc3545;
         transition: color 0.3s ease;
     }
-    
+
     .nav-item.nav-link {
         color: #000;
         transition: color 0.3s ease;
     }
-    
-    .nav-item.nav-link:hover, .nav-item.nav-link.active {
+
+    .nav-item.nav-link:hover,
+    .nav-item.nav-link.active {
         color: #dc3545;
     }
-    .time{
+
+    .time {
         color: rgb(124, 124, 124);
     }
-    .notification-bell{
+
+    .notification-bell {
         font-size: 20px;
     }
+
     .reservation-details {
-            background-color: #fdfdfd;
-            border-radius: 10px;
-            padding: 20px;
-        }
+        background-color: #fdfdfd;
+        border-radius: 10px;
+        padding: 20px;
+    }
 
-        .text-danger {
-            color: red;
-        }
+    .text-danger {
+        color: red;
+    }
 
-        .shadow {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+    .shadow {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .new-notification {
+        background-color: #eeeeee;
+        font-weight: bold;
+    }
 </style>

@@ -60,53 +60,45 @@
                     </div>
                     <div class="d-flex align-items-center">
                         @if (Auth::guard('customer')->check())
-                            <!-- Notification Bell -->
+                            <!-- Display Notification Bell and List -->
                             <div class="me-3 position-relative">
-                                <a href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
+                                <a href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-bell notification-bell" style="color: black;"></i>
-                                    <span class="visually-hidden">unread notifications</span>
-                                    <!-- Notification Count Badge -->
-                                    <span
-                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                        style="color: white; 
-                                             min-width: 20px; 
-                                             height: 20px; 
-                                             padding: 0 6px; 
-                                             display: flex; 
-                                             align-items: center; 
-                                             justify-content: center; 
-                                             font-size: 0.75rem;">
-                                        1
-                                        <span class="visually-hidden">unread notifications</span>
-                                    </span>
+                                    
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                                    style="color: white; min-width: 20px; height: 20px; padding: 0 6px; display: {{ count($notifications) > 0 ? 'flex' : 'none' }}; align-items: center; justify-content: center; font-size: 0.75rem;">
+                                  {{ count($notifications) }}
+                              </span>
+
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" id="notificationList">
                                     <li>
                                         <div class="dropdown-title text-center">Notifications</div>
                                     </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    @forelse ($notifications as $notification)
+                                        <li>
+                                            <a class="dropdown-item" href="#">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0">
+                                                        <i class="fas fa-user-circle fa-2x me-2"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-2">
+                                                        <p class="mb-0"><strong>Penalty</strong></p>
+                                                        <p class="mb-0 small">{{ $notification->message }}</p>
+                                                        <small class="time">{{ $notification->created_at->format('Y-m-d H:i:s') }}</small>
+
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    @empty
+                                        <li>
+                                            <p class="text-center">No notifications</p>
+                                        </li>
+                                    @endforelse
                                     <li>
                                         <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item notification-item" href="#">
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-shrink-0">
-                                                    <i class="fas fa-user-circle fa-2x me-2"></i>
-                                                </div>
-                                                <div class="flex-grow-1 ms-2">
-                                                    <p class="mb-0"><strong>Ezekielle Cortez</strong></p>
-                                                    <p class="mb-0 small">Approved your rent motorcycle</p>
-                                                    <small class="time">2 hours ago</small>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item text-center" href="#">View all notifications</a>
                                     </li>
                                 </ul>
                             </div>
@@ -157,68 +149,4 @@
     </div>
     <!-- Navbar & Hero End -->
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.nav-item.nav-link');
-
-            function setActiveLink() {
-                const currentPath = window.location.pathname;
-                const currentHash = window.location.hash;
-                const currentSection = currentHash.slice(1) || 'home';
-
-                navLinks.forEach(link => {
-                    const section = link.getAttribute('data-section');
-                    if (currentPath === '/' || currentPath === '/home') {
-                        link.classList.toggle('active', section === currentSection);
-                    } else if (currentPath.startsWith('/details-motorcycle')) {
-                        link.classList.toggle('active', section === 'motorcycles');
-                    } else {
-                        link.classList.toggle('active', `/${section}` === currentPath);
-                    }
-                });
-            }
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    const section = this.getAttribute('data-section');
-
-                    if (section !== 'motorcycles' && (window.location.pathname === '/' || window
-                            .location.pathname === '/home')) {
-                        e.preventDefault();
-                        const targetElement = document.getElementById(section);
-
-                        if (targetElement) {
-                            targetElement.scrollIntoView({
-                                behavior: 'smooth'
-                            });
-                            history.pushState(null, '', href);
-                            setActiveLink();
-                        }
-                    } else {
-                        setActiveLink();
-                    }
-                });
-            });
-
-            setActiveLink();
-            window.addEventListener('popstate', setActiveLink);
-        });
-
-        document.getElementById('logoutButton').addEventListener('click', function() {
-            Swal.fire({
-                title: 'Logout',
-                text: "Are you sure you want to logout?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, logout!',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('logoutForm').submit();
-                }
-            });
-        });
-    </script>
+   

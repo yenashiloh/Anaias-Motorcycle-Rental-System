@@ -10,6 +10,7 @@ use App\Http\Controllers\MotorcycleController;
 use App\Http\Controllers\PenaltyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Middleware\PreventBackHistory;
+use App\Http\Controllers\NotificationController;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReservationsExport;
 use App\Exports\OngoingExport;
@@ -50,12 +51,15 @@ Route::middleware([PreventBackHistory::class, 'customer'])->group(function () {
     Route::post('/payment/process', [HomeController::class, 'processPayment'])->name('payment.process');
     Route::get('/reservation/confirmation/{reservation_id}', [HomeController::class, 'confirmation'])->name('reservation.confirmation');
     Route::get('/reservation/success/{reservation_id}', [HomeController::class, 'showSuccessPage'])->name('motorcycle.success');
-    Route::get('/view-history/{reservation_id}', [HomeController::class, 'viewHistory'])->name('view.history');
+    Route::get('/history/view/{reservation_id}', [HomeController::class, 'viewHistory'])->name('view.history');
 
     //Dashboard
-    Route::get('/customer/dashboard', [CustomerDashboardController::class, 'viewDashboard'])->name('customer.customer-dashboard');
+    Route::get('/history', [CustomerDashboardController::class, 'viewDashboard'])->name('customer.customer-dashboard');
 
-    
+    Route::get('/notifications', [NotificationController::class, 'getNotifications']);
+    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead']);
+
+
 });
 
 //ADMIN SIDE 

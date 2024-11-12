@@ -12,7 +12,7 @@ use App\Models\Reservation;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
+use App\Models\Notification;
 
 class HomeController extends Controller
 {
@@ -22,9 +22,18 @@ class HomeController extends Controller
         $motorcycles = Motorcycle::all();
         $isCustomerLoggedIn = Auth::guard('customer')->check();
     
-        return view('welcome', compact('motorcycles', 'isCustomerLoggedIn'));
+        if ($isCustomerLoggedIn) {
+            $user = Auth::guard('customer')->user();
+            $notifications = Notification::where('customer_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
+        } else {
+            $notifications = [];
+        }
+    
+        return view('welcome', compact('motorcycles', 'isCustomerLoggedIn', 'notifications'));
     }
-
+    
     //view list motorcycle
     public function viewMotorcycleCategories(Request $request) 
     {
@@ -46,7 +55,16 @@ class HomeController extends Controller
     
         $isCustomerLoggedIn = Auth::guard('customer')->check();
     
-        return view('motorcycles', compact('motorcycles', 'isCustomerLoggedIn', 'searchQuery'));
+        if ($isCustomerLoggedIn) {
+            $user = Auth::guard('customer')->user();
+            $notifications = Notification::where('customer_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
+        } else {
+            $notifications = [];
+        }
+
+        return view('motorcycles', compact('motorcycles', 'isCustomerLoggedIn', 'searchQuery', 'notifications'));
     }
 
     //filter and search
@@ -83,8 +101,6 @@ class HomeController extends Controller
         return view('motorcycle.motorcycle_list', compact('motorcycles'))->render();
     }
     
-
-
     //view details motorcycle
     public function viewDetailsMotorcycle($id)
     {
@@ -92,7 +108,6 @@ class HomeController extends Controller
         $isCustomerLoggedIn = Auth::guard('customer')->check();
         $status = $motorcycle->status;
         
-        // Get all approved and ongoing reservations for this motorcycle
         $reservedDates = Reservation::where('motor_id', $id)
             ->whereIn('status', ['Approved', 'Ongoing'])
             ->select('rental_start_date', 'rental_end_date')
@@ -104,11 +119,21 @@ class HomeController extends Controller
                 ];
             });
     
+         if ($isCustomerLoggedIn) {
+            $user = Auth::guard('customer')->user();
+            $notifications = Notification::where('customer_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
+        } else {
+            $notifications = [];
+        }
+
         return view('motorcycle.details-motorcycle', compact(
             'motorcycle', 
             'status', 
             'isCustomerLoggedIn',
-            'reservedDates'
+            'reservedDates',
+            'notifications'
         ));
     }
 
@@ -127,12 +152,22 @@ class HomeController extends Controller
         
         $total = $days * $motorcycle->price;
 
+        if ($isCustomerLoggedIn) {
+            $user = Auth::guard('customer')->user();
+            $notifications = Notification::where('customer_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
+        } else {
+            $notifications = [];
+        }
+
         return view('motorcycle.reservation-details', compact(
             'motorcycle', 
             'reservationData', 
             'isCustomerLoggedIn', 
             'total', 
-            'days'
+            'days',
+            'notifications'
         ));
     }
 
@@ -257,7 +292,16 @@ class HomeController extends Controller
             'riding' => $reservation->riding,
         ];
     
-        return view('motorcycle.payment', compact('reservation', 'motorcycle', 'isCustomerLoggedIn', 'driverInformation', 'reservationData', 'days', 'total'));
+        if ($isCustomerLoggedIn) {
+            $user = Auth::guard('customer')->user();
+            $notifications = Notification::where('customer_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
+        } else {
+            $notifications = [];
+        }
+
+        return view('motorcycle.payment', compact('reservation', 'motorcycle', 'isCustomerLoggedIn', 'driverInformation', 'reservationData', 'days', 'total', 'notifications'));
     }
     
     //get payment info
@@ -328,6 +372,15 @@ class HomeController extends Controller
             return redirect()->route('reservations.index')->with('error', 'Reservation not found.');
         }
 
+        if ($isCustomerLoggedIn) {
+            $user = Auth::guard('customer')->user();
+            $notifications = Notification::where('customer_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
+        } else {
+            $notifications = [];
+        }
+        
         $startDate = Carbon::parse($reservation->rental_start_date);
         $endDate = Carbon::parse($reservation->rental_end_date);
         $duration = $startDate->diffInDays($endDate) ?: 1;
@@ -337,7 +390,8 @@ class HomeController extends Controller
 
         $driverLicensePath = optional($reservation->driverInformation)->driver_license;
     
-        return view('motorcycle.success', compact('reservation', 'isCustomerLoggedIn',  'driverLicensePath',  'duration', 'firstImage',));
+        
+        return view('motorcycle.success', compact('reservation', 'isCustomerLoggedIn',  'driverLicensePath',  'duration', 'firstImage', 'notifications'));
     }
     
     //view history bookings
@@ -362,12 +416,22 @@ class HomeController extends Controller
     
         $driverLicensePath = optional($reservation->driverInformation)->driver_license;
     
+        if ($isCustomerLoggedIn) {
+            $user = Auth::guard('customer')->user();
+            $notifications = Notification::where('customer_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
+        } else {
+            $notifications = [];
+        }
+
         return view('customer.view-history', compact(
             'reservation',
             'isCustomerLoggedIn',
             'driverLicensePath',
             'duration',
-            'firstImage'
+            'firstImage',
+            'notifications'
         ));
     }
     

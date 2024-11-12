@@ -2,63 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Notification;
-use Auth;
+use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Log;
 class NotificationController extends Controller
 {
-    public function getNotifications($customerId)
+    //get notification
+    public function getNotifications(Request $request)
     {
-        $notifications = Notification::where('customer_id', $customerId)
-            ->orderBy('created_at', 'desc')
-            ->limit(20) // Limit to recent notifications
-            ->get()
-            ->map(function($notification) {
-                return [
-                    'id' => $notification->id,
-                    'message' => $notification->message,
-                    'time' => $notification->created_at->diffForHumans(),
-                    'type' => $notification->type,
-                    'read' => (bool) $notification->read
-                ];
-            });
-
-        return response()->json([
-            'notifications' => $notifications
-        ]);
+        $notifications = Notification::orderBy('created_at', 'desc')
+            ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at', 'reservation_id']); 
+    
+        return response()->json($notifications);
     }
+    
 
-    public function markAsRead($id)
-    {
-        $notification = Notification::findOrFail($id);
-        
-        // Verify the notification belongs to the current user
-        if ($notification->customer_id !== Auth::id()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $notification->read = true;
-        $notification->save();
-
-        return response()->json(['success' => true]);
-    }
-
-    public function markAllAsRead(Request $request)
-    {
-        Notification::where('customer_id', Auth::id())
-            ->where('read', false)
-            ->update(['read' => true]);
-
-        return response()->json(['success' => true]);
-    }
-
-    public function getUnreadCount()
-    {
-        $count = Notification::where('customer_id', Auth::id())
-            ->where('read', false)
-            ->count();
-
-        return response()->json(['count' => $count]);
-    }
+   // mark as read
+   public function markAsRead(Request $request)
+   {
+       $user = auth()->guard('customer')->user();
+   
+       if ($user) {
+           try {
+               Log::info('Marking notifications as read for user: ' . $user->customer_id);
+   
+               $unreadNotifications = Notification::where('customer_id', $user->customer_id)
+                                                  ->where('read', false)
+                                                  ->get();
+   
+               if ($unreadNotifications->isEmpty()) {
+                   Log::info('No unread notifications found for user: ' . $user->customer_id);
+                   return response()->json(['message' => 'No unread notifications found for this user']);
+               }
+   
+               $affectedRows = Notification::where('customer_id', $user->customer_id)
+                                           ->where('read', false)
+                                           ->update(['read' => true]);
+   
+               Log::info('Number of notifications marked as read: ' . $affectedRows);
+   
+               if ($affectedRows > 0) {
+                   return response()->json(['message' => 'Notifications marked as read']);
+               } else {
+                   return response()->json(['message' => 'No unread notifications found for this user']);
+               }
+           } catch (\Exception $e) {
+               Log::error('Failed to mark notifications as read: ' . $e->getMessage());
+               return response()->json(['message' => 'Failed to mark notifications as read', 'error' => $e->getMessage()], 500);
+           }
+       }
+   
+       return response()->json(['message' => 'User not authenticated'], 401);
+   }  
 }

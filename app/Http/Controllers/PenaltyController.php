@@ -38,6 +38,7 @@ class PenaltyController extends Controller
     
             $notification = Notification::create([
                 'customer_id' => $validated['customer_id'],
+                'reservation_id' => $validated['reservation_id'],
                 'type' => 'penalty',
                 'message' => "New penalty added: {$validated['penalty_type']} - ₱{$validated['additional_payment']}",
                 'read' => false

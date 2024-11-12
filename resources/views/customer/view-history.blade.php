@@ -302,5 +302,6 @@
 
     <!-- Template Javascript -->
     <script src="{{ asset('assets/js/main.js') }}"></script>
+    <script src="{{ asset('assets/js/notifications.js') }}"></script>
 
 </body>
