@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+//namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Motorcycle;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Admin;
 
@@ -13,10 +15,10 @@ class AdminLoginController extends Controller
     public function home()
     {
         $motorcycles = Motorcycle::all();
-    
+
         return view('welcome', compact('motorcycles'));
     }
-    
+
     public function showLoginForm()
     {
         return view('admin.admin-login');
@@ -44,10 +46,15 @@ class AdminLoginController extends Controller
     //logout
     public function logoutAdmin(Request $request)
     {
-        auth()->logout();
+        Auth::guard('admin')->logout();
+        //auth()->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return response()->json(['success' => true]);
+        //return response()->json(['success' => true]);
+        return redirect('showLoginForm');
+
     }
-    
+
+
+
 }
