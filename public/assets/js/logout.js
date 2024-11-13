@@ -23,10 +23,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                     body: JSON.stringify({})
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        window.location.href = 'admin-login'; 
+                        window.location.href = '/admin/admin-login'; // Adjust path if needed
+                    } else {
+                        console.error('Logout failed:', data);
                     }
                 })
                 .catch(error => console.error('Error:', error));

@@ -47,13 +47,11 @@ class AdminLoginController extends Controller
     public function logoutAdmin(Request $request)
     {
         Auth::guard('admin')->logout();
-        //auth()->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        //return response()->json(['success' => true]);
-        return redirect('showLoginForm');
-
+        return response()->json(['success' => true]); // Return JSON response
     }
+    
 
 
 
