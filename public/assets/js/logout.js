@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .then(data => {
                     if (data.success) {
-                        window.location.href = '/admin/admin-login'; // Adjust path if needed
+                        window.location.href = '/admin/admin-login'; 
                     } else {
                         console.error('Logout failed:', data);
                     }
