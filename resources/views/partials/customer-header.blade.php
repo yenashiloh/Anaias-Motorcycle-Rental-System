@@ -84,7 +84,7 @@
                                                         <i class="fas fa-user-circle fa-2x me-2"></i>
                                                     </div>
                                                     <div class="flex-grow-1 ms-2">
-                                                        <p class="mb-0"><strong>Penalty</strong></p>
+                                                        <p class="mb-0"><strong>Admin</strong></p>
                                                         <p class="mb-0 small">{{ $notification->message }}</p>
                                                         <small class="time">{{ $notification->created_at->format('Y-m-d H:i:s') }}</small>
 

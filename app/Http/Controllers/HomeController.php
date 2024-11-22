@@ -13,6 +13,7 @@ use App\Models\Payment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Notification;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -137,39 +138,66 @@ class HomeController extends Controller
         ));
     }
 
+    private function checkExistingReservation($first_name, $last_name)
+    {
+        return Reservation::query()
+            ->join('driver_information', 'reservations.driver_id', '=', 'driver_information.driver_id')
+            ->where('driver_information.first_name', $first_name)
+            ->where('driver_information.last_name', $last_name)
+            ->whereIn('reservations.status', ['Approved', 'Ongoing'])
+            ->exists();
+    }
+
+    
     //view reservation details
     public function viewReservationDetails(Request $request)
     {
         $motorcycle = Motorcycle::findOrFail($request->motorcycle_id);
         $reservationData = $request->only(['rental_dates', 'pick_up', 'drop_off', 'riding']);
         $isCustomerLoggedIn = Auth::guard('customer')->check();
+    
+        $pastReservation = null;
+        if ($isCustomerLoggedIn) {
+            $user = Auth::guard('customer')->user();
+            $pastReservation = Reservation::where('customer_id', $user->id)
+                ->where('motor_id', $motorcycle->id)  
+                ->latest()
+                ->first();
+        }
 
+        if ($pastReservation) {
+            $reservationData['rental_dates'] = $pastReservation->rental_dates;
+            $reservationData['pick_up'] = $pastReservation->pick_up;
+            $reservationData['drop_off'] = $pastReservation->drop_off;
+            $reservationData['riding'] = $pastReservation->riding;
+        }
+    
         $dates = explode(' - ', $reservationData['rental_dates']);
         $start = Carbon::createFromFormat('d/m/Y', $dates[0]);
         $end = Carbon::createFromFormat('d/m/Y', $dates[1]);
-        
+    
         $days = $end->diffInDays($start); 
-        
         $total = $days * $motorcycle->price;
-
+    
         if ($isCustomerLoggedIn) {
-            $user = Auth::guard('customer')->user();
             $notifications = Notification::where('customer_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
         } else {
             $notifications = [];
         }
-
+    
         return view('motorcycle.reservation-details', compact(
             'motorcycle', 
             'reservationData', 
             'isCustomerLoggedIn', 
             'total', 
             'days',
-            'notifications'
+            'notifications',
+            'pastReservation' 
         ));
     }
+    
 
     //process reservation
     public function process(Request $request)
@@ -192,70 +220,96 @@ class HomeController extends Controller
             'payment_method' => 'required|in:gcash,cash',
         ]);
 
-        $rentalDates = explode(' - ', $validatedData['rental_dates']);
-        $startDate = Carbon::createFromFormat('d/m/Y', trim($rentalDates[0]));
-        $endDate = Carbon::createFromFormat('d/m/Y', trim($rentalDates[1]));
+        // check for existing active reservations
+        $existingReservation = Reservation::query()
+            ->join('driver_information', 'reservations.driver_id', '=', 'driver_information.driver_id')
+            ->where('driver_information.first_name', $validatedData['first_name'])
+            ->where('driver_information.last_name', $validatedData['last_name'])
+            ->whereIn('reservations.status', ['Approved', 'Ongoing'])
+            ->first();
 
-        $days = $startDate->diffInDays($endDate);
-
-        $motorcycle = Motorcycle::findOrFail($validatedData['motorcycle_id']);
-        $total = $days * $motorcycle->price;
-
-        $driverInfo = new DriverInformation();
-        $driverInfo->customer_id = Auth::guard('customer')->id();
-        $driverInfo->first_name = $validatedData['first_name'];
-        $driverInfo->last_name = $validatedData['last_name'];
-        $driverInfo->email = $validatedData['email'];
-        $driverInfo->contact_number = $validatedData['contact_number'];
-        $driverInfo->address = $validatedData['address'];
-        $driverInfo->birthdate = $validatedData['birthdate'];
-        $driverInfo->gender = $validatedData['gender'];
-
-        if ($request->hasFile('driver_license')) {
-            $path = $request->file('driver_license')->store('driver_licenses', 'public');
-            $driverInfo->driver_license = $path;
+        if ($existingReservation) {
+            return back()
+                ->withErrors(['reservation_error' => 'You cannot make a new reservation while you have an ongoing rental. Please complete your current reservation first.'])
+                ->withInput();
         }
 
-        $driverInfo->save();
+        try {
+            DB::beginTransaction();
 
-        $pickUpTime = Carbon::createFromFormat('h:i A', trim($validatedData['pick_up']));
-        $dropOffTime = Carbon::createFromFormat('h:i A', trim($validatedData['drop_off']));
+            $rentalDates = explode(' - ', $validatedData['rental_dates']);
+            $startDate = Carbon::createFromFormat('d/m/Y', trim($rentalDates[0]));
+            $endDate = Carbon::createFromFormat('d/m/Y', trim($rentalDates[1]));
+            $days = $startDate->diffInDays($endDate);
+            
+            $motorcycle = Motorcycle::findOrFail($validatedData['motorcycle_id']);
+            $total = $days * $motorcycle->price;
 
-        $pickUpDateTime = $startDate->copy()->setTime($pickUpTime->hour, $pickUpTime->minute);
-        $dropOffDateTime = $endDate->copy()->setTime($dropOffTime->hour, $dropOffTime->minute);
+            $driverInfo = new DriverInformation();
+            $driverInfo->customer_id = Auth::guard('customer')->id();
+            $driverInfo->first_name = $validatedData['first_name'];
+            $driverInfo->last_name = $validatedData['last_name'];
+            $driverInfo->email = $validatedData['email'];
+            $driverInfo->contact_number = $validatedData['contact_number'];
+            $driverInfo->address = $validatedData['address'];
+            $driverInfo->birthdate = $validatedData['birthdate'];
+            $driverInfo->gender = $validatedData['gender'];
+            
+            if ($request->hasFile('driver_license')) {
+                $path = $request->file('driver_license')->store('driver_licenses', 'public');
+                $driverInfo->driver_license = $path;
+            }
+            $driverInfo->save();
 
-        $reservation = new Reservation();
-        $reservation->customer_id = Auth::guard('customer')->id();
-        $reservation->driver_id = $driverInfo->driver_id;
-        $reservation->motor_id = $validatedData['motorcycle_id'];
-        $reservation->rental_start_date = $startDate->toDateString();
-        $reservation->rental_end_date = $endDate->toDateString();
-        $reservation->pick_up = $pickUpDateTime;
-        $reservation->drop_off = $dropOffDateTime;
-        $reservation->riding = $validatedData['riding'];
-        $reservation->total = $total;
-        $reservation->payment_method = $validatedData['payment_method']; 
-        $reservation->reference_id = $this->generateUniqueReferenceId();
-        $reservation->violation_status = 'No Violation';
-        $reservation->save();
+            $pickUpTime = Carbon::createFromFormat('h:i A', trim($validatedData['pick_up']));
+            $dropOffTime = Carbon::createFromFormat('h:i A', trim($validatedData['drop_off']));
+            $pickUpDateTime = $startDate->copy()->setTime($pickUpTime->hour, $pickUpTime->minute);
+            $dropOffDateTime = $endDate->copy()->setTime($dropOffTime->hour, $dropOffTime->minute);
 
-        $payment = new Payment();
-        $payment->reservation_id = $reservation->reservation_id;
-        $payment->amount = $total;
-        $payment->customer_id = Auth::guard('customer')->id(); 
-        $payment->motor_id = $validatedData['motorcycle_id']; 
+            $reservation = new Reservation();
+            $reservation->customer_id = Auth::guard('customer')->id();
+            $reservation->driver_id = $driverInfo->driver_id;
+            $reservation->motor_id = $validatedData['motorcycle_id'];
+            $reservation->rental_start_date = $startDate->toDateString();
+            $reservation->rental_end_date = $endDate->toDateString();
+            $reservation->pick_up = $pickUpDateTime;
+            $reservation->drop_off = $dropOffDateTime;
+            $reservation->riding = $validatedData['riding'];
+            $reservation->total = $total;
+            $reservation->payment_method = $validatedData['payment_method']; 
+            $reservation->reference_id = $this->generateUniqueReferenceId();
+            $reservation->violation_status = 'No Violation';
+            $reservation->status = 'To Review'; 
+            $reservation->save();
 
-        if ($validatedData['payment_method'] === 'cash') {
-            $payment->status = 'Unpaid'; 
-        } elseif ($validatedData['payment_method'] === 'gcash') {
-            $payment->status = 'Pending';
-            return redirect()->route('motorcycle.payment', ['reservation_id' => $reservation->reservation_id]);
+            $payment = new Payment();
+            $payment->reservation_id = $reservation->reservation_id;
+            $payment->amount = $total;
+            $payment->customer_id = Auth::guard('customer')->id(); 
+            $payment->motor_id = $validatedData['motorcycle_id']; 
+            
+            if ($validatedData['payment_method'] === 'cash') {
+                $payment->status = 'Unpaid'; 
+            } elseif ($validatedData['payment_method'] === 'gcash') {
+                $payment->status = 'To Review';
+                DB::commit();
+                return redirect()->route('motorcycle.payment', ['reservation_id' => $reservation->reservation_id]);
+            }
+            
+            $payment->save();
+            
+            DB::commit();
+            return redirect()->route('motorcycle.success', ['reservation_id' => $reservation->reservation_id]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()
+                ->withErrors(['error' => 'An error occurred while processing your reservation. Please try again.'])
+                ->withInput();
         }
-        $payment->save(); 
-        return redirect()->route('motorcycle.success', ['reservation_id' => $reservation->reservation_id]);
     }
-
     
+    //generate unique reference
     private function generateUniqueReferenceId()
     {
         do {
@@ -325,9 +379,7 @@ class HomeController extends Controller
             'name' => 'required',
             'number' => 'required',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif',
-            'amount' => 'required|numeric|min:0.01',
             'reservation_id' => 'required|exists:reservations,reservation_id',
-            'receipt' => 'required|string|max:255',
         ]);
     
         $reservation = Reservation::findOrFail($validatedData['reservation_id']);
@@ -336,10 +388,8 @@ class HomeController extends Controller
         $payment->reservation_id = $reservation->reservation_id;
         $payment->customer_id = $reservation->customer_id;
         $payment->motor_id = $reservation->motor_id;
-        $payment->amount = $validatedData['amount'];
         $payment->name = $validatedData['name'];
         $payment->number = $validatedData['number'];
-        $payment->receipt = $validatedData['receipt'];
     
         if ($request->hasFile('image')) {
             $payment->image = $request->file('image')->store('receipts', 'public');
@@ -433,6 +483,4 @@ class HomeController extends Controller
             'notifications'
         ));
     }
-    
-    
 }

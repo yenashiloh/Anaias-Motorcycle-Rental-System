@@ -26,42 +26,55 @@ class BookingsController extends Controller
         $admin = Auth::guard('admin')->user();
     
         try {
-            $bookings = Reservation::with(['motorcycle', 'driverInformation', 'payment']) 
+            $allBookings = Reservation::with(['motorcycle', 'driverInformation', 'payment'])
                 ->whereIn('status', ['To Review', 'Approved'])
-                ->get()
+                ->orderByRaw("CASE WHEN payment_method = 'gcash' THEN 1 ELSE 2 END")
+                ->get();
+    
+            $toReviewBookings = $allBookings->where('status', 'To Review')
                 ->map(function ($reservation) {
-                    $startDate = Carbon::parse($reservation->rental_start_date);
-                    $endDate = Carbon::parse($reservation->rental_end_date);
-    
-                    $duration = $startDate->diffInDays($endDate) ?: 1;
-    
-                    $images = json_decode($reservation->motorcycle->images, true);
-                    $firstImage = $images[0] ?? 'images/placeholder.jpg';
-    
-                    $paymentStatus = $reservation->payment->status ?? 'Pending'; 
-    
-                    $driverName = $reservation->driverInformation 
-                        ? $reservation->driverInformation->first_name . ' ' . $reservation->driverInformation->last_name
-                        : 'N/A';
-    
-                    return [
-                        'reservation_id' => $reservation->reservation_id,
-                        'created_at' => $reservation->created_at,
-                        'driver_name' => $driverName,
-                        'rental_start_date' => $reservation->rental_start_date,
-                        'duration' => $duration . ' ' . ((int)$duration === 1 ? 'day' : 'days'),
-                        'total' => $reservation->total,
-                        'motorcycle_image' => $firstImage,
-                        'status' => $reservation->status ?? 'To Review', 
-                        'payment_status' => $paymentStatus, 
-                    ];
+                    return $this->formatBookingData($reservation);
                 });
     
-            return view('admin.reservation.bookings', compact('admin', 'bookings'));
+            $approvedBookings = $allBookings->where('status', 'Approved')
+                ->map(function ($reservation) {
+                    return $this->formatBookingData($reservation);
+                });
+    
+            return view('admin.reservation.bookings', compact('admin', 'toReviewBookings', 'approvedBookings'));
         } catch (\Exception $e) {
             \Log::error('Booking Error: ' . $e->getMessage());
             return back()->with('error', 'An error occurred while loading the bookings.');
         }
+    }
+    
+    // format booking data
+    private function formatBookingData($reservation)
+    {
+        $startDate = Carbon::parse($reservation->rental_start_date);
+        $endDate = Carbon::parse($reservation->rental_end_date);
+        $duration = $startDate->diffInDays($endDate) ?: 1;
+        
+        $images = json_decode($reservation->motorcycle->images, true);
+        $firstImage = $images[0] ?? 'images/placeholder.jpg';
+        
+        $paymentStatus = $reservation->payment->status ?? 'Pending';
+        
+        $driverName = $reservation->driverInformation 
+            ? $reservation->driverInformation->first_name . ' ' . $reservation->driverInformation->last_name
+            : 'N/A';
+    
+        return [
+            'reservation_id' => $reservation->reservation_id,
+            'created_at' => $reservation->created_at,
+            'driver_name' => $driverName,
+            'rental_start_date' => $reservation->rental_start_date,
+            'duration' => $duration . ' ' . ((int)$duration === 1 ? 'day' : 'days'),
+            'total' => $reservation->total,
+            'motorcycle_image' => $firstImage,
+            'status' => $reservation->status ?? 'To Review',
+            'payment_status' => $paymentStatus,
+        ];
     }
     
     //update payment status
@@ -116,14 +129,17 @@ class BookingsController extends Controller
     }
     
     //cancel the bookings reservation
-    public function cancel($reservation_id)
+    public function cancel(Request $request, $reservation_id)
     {
         $reservation = Reservation::findOrFail($reservation_id);
+        
         $reservation->status = 'Cancelled'; 
+        $reservation->cancel_reason = $request->cancel_reason; 
         $reservation->save();
-
+    
         return redirect()->back()->with('success', 'Reservation has been cancelled.');
     }
+    
 
     //ongoing the bookings reservation
     public function markOngoing($reservation_id)
@@ -135,15 +151,26 @@ class BookingsController extends Controller
         return redirect()->back()->with('success', 'Reservation has been marked as ongoing.');
     }
 
+    //change completed reservation
     public function completed($reservation_id)
     {
-        $reservation = Reservation::findOrFail($reservation_id);
-        $reservation->status = 'Completed'; 
-        $reservation->save();
+        try {
+            $reservation = Reservation::findOrFail($reservation_id);
+            $reservation->status = 'Completed';
+            $reservation->save();
 
-        return redirect()->back()->with('success', 'Reservation has been completed!');
+            $motorcycle = $reservation->motorcycle;
+            if ($motorcycle) {
+                $motorcycle->status = 'Maintenance';
+                $motorcycle->save();
+            }
+
+            return redirect()->back()->with('success', 'Reservation has been completed, and the motorcycle is now under Maintenance!');
+        } catch (\Exception $e) {
+            \Log::error('Error completing reservation: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred while completing the reservation.');
+        }
     }
-
 
     //view bookings 
     public function viewBookings($id)
@@ -204,7 +231,7 @@ class BookingsController extends Controller
         
         try {
             $bookings = Reservation::with(['motorcycle', 'driverInformation'])
-                ->whereIn('status', ['Cancelled', 'Completed', 'Declined']) 
+                ->whereIn('status', ['Completed', 'Declined']) 
                 ->get()
                 ->map(function ($reservation) {
                     $startDate = Carbon::parse($reservation->rental_start_date);
@@ -244,7 +271,6 @@ class BookingsController extends Controller
             return back()->with('error', 'An error occurred while loading the bookings.');
         }
     }
-
 
     //view all booking records
     public function viewAllBookingsRecord($id)
@@ -295,7 +321,6 @@ class BookingsController extends Controller
         }
     }
     
-
     //show ongoing bookings 
     public function showOngoingBookings()
     {
@@ -386,6 +411,57 @@ class BookingsController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error loading booking details: ' . $e->getMessage());
             return back()->with('error', 'An error occurred while loading the booking details.');
+        }
+    }
+
+    public function showCancelledBookings()
+    {
+        if (!Auth::guard('admin')->check()) {
+            return redirect()->route('admin.admin-login');
+        }
+        
+        $admin = Auth::guard('admin')->user();
+        
+        try {
+            $bookings = Reservation::with(['motorcycle', 'driverInformation'])
+                ->whereIn('status', ['Cancelled']) 
+                ->get()
+                ->map(function ($reservation) {
+                    $startDate = Carbon::parse($reservation->rental_start_date);
+                    $endDate = Carbon::parse($reservation->rental_end_date);
+                    
+                    $duration = $startDate->diffInDays($endDate) ?: 1;
+                    
+                    $images = json_decode($reservation->motorcycle->images, true);
+                    $firstImage = $images[0] ?? 'images/placeholder.jpg';
+                    
+                    $driverName = $reservation->driverInformation 
+                        ? $reservation->driverInformation->first_name . ' ' . $reservation->driverInformation->last_name
+                        : 'N/A';
+                    
+                    $driverId = $reservation->driverInformation 
+                        ? $reservation->driverInformation->driver_id 
+                        : null;
+                    
+                    return [
+                        'reservation_id' => $reservation->reservation_id,
+                        'customer_id' => $reservation->customer_id,
+                        'driver_id' => $driverId,
+                        'driver_name' => $driverName,
+                        'rental_start_date' => $reservation->rental_start_date,
+                        'created_at' => $reservation->created_at,
+                        'duration' => $duration . ' ' . ((int)$duration === 1 ? 'day' : 'days'),
+                        'total' => $reservation->total,
+                        'motorcycle_image' => $firstImage,
+                        'status' => $reservation->status,
+                        'cancel_reason' => $reservation->cancel_reason
+                    ];
+                });
+                
+            return view('admin.reservation.cancelled-bookings', compact('admin', 'bookings'));
+        } catch (\Exception $e) {
+            \Log::error('Booking Error: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred while loading the bookings.');
         }
     }
 
@@ -481,5 +557,53 @@ class BookingsController extends Controller
             return back()->with('error', 'An error occurred while loading the booking details.');
         }
     }
+
+    //view cancelled bookings
+    public function viewCancelledBookingsRecord($id)
+    {
+        if (!Auth::guard('admin')->check()) {
+            return redirect()->route('admin.admin-login');
+        }
     
+        $admin = Auth::guard('admin')->user();
+    
+        try {
+            if (!$id) {
+                return back()->with('error', 'Invalid reservation ID');
+            }
+    
+            $reservation = Reservation::with([
+                'motorcycle',
+                'customer',
+                'driverInformation',
+                'payment',
+                'penalty' 
+            ])->findOrFail($id);
+    
+            $driverLicensePath = optional($reservation->driverInformation)->driver_license;
+    
+            \Log::info('Driver License Path: ' . $driverLicensePath);
+    
+            $startDate = Carbon::parse($reservation->rental_start_date);
+            $endDate = Carbon::parse($reservation->rental_end_date);
+            $duration = $startDate->diffInDays($endDate) ?: 1;
+    
+            $images = json_decode($reservation->motorcycle->images, true) ?: [];
+            $firstImage = !empty($images) ? $images[0] : 'images/placeholder.jpg';
+    
+            return view('admin.reservation.view-cancelled-bookings', compact(
+                'admin',
+                'reservation',
+                'duration',
+                'firstImage',
+                'driverLicensePath'
+            ));
+    
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return back()->with('error', 'Reservation not found.');
+        } catch (\Exception $e) {
+            \Log::error('Error loading booking details: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred while loading the booking details.');
+        }
+    }
 }

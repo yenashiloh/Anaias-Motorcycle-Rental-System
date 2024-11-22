@@ -81,7 +81,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($motorcycles as $motorcycle)
-                                        <tr>
+                                        <tr id="motorcycle-{{ $motorcycle->motor_id }}">
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $motorcycle->name }}</td>
                                             <td>{{ $motorcycle->brand }}</td>
@@ -106,82 +106,85 @@
                                                             </span>
                                                         @endif
                                                     </button>
-                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $motorcycle->motor_id }}">
+                                                    <ul class="dropdown-menu"
+                                                        aria-labelledby="dropdownMenuButton{{ $motorcycle->motor_id }}">
                                                         @if ($motorcycle->status === 'Available')
                                                             <li>
-                                                                <form action="{{ route('admin.motorcycles.update-status', $motorcycle->motor_id) }}" method="POST">
+                                                                <form
+                                                                    action="{{ route('admin.motorcycles.update-status', $motorcycle->motor_id) }}"
+                                                                    method="POST">
                                                                     @csrf
-                                                                    <input type="hidden" name="status" value="Not Available">
-                                                                    <button type="submit" class="dropdown-item">Set to Not Available</button>
+                                                                    <input type="hidden" name="status"
+                                                                        value="Not Available">
+                                                                    <button type="submit" class="dropdown-item">Set to
+                                                                        Not Available</button>
                                                                 </form>
                                                             </li>
-                                                            <li>
-                                                                <form action="{{ route('admin.motorcycles.update-status', $motorcycle->motor_id) }}" method="POST">
-                                                                    @csrf
-                                                                    <input type="hidden" name="status" value="Maintenance">
-                                                                    <button type="submit" class="dropdown-item">Set to Maintenance</button>
-                                                                </form>
-                                                            </li>
+                                                        
                                                         @elseif ($motorcycle->status === 'Not Available')
                                                             <li>
-                                                                <form action="{{ route('admin.motorcycles.update-status', $motorcycle->motor_id) }}" method="POST">
+                                                                <form
+                                                                    action="{{ route('admin.motorcycles.update-status', $motorcycle->motor_id) }}"
+                                                                    method="POST">
                                                                     @csrf
-                                                                    <input type="hidden" name="status" value="Available">
-                                                                    <button type="submit" class="dropdown-item">Set to Available</button>
+                                                                    <input type="hidden" name="status"
+                                                                        value="Available">
+                                                                    <button type="submit" class="dropdown-item">Set to
+                                                                        Available</button>
                                                                 </form>
                                                             </li>
-                                                            <li>
-                                                                <form action="{{ route('admin.motorcycles.update-status', $motorcycle->motor_id) }}" method="POST">
-                                                                    @csrf
-                                                                    <input type="hidden" name="status" value="Maintenance">
-                                                                    <button type="submit" class="dropdown-item">Set to Maintenance</button>
-                                                                </form>
-                                                            </li>
+                                                           
                                                         @elseif ($motorcycle->status === 'Maintenance')
                                                             <li>
-                                                                <form action="{{ route('admin.motorcycles.update-status', $motorcycle->motor_id) }}" method="POST">
+                                                                <form
+                                                                    action="{{ route('admin.motorcycles.update-status', $motorcycle->motor_id) }}"
+                                                                    method="POST">
                                                                     @csrf
-                                                                    <input type="hidden" name="status" value="Available">
-                                                                    <button type="submit" class="dropdown-item">Set to Available</button>
+                                                                    <input type="hidden" name="status"
+                                                                        value="Available">
+                                                                    <button type="submit" class="dropdown-item">Set to
+                                                                        Available</button>
                                                                 </form>
                                                             </li>
                                                             <li>
-                                                                <form action="{{ route('admin.motorcycles.update-status', $motorcycle->motor_id) }}" method="POST">
+                                                                <form
+                                                                    action="{{ route('admin.motorcycles.update-status', $motorcycle->motor_id) }}"
+                                                                    method="POST">
                                                                     @csrf
-                                                                    <input type="hidden" name="status" value="Not Available">
-                                                                    <button type="submit" class="dropdown-item">Set to Not Available</button>
+                                                                <input type="hidden" name="status"
+                                                                        value="Not Available">
+                                                                    <button type="submit" class="dropdown-item">Set to
+                                                                        Not Available</button>
                                                                 </form>
                                                             </li>
                                                         @endif
                                                     </ul>
                                                 </div>
                                             </td>
-                                            
-
                                             <td>
-                                                <div class="form-button-action">
+                                                <div class="form-button-action d-flex justify-content-center">
                                                     <a href="{{ route('admin.motorcycles.view-motorcycle', $motorcycle->motor_id) }}"
                                                         class="btn btn-link btn-primary" data-bs-toggle="tooltip"
                                                         title="View Motorcycle" data-original-title="View">
                                                         <i class="fa fa-eye"></i>
                                                     </a>
-
+                                            
                                                     <button type="button" data-bs-toggle="tooltip"
-                                                        title="Edit Motorcycle" class="btn btn-link btn-primary "
+                                                        title="Edit Motorcycle" class="btn btn-link btn-warning"
                                                         data-original-title="Edit Motorcycle"
                                                         onclick="window.location.href='{{ route('admin.motorcycles.edit-motorcycle', $motorcycle->motor_id) }}'">
                                                         <i class="fa fa-edit"></i>
                                                     </button>
-
+                                            
                                                     <button type="button"
-                                                        class="btn btn-link btn-danger delete-motorcycle"
-                                                        title="Delete Motorcycle" data-bs-toggle="tooltip"
-                                                        data-original-title="Delete Motorcycle"
+                                                        class="btn btn-link btn-danger archive-motorcycle"
+                                                        title="Archive" data-bs-toggle="tooltip"
                                                         data-id="{{ $motorcycle->motor_id }}">
-                                                        <i class="fa fa-trash"></i>
+                                                        <i class="fa fa-archive"></i>
                                                     </button>
                                                 </div>
                                             </td>
+                                            
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -192,6 +195,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Archive Reason Modal -->
+    <div class="modal fade" id="archiveReasonModal" tabindex="-1" role="dialog"
+        aria-labelledby="archiveReasonModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="archiveReasonModalLabel">Archive Motorcycle</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="archiveForm">
+                        <div class="form-group">
+                            <label for="archiveReason">Reason for Archiving</label>
+                            <textarea class="form-control" id="archiveReason" name="reason" rows="6" required></textarea>
+                        </div>
+                        <input type="hidden" id="archiveMotorId" name="motor_id">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" id="confirmArchive">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -202,69 +234,72 @@
 </html>
 <script>
     $(document).ready(function() {
-        $("#basic-datatables").DataTable();
-        $(document).on('click', '.delete-motorcycle', function() {
-            var motorId = $(this).data('id');
-            var row = $(this).closest('tr');
+        const dataTable = $("#basic-datatables").DataTable();
 
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch(`/motorcycles/${motorId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]').content,
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                Swal.fire(
-                                    'Deleted!',
-                                    'The motorcycle has been deleted.',
-                                    'success'
-                                );
+        let motorId;
 
-                                row.remove();
-
-                                // update row numbers
-                                updateRowNumbers();
-                            } else {
-                                Swal.fire(
-                                    'Error!',
-                                    'There was an error deleting the motorcycle.',
-                                    'error'
-                                );
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            Swal.fire(
-                                'Error!',
-                                'There was an error processing your request.',
-                                'error'
-                            );
-                        });
-                }
-            });
+        // archive modal
+        $(document).on('click', '.archive-motorcycle', function() {
+            motorId = $(this).data('id');
+            $('#archiveMotorId').val(motorId);
+            $('#archiveReasonModal').modal('show');
         });
 
-        // update row
+        $('#confirmArchive').on('click', function() {
+            const reason = $('#archiveReason').val().trim();
+            if (!reason) {
+                Swal.fire('Error', 'Please provide a reason for archiving.', 'error');
+                return;
+            }
+
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch(`/admin/motorcycles/archive/${motorId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        reason: reason
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire(
+                            'Archived!',
+                            'The motorcycle has been archived successfully.',
+                            'success'
+                        );
+
+                        $('#archiveReasonModal').modal('hide');
+                        const row = $(`#motorcycle-${motorId}`).closest('tr');
+                        dataTable.row(row).remove().draw();
+
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            'Failed to archive the motorcycle.',
+                            'error'
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire(
+                        'Error!',
+                        'An error occurred during the archive process.',
+                        'error'
+                    );
+                });
+        });
+
         function updateRowNumbers() {
             $('#basic-datatables tbody tr').each(function(index) {
                 $(this).find('td:first').text(index + 1);
             });
         }
-
     });
 </script>

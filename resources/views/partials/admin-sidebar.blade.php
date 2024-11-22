@@ -51,48 +51,78 @@
                         </a>
                     </li>
                     <li
-                    class="nav-item {{ request()->routeIs('admin.motorcycles.maintenance-motorcycles', 'admin.reservation.view-bookings-specific') ? 'active' : '' }}">
-                    <a href="{{ route('admin.motorcycles.maintenance-motorcycles') }}">
-                        <i class="fa fa-wrench"></i>
-                        <p>Motorcycle Maintenance</p>
-                    </a>
-                </li>
-                  
+                        class="nav-item {{ request()->routeIs('admin.motorcycles.maintenance-motorcycles', 'admin.reservation.view-bookings-specific') ? 'active' : '' }}">
+                        <a href="{{ route('admin.motorcycles.maintenance-motorcycles') }}">
+                            <i class="fa fa-wrench"></i>
+                            <p>Maintenance Motorcycles</p>
+                        </a>
+                    </li>
+                    <li
+                        class="nav-item {{ request()->routeIs('admin.motorcycles.archived-motorcycles', 'admin.motorcycles.view-archive-motorcycle') ? 'active' : '' }}">
+                        <a href="{{ route('admin.motorcycles.archived-motorcycles') }}">
+                            <i class="fa fa-archive"></i>
+                            <p>Archived Motorcycles</p>
+                        </a>
+                    </li>
+
                     <li class="nav-section">
                         <span class="sidebar-mini-icon">
                             <i class="fa fa-ellipsis-h"></i>
                         </span>
-                        <h4 class="text-section">Reservation Management</h4>
+                        <h4 class="text-section">Bookings Management</h4>
                     </li>
 
                     {{-- <li class="nav-item">
                         <a href="#sidebarLayouts">
                             <i class="fas fa-users"></i>
-                            <p>Customers</p>
+                        <p>Customers</p>
                         </a>
                     </li> --}}
-                    <li class="nav-item {{ request()->routeIs('admin.reservation.bookings', 'admin.reservation.view-bookings') ? 'active' : '' }}">
+                    <li
+                        class="nav-item {{ request()->routeIs('admin.reservation.bookings', 'admin.reservation.view-bookings') ? 'active' : '' }}">
                         <a href="{{ route('admin.reservation.bookings') }}">
                             <i class="fas fa-calendar"></i>
-                            <p>Bookings</p>
+                            <p>New Bookings</p>
                         </a>
                     </li>
-                    <li class="nav-item {{ request()->routeIs('admin.reservation.ongoing-bookings', 'admin.reservation.view-ongoing-bookings') ? 'active' : '' }}">
+                    <li
+                        class="nav-item {{ request()->routeIs('admin.reservation.ongoing-bookings', 'admin.reservation.view-ongoing-bookings') ? 'active' : '' }}">
                         <a href="{{ route('admin.reservation.ongoing-bookings') }}">
-                            <i class="fas fa-calendar-check"></i>
+                            <i class="fas fa-clipboard-list"></i>
                             <p>Ongoing Bookings</p>
                         </a>
                     </li>
-                    <li class="nav-item {{ request()->routeIs('admin.reservation.all-bookings-record', 'admin.reservation.view-all-bookings') ? 'active' : '' }}">
+                    <li
+                        class="nav-item {{ request()->routeIs('admin.reservation.all-bookings-record', 'admin.reservation.view-all-bookings') ? 'active' : '' }}">
                         <a href="{{ route('admin.reservation.all-bookings-record') }}">
-                            <i class="fas fa-clipboard-list"></i>
-                            <p>All Bookings Record</p>
+                            <i class="fas fa-calendar-check"></i>
+                            <p>Completed Bookings</p>
+                        </a>
+                    </li>
+                    <li
+                        class="nav-item {{ request()->routeIs('admin.reservation.cancelled-bookings', 'admin.reservation.view-cancelled-bookings') ? 'active' : '' }}">
+                        <a href="{{ route('admin.reservation.cancelled-bookings') }}">
+                            <i class="fas fa-calendar-times"></i>
+                            <p>Cancelled Bookings</p>
                         </a>
                     </li>
                     <li class="nav-item {{ request()->routeIs('admin.reservation.penalties') ? 'active' : '' }}">
                         <a href="{{ route('admin.reservation.penalties') }}">
                             <i class="fas fa-exclamation-triangle"></i>
                             <p>Penalties</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-section">
+                        <span class="sidebar-mini-icon">
+                            <i class="fa fa-ellipsis-h"></i>
+                        </span>
+                        <h4 class="text-section">User Management</h4>
+                    </li>
+                    <li class="nav-item {{ request()->routeIs('admin.user-management.users') ? 'active' : '' }}">
+                        <a href="{{ route('admin.user-management.users') }}">
+                            <i class="fas fa-users"></i>
+                            <p>Users</p>
                         </a>
                     </li>
                 </ul>

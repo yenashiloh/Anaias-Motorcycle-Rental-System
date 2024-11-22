@@ -40,7 +40,7 @@ class PenaltyController extends Controller
                 'customer_id' => $validated['customer_id'],
                 'reservation_id' => $validated['reservation_id'],
                 'type' => 'penalty',
-                'message' => "New penalty added: {$validated['penalty_type']} - ₱{$validated['additional_payment']}",
+                'message' => "You have a violation due to {$validated['penalty_type']}.",
                 'read' => false
             ]);
     
@@ -69,6 +69,18 @@ class PenaltyController extends Controller
         return view('admin.reservation.penalties', compact('admin', 'penalties'));
     }
     
+    //update the status of penalty
+    public function updateStatusPenalty(Request $request, $penalty_id)
+    {
+        $penalty = Penalty::find($penalty_id);
 
+        if ($penalty) {
+            $penalty->status = $request->input('status');
+            $penalty->save();
 
+            return redirect()->back()->with('success', 'Status updated successfully!');
+        }
+
+        return redirect()->back()->with('error', 'Penalty not found!');
+    }
 }

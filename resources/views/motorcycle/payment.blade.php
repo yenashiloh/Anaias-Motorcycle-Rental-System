@@ -78,19 +78,6 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="receipt" class="form-label">Receipt Number</label>
-                                <input type="text" class="form-control" id="receipt" name="receipt" required>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="amount" class="form-label">Amount</label>
-                                <input type="number" class="form-control" id="amount" name="amount" required>
-                                <div id="amount-error" class="text-danger" style="display: none;"></div>
-                            </div>
-                        </div>
-
                         <div class="mb-3">
                             <label for="image" class="form-label">Upload Payment Receipt</label>
                             <input type="file" class="form-control" id="image" name="image" accept="image/*"
@@ -246,41 +233,19 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const amountInput = document.getElementById('amount');
-            const errorDiv = document.getElementById('amount-error');
             const submitButton = document.getElementById('submit-button');
-
-            const totalAmount = {{ abs($total) }};
-
-            function formatNumber(num) {
-                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            }
-
-            amountInput.addEventListener('input', function() {
-                const enteredAmount = parseFloat(this.value.replace(/,/g, '')) || 0;
-
-                if (enteredAmount !== totalAmount) {
-                    errorDiv.textContent = `The amount must be ₱${formatNumber(totalAmount)}.`;
-                    errorDiv.style.display = 'block';
-                    submitButton.disabled = true;
-                } else {
-                    errorDiv.style.display = 'none';
-                    submitButton.disabled = false;
-                }
-            });
-
+    
             document.querySelectorAll('input').forEach(input => {
                 input.disabled = false;
             });
-
             submitButton.disabled = false;
         });
-
+    
         $(document).ready(function() {
             $('form').on('submit', function(e) {
                 e.preventDefault(); 
                 var formData = new FormData(this);
-
+    
                 $.ajax({
                     url: $(this).attr('action'),
                     type: 'POST',

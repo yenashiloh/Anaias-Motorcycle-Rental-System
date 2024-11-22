@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use App\Models\Penalty;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
@@ -170,6 +171,7 @@ class SignUpController extends Controller
         return view('login');
     }
 
+    //login customer
     public function loginCustomer(Request $request)
     {
         $credentials = $request->validate([
@@ -178,14 +180,24 @@ class SignUpController extends Controller
         ]);
     
         if (Auth::guard('customer')->attempt($credentials, $request->remember)) {
-            $request->session()->regenerate();
+            $customer = Auth::guard('customer')->user();
+            $penalty = Penalty::where('customer_id', $customer->customer_id)
+                ->where('status', 'Not Paid')
+                ->exists(); 
     
+            if ($penalty) {
+                Auth::guard('customer')->logout(); 
+                return back()->with('error', 'Your account is blocked due to unpaid penalties. Please resolve the issue to log in.');
+            }
+    
+            $request->session()->regenerate();
             return redirect()->intended('/');
         }
-    
+
         return back()->with('error', 'Email and password do not match. Please try again.');
     }
-
+    
+    //logout customer
     public function logoutCustomer(Request $request)
     {
         Auth::guard('customer')->logout();

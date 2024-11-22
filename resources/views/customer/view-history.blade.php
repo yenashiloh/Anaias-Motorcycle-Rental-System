@@ -21,6 +21,16 @@
         font-weight: 900;
         text-transform: uppercase;
     }
+
+    .bg-light-red {
+        background-color: #ffe2e2;
+        text-align: center;
+        padding: 10px;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
 </style>
 
 <body>
@@ -214,15 +224,6 @@
                                 <div class="col-md-10">₱{{ number_format($reservation->total, 2) }}</div>
                             </div>
                             <div class="row mb-2">
-                                <div class="col-md-2 ">Receipt:</div>
-                                <div class="col-md-10">{{ $reservation->payment->receipt ?? 'N/A' }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-md-2 ">Amount Sent:</div>
-                                <div class="col-md-10">
-                                    ₱{{ number_format($reservation->payment->amount ?? 0, 2) }}</div>
-                            </div>
-                            <div class="row mb-2">
                                 <div class="col-md-2 ">GCash Number:</div>
                                 <div class="col-md-10">{{ $reservation->payment->number ?? 'N/A' }}</div>
                             </div>
@@ -251,9 +252,14 @@
                 @endif
 
                 @if ($reservation->violation_status === 'Violator')
+                    <div class="col-md-12" id="violations-section">
+                        <div class="bg-light-blue text-dark rounded p-3 ">
+                            <h6 class="mb-0" style="font-weight: bold; font-size: 18px; color:red;">Violations</h6>
+                            <strong class="" style=""> Please review the details and take immediate action
+                                to resolve the issue.</strong>
+                        </div>
+                    </div>
                     <div class="mb-4 mt-3">
-                        <h5 class="fw-bold mb-3 mt-5 text-danger">Violations</h5>
-                        <hr>
                         <div class="ps-3">
                             <div class="row mb-2">
                                 <div class="col-md-2 fw-bold">Penalty Type:</div>

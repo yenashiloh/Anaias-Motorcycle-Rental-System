@@ -54,11 +54,11 @@
                                 <div class="col-12">
                                     <div class="input-group mb-1">
                                         <div class="d-flex align-items-center bg-light text-body rounded-start p-2">
-                                            <span class="fas fa-calendar-alt"></span><span class="ms-1">Rental
-                                                Dates</span>
+                                            <span class="fas fa-calendar-alt"></span>
+                                            <span class="ms-1">Rental Dates</span>
                                         </div>
-                                        <input type="text" id="dateRangePicker" name="rental_dates"
-                                            class="form-control" readonly>
+                                        <input type="text" id="dateRangePicker" name="rental_dates" 
+                                               class="form-control" readonly placeholder="Select rental dates">
                                     </div>
                                 </div>
 
@@ -96,20 +96,22 @@
                                 </div>
                                 <div class="col-12">
                                     @guest('customer')
-                                    <a href="{{ route('login') }}" class="btn btn-light w-100 py-2">Login to Rent Now</a>
-                                @else
-                                    @if($status === 'Available')
-                                        <button type="submit" class="btn btn-light w-100 py-2 mb-2" id="rent-now-button">
-                                            Rent Now
-                                        </button>
+                                        <a href="{{ route('login') }}" class="btn btn-light w-100 py-2">Login to Rent
+                                            Now</a>
                                     @else
-                                        <button type="button" class="btn btn-light w-100 py-2 mb-2" id="not-available-button">
-                                            Rent Now
-                                        </button>
-                                    @endif
-                                @endguest
+                                        @if ($status === 'Available')
+                                            <button type="submit" class="btn btn-light w-100 py-2 mb-2"
+                                                id="rent-now-button">
+                                                Rent Now
+                                            </button>
+                                        @else
+                                            <button type="button" class="btn btn-light w-100 py-2 mb-2"
+                                                id="not-available-button">
+                                                Rent Now
+                                            </button>
+                                        @endif
+                                    @endguest
                                 </div>
-
                             </div>
                         </form>
                     </div>
@@ -147,10 +149,6 @@
 
                         <dt class="col-2">Color:</dt>
                         <dd class="col-9">{{ $motorcycle->color }}</dd>
-
-                        <!-- <dt class="col-2">Body Number:</dt>
-                        <dd class="col-9">{{ $motorcycle->body_number }}</dd> -->
-
                     </div>
                 </div>
             </div>
@@ -177,8 +175,6 @@
     }
 
     $(function() {
-        var today = moment().startOf('day');
-        var tomorrow = moment(today).add(1, 'days');
         var motorcyclePrice = <?php echo json_encode($motorcycle->price); ?>;
         var reservedDates = <?php echo json_encode($reservedDates); ?>;
 
@@ -186,11 +182,13 @@
             return reservedDates.some(function(reservation) {
                 var start = moment(reservation.start);
                 var end = moment(reservation.end);
-                return date.isBetween(start, end, 'day', '[]'); // [] means inclusive
+                return date.isBetween(start, end, 'day', '[]');
             });
         }
 
         function updateRentalInfo(start, end) {
+            if (!start || !end) return;
+
             var days = end.diff(start, 'days');
             $('#dateRangePicker').val(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
             $('#rentalDays').text(days + ' Day' + (days !== 1 ? 's' : '') + ' Rental');
@@ -199,23 +197,35 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }));
+
+            // If 1 day rental, set drop-off time same as pick-up time
+            if (days === 1) {
+                var pickUpTime = $('#pickUpTimePicker').val();
+                $('#dropOffTimePicker').val(pickUpTime).prop('disabled', true);
+
+                // Ensure drop_off is always present in form submission
+                $('form').append('<input type="hidden" name="drop_off" value="' + pickUpTime + '">');
+            } else {
+                $('#dropOffTimePicker').prop('disabled', false);
+                // Remove any previously added hidden drop_off input
+                $('form input[name="drop_off"]').remove();
+            }
         }
 
         $('#dateRangePicker').daterangepicker({
-            startDate: today,
-            endDate: tomorrow,
             opens: 'left',
+            autoUpdateInput: false,
             locale: {
-                format: 'DD/MM/YYYY'
+                format: 'DD/MM/YYYY',
+                cancelLabel: 'Clear'
             },
-            minDate: today,
+            minDate: moment().startOf('day'),
             isInvalidDate: function(date) {
                 return isDateReserved(date);
             }
         });
 
-        updateRentalInfo(today, tomorrow);
-
+        // Handle date selection
         $('#dateRangePicker').on('apply.daterangepicker', function(ev, picker) {
             var start = picker.startDate;
             var end = picker.endDate;
@@ -238,14 +248,41 @@
                     confirmButtonText: 'OK',
                     confirmButtonColor: '#3085d6'
                 });
+                $(this).val('');
                 return;
             }
 
             updateRentalInfo(picker.startDate, picker.endDate);
         });
 
+        // Handle date clear
         $('#dateRangePicker').on('cancel.daterangepicker', function(ev, picker) {
-            updateRentalInfo(today, tomorrow);
+            $(this).val('');
+            $('#rentalDays').text('Select dates');
+            $('#rentalPrice').text('₱0.00');
+        });
+
+        $('#pickUpTimePicker').on('change', function() {
+            var dateRange = $('#dateRangePicker').val();
+            if (dateRange) {
+                var days = moment(dateRange.split(' - ')[1], 'DD/MM/YYYY').diff(
+                    moment(dateRange.split(' - ')[0], 'DD/MM/YYYY'),
+                    'days'
+                );
+
+                if (days === 1) {
+                    $('#dropOffTimePicker').val($(this).val()).prop('disabled', true);
+
+                    // Update or add hidden input
+                    var $hiddenDropOff = $('form input[name="drop_off"]');
+                    if ($hiddenDropOff.length) {
+                        $hiddenDropOff.val($(this).val());
+                    } else {
+                        $('form').append('<input type="hidden" name="drop_off" value="' + $(this)
+                        .val() + '">');
+                    }
+                }
+            }
         });
 
         $('#dateRangePicker').prop('readonly', true);
@@ -272,17 +309,17 @@
     };
 
     document.addEventListener('DOMContentLoaded', function() {
-    const notAvailableBtn = document.getElementById('not-available-button');
-    if (notAvailableBtn) {
-        notAvailableBtn.addEventListener('click', function() {
-            Swal.fire({
-                title: 'Not Available',
-                text: 'Sorry, this motorcycle is currently not available for rent. Please check back later or browse our other available motorcycles.',
-                icon: 'info',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#3085d6'
+        const notAvailableBtn = document.getElementById('not-available-button');
+        if (notAvailableBtn) {
+            notAvailableBtn.addEventListener('click', function() {
+                Swal.fire({
+                    title: 'Not Available',
+                    text: 'Sorry, this motorcycle is currently not available for rent. Please check back later or browse our other available motorcycles.',
+                    icon: 'info',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6'
+                });
             });
-        });
-    }
-});
+        }
+    });
 </script>

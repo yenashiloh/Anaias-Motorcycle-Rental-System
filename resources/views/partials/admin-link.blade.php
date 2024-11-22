@@ -30,3 +30,4 @@ WebFont.load({
 <link rel="stylesheet" href="../../../../admin-assets-final/css/bootstrap.min.css" />
 <link rel="stylesheet" href="../../../../admin-assets-final/css/plugins.min.css" />
 <link rel="stylesheet" href="../../../../admin-assets-final/css/kaiadmin.min.css" />
+<link rel="stylesheet" href="../../../../admin-assets-final/css/style.css" />

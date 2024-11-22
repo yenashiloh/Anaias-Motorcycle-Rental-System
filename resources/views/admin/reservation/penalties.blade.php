@@ -57,6 +57,7 @@
                                         <th>Penalty Type</th>
                                         <th>Additional Payment</th>
                                         <th>Description</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,6 +70,48 @@
                                             <td>{{ $penalty->penalty_type }}</td>
                                             <td>{{ '₱' . number_format($penalty->additional_payment, 2) }}</td>
                                             <td>{{ $penalty->description }}</td>
+                                            <td>
+                                                @if ($penalty->status == 'Unpaid')
+                                                    <div class="dropdown">
+                                                        <button class="badge badge-primary dropdown-toggle"
+                                                            type="button" id="statusDropdown" data-bs-toggle="dropdown"
+                                                            aria-expanded="false">
+                                                            {{ $penalty->status }}
+                                                        </button>
+                                                        <ul class="dropdown-menu" aria-labelledby="statusDropdown">
+                                                            <li>
+                                                                <form
+                                                                    action="{{ route('penalties.updateStatus', $penalty->penalty_id) }}"
+                                                                    method="POST">
+                                                                    @csrf
+                                                                    @method('PUT')
+                                                                    <button class="dropdown-item" type="submit"
+                                                                        name="status" value="Paid">
+                                                                        Paid
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                            <li>
+                                                                <form
+                                                                    action="{{ route('penalties.updateStatus', $penalty->penalty_id) }}"
+                                                                    method="POST">
+                                                                    @csrf
+                                                                    @method('PUT')
+                                                                    <button class="dropdown-item" type="submit"
+                                                                        name="status" value="Not Paid">
+                                                                        Not Paid
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                @else
+                                                    <span
+                                                        class="badge @if ($penalty->status == 'Paid') badge-success @else badge-danger @endif">
+                                                        {{ $penalty->status }}
+                                                    </span>
+                                                @endif
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -76,7 +119,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 

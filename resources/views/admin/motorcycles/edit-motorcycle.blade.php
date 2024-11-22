@@ -7,6 +7,7 @@
     @include('partials.admin-link')
     <link rel="stylesheet" href="../../admin-assets-final/css/edit.css" />
 </head>
+
 <body>
 
     @include('partials.admin-sidebar')
@@ -162,7 +163,7 @@
                                             <label for="body_number">Body Number</label>
                                             <input type="text" class="form-control" id="body_number"
                                                 value="{{ $motorcycle->body_number }}" name="body_number" required
-                                                placeholder="Enter Body Number" />
+                                                placeholder="Enter Body Number" disabled/>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -170,7 +171,7 @@
                                             <label for="plate_number">Plate Number</label>
                                             <input type="text" class="form-control" id="plate_number"
                                                 value="{{ $motorcycle->plate_number }}" name="plate_number" required
-                                                placeholder="Enter Plate Number" />
+                                                placeholder="Enter Plate Number" disabled/>
                                         </div>
                                     </div>
                                     <div class="col-md-6">

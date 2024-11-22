@@ -9,6 +9,7 @@ use App\Http\Controllers\BookingsController;
 use App\Http\Controllers\MotorcycleController;
 use App\Http\Controllers\PenaltyController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UsersController;
 use App\Http\Middleware\PreventBackHistory;
 use App\Http\Controllers\NotificationController;
 use Maatwebsite\Excel\Facades\Excel;
@@ -31,7 +32,7 @@ Route::post('/email/verify', [SignUpController::class, 'verifyOtp'])->name('emai
 Route::post('/email/resend', [SignUpController::class, 'resendOtp'])->name('email.resend');
 Route::get('success-verification', [SignUpController::class, 'successVerification'])->name('success-verification');
 
-Route::get('/admin/admin-login', [AdminLoginController::class, 'showLoginForm'])->name('admin.admin-login')->middleware(\App\Http\Middleware\PreventBackHistory::class);
+Route::get('/admin/admin-login', [AdminLoginController::class, 'showLoginForm'])->name('admin.admin-login');
 Route::post('admin/admin-login', [AdminLoginController::class, 'loginDashboard'])->middleware(\App\Http\Middleware\PreventBackHistory::class);
 
 Route::get('/motorcycles/search', [HomeController::class, 'search'])->name('motorcycles.search');
@@ -58,7 +59,6 @@ Route::middleware([PreventBackHistory::class, 'customer'])->group(function () {
 
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead']);
-
 });
 
 //ADMIN SIDE 
@@ -79,29 +79,38 @@ Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
 
 
     //bookings
-    Route::get('/reservation/bookings', [BookingsController::class, 'showBookings'])->name('admin.reservation.bookings');
+    Route::get('/new-bookings', [BookingsController::class, 'showBookings'])->name('admin.reservation.bookings');
     Route::get('reservation/bookings/view/{id}', [BookingsController::class, 'viewBookings'])->name('admin.reservation.view-bookings');
 
     //all bookings record
-    Route::get('/reservation/all-bookings-record', [BookingsController::class, 'showAllBookings'])->name('admin.reservation.all-bookings-record');
-    Route::get('/reservation/all-bookings-record/view/{id}', [BookingsController::class, 'viewAllBookingsRecord'])->name('admin.reservation.view-all-bookings');
+    Route::get('/bookings/completed', [BookingsController::class, 'showAllBookings'])->name('admin.reservation.all-bookings-record');
+    Route::get('/bookings/completed/view/{id}', [BookingsController::class, 'viewAllBookingsRecord'])->name('admin.reservation.view-all-bookings');
 
-    Route::get('/reservation/ongoing-bookings', [BookingsController::class, 'showOngoingBookings'])->name('admin.reservation.ongoing-bookings');
-    Route::get('/reservation/ongoing-bookings/view/{id}', [BookingsController::class, 'viewOngoingBookings'])->name('admin.reservation.view-ongoing-bookings');
+    Route::get('/bookings/ongoing', [BookingsController::class, 'showOngoingBookings'])->name('admin.reservation.ongoing-bookings');
+    Route::get('/bookings/ongoing/view/{id}', [BookingsController::class, 'viewOngoingBookings'])->name('admin.reservation.view-ongoing-bookings');
 
     Route::get('/motorcycles/manage-motorcycles/view-motorcycle/view-booking/{id}', [BookingsController::class, 'viewBookingSpecific'])->name('admin.reservation.view-bookings-specific');
+
+    //cancelled bookings
+    Route::get('/bookings/cancelled', [BookingsController::class, 'showCancelledBookings'])->name('admin.reservation.cancelled-bookings');
+    Route::get('/bookings/cancelled/view/{id}', [BookingsController::class, 'viewCancelledBookingsRecord'])->name('admin.reservation.view-cancelled-bookings');
+
 
     //change status
     Route::post('reservations/approve/{id}', [BookingsController::class, 'approve'])->name('reservations.approve');
     Route::post('reservations/decline/{id}', [BookingsController::class, 'decline'])->name('reservations.decline');
-    Route::post('reservations/cancel/{reservation}', [BookingsController::class, 'cancel'])->name('reservations.cancel');
+    Route::post('admin/bookings/cancel/{reservation_id}', [BookingsController::class, 'cancel'])->name('reservations.cancel');
+
     Route::post('reservations/mark-ongoing/{reservation}', [BookingsController::class, 'markOngoing'])->name('reservations.markOngoing');
     Route::post('reservations/completed/{reservation}', [BookingsController::class, 'completed'])->name('reservations.completed');
 
     Route::post('reservations/update-payment-status/{reservation_id}', [BookingsController::class, 'updatePaymentStatus'])->name('reservations.update-payment-status');
 
     Route::post('/penalties', [PenaltyController::class, 'storePenalty'])->name('penalties.store');
-    Route::get('/reservation/penalties', [PenaltyController::class, 'showPenaltiesPage'])->name('admin.reservation.penalties');
+    Route::get('/bookings/penalties', [PenaltyController::class, 'showPenaltiesPage'])->name('admin.reservation.penalties');
+    Route::put('/penalties/{penaltyId}/update-status', [PenaltyController::class, 'updateStatusPenalty'])->name('penalties.updateStatus');
+
+
 
     Route::get('/export-reservations', function () {
         return Excel::download(new ReservationsExport, 'bookings.xlsx');
@@ -115,5 +124,12 @@ Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
         return Excel::download(new AllBookingsExport, 'all-bookings-record.xlsx');
     })->name('export.all-bookings-record');
 
+    Route::get('/users', [UsersController::class, 'showUsersPage'])->name('admin.user-management.users');
+
+    //archive
+    Route::post('/admin/motorcycles/archive/{id}', [MotorcycleController::class, 'archive'])->name('admin.motorcycles.archive');
+    Route::get('/archived/motorcycles', [MotorcycleController::class, 'showArchivedMotorcycles'])->name('admin.motorcycles.archived-motorcycles');
+    Route::post('/admin/motorcycles/restore/{id}', [MotorcycleController::class, 'restore'])->name('admin.motorcycles.restore');
+    Route::get('archived/motorcycles/view/{motor_id}', [MotorcycleController::class, 'viewArchiveMotorcycle'])->name('admin.motorcycles.view-archive-motorcycle');
   
 });

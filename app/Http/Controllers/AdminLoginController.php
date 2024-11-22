@@ -49,7 +49,7 @@ class AdminLoginController extends Controller
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return response()->json(['success' => true]); // Return JSON response
+        return response()->json(['success' => true]); 
     }
     
 

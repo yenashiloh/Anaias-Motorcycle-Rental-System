@@ -30,9 +30,9 @@ use HasFactory;
         'tire_condition', 
         'oil_status', 
         'lights_status', 
-        'overall_condition'
+        'overall_condition',
+        'is_archived'
     ];
-
     
     public function reservations()
     {

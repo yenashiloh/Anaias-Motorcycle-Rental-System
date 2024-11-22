@@ -22,10 +22,14 @@ class MotorcycleController extends Controller
         }
     
         $admin = Auth::guard('admin')->user();
-        $motorcycles = Motorcycle::whereIn('status', ['Available', 'Not Available'])->get();
+        
+        $motorcycles = Motorcycle::where('is_archived', false)
+            ->whereIn('status', ['Available', 'Not Available'])
+            ->get();
+    
         return view('admin.motorcycles.manage-motorcycles', compact('admin', 'motorcycles'));
     }
-    
+
     //show motorcycle maintenance page
     public function showMotorcycleMaintenance(Request $request)
     {
@@ -43,6 +47,22 @@ class MotorcycleController extends Controller
     {
         $admin = Auth::guard('admin')->user();
         return view('admin.motorcycles.add-motorcycle', compact('admin'));
+    }
+
+    //show archived motorcycles page
+    public function showArchivedMotorcycles(Request $request)
+    {
+        if (!Auth::guard('admin')->check()) {
+            return redirect()->route('admin.admin-login');
+        }
+    
+        $admin = Auth::guard('admin')->user();
+        
+        $motorcycles = Motorcycle::where('is_archived', true)
+            ->orderBy('created_at', 'desc')  
+            ->get();
+    
+        return view('admin.motorcycles.archived-motorcycles', compact('admin', 'motorcycles'));
     }
 
     //store motorcycle
@@ -77,7 +97,6 @@ class MotorcycleController extends Controller
 
         $imagePaths = [];
 
-        // Handle file uploads
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('motorcycle_images', 'public');
@@ -85,16 +104,13 @@ class MotorcycleController extends Controller
             }
         }
 
-        // Handle base64 images separately, only if we don't have file uploads
         if (empty($imagePaths) && $request->has('image_data')) {
             foreach ($request->image_data as $base64Image) {
-                // Skip if it's already a stored path
                 if (Str::startsWith($base64Image, 'motorcycle_images/')) {
                     $imagePaths[] = $base64Image;
                     continue;
                 }
 
-                // Only process if it's actually a base64 image
                 if (Str::startsWith($base64Image, 'data:image')) {
                     try {
                         $imageData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64Image));
@@ -126,7 +142,6 @@ class MotorcycleController extends Controller
                 ->route('admin.motorcycles.manage-motorcycles')
                 ->with('success', 'Motorcycle created successfully!');
         } catch (\Exception $e) {
-            // Clean up any stored images if the motorcycle creation fails
             foreach ($imagePaths as $path) {
                 Storage::disk('public')->delete($path);
             }
@@ -287,9 +302,6 @@ class MotorcycleController extends Controller
     
         return view('admin.motorcycles.view-motorcycle', compact('admin', 'motorcycle', 'bookings'));
     }
-    
-    
-
 
     //update the status of motorcycle
     public function updateStatus(Request $request, $motor_id)
@@ -378,4 +390,107 @@ class MotorcycleController extends Controller
             ], 500);
         }
     }
+    
+    //archive motorcycle
+    public function archive(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:255',
+        ]);
+    
+        try {
+            $motorcycle = Motorcycle::findOrFail($id);
+            $motorcycle->is_archived = true;
+            $motorcycle->archive_reason = $request->input('reason'); 
+    
+            if ($motorcycle->save()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Motorcycle archived successfully'
+                ]);
+            }
+    
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to archive motorcycle'
+            ], 500);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while archiving the motorcycle',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+
+    //restore archive motorcycle
+    public function restore($id)
+    {
+        try {
+            $motorcycle = Motorcycle::findOrFail($id);
+            $motorcycle->is_archived = false;
+            
+            if ($motorcycle->save()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Motorcycle restored successfully'
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to restore motorcycle'
+            ], 500);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while restoring the motorcycle',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    //view motorcycle in archive page
+    public function viewArchiveMotorcycle($motor_id)
+    {
+        $admin = Auth::guard('admin')->user();
+        $motorcycle = Motorcycle::findOrFail($motor_id);
+    
+        $bookings = Reservation::with(['motorcycle', 'driverInformation', 'payment'])
+            ->where('motor_id', $motor_id) 
+            ->whereIn('status', ['To Review', 'Approved', 'Declined', 'Completed', 'Ongoing'])
+            ->get()
+            ->map(function ($reservation) {
+                $startDate = Carbon::parse($reservation->rental_start_date);
+                $endDate = Carbon::parse($reservation->rental_end_date);
+                $duration = $startDate->diffInDays($endDate) ?: 1;
+    
+                $images = json_decode($reservation->motorcycle->images, true);
+                $firstImage = $images[0] ?? 'images/placeholder.jpg';
+    
+                $paymentStatus = $reservation->payment->status ?? 'Pending'; 
+    
+                $driverName = $reservation->driverInformation 
+                    ? $reservation->driverInformation->first_name . ' ' . $reservation->driverInformation->last_name
+                    : 'N/A';
+    
+                return [
+                    'reservation_id' => $reservation->reservation_id,
+                    'created_at' => $reservation->created_at,
+                    'driver_name' => $driverName,
+                    'rental_start_date' => $reservation->rental_start_date,
+                    'duration' => $duration . ' ' . ((int)$duration === 1 ? 'day' : 'days'),
+                    'total' => $reservation->total,
+                    'motorcycle_image' => $firstImage,
+                    'status' => $reservation->status ?? 'To Review',
+                    'payment_status' => $paymentStatus,
+                ];
+            });
+    
+        return view('admin.motorcycles.view-archive-motorcycle', compact('admin', 'motorcycle', 'bookings'));
+    }
+
 }

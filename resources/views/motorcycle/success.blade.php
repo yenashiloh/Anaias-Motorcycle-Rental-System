@@ -35,10 +35,18 @@
                                 <path d="M14 27l7.8 7.8L38 14" />
                             </svg>
                         </div>
-                        <h4 class="fw-bold">Reservation Successfully!</h4>
-                        <p class="fw-bold mb-4">Please wait for admin confirmation. You'll be notified once approved.
-                            Thank
-                            you!</p>
+                        @if ($reservation->payment_method === 'cash')
+                            <h4 class="fw-bold">Reservation Successfully!</h4>
+                            <p class="fw-bold">Please wait for admin confirmation. Your request has been sent to the admin for review. Thank you!</p>
+                            <p><strong>Note:</strong> For <span class="text-primary fw-bold">Cash Payment</span>, please
+                                complete your payment within <span class="text-danger fw-bold">6 hours</span> to secure
+                                your slot.</p>
+                        @endif
+                        @if ($reservation->payment_method === 'gcash')
+                            <h4 class="fw-bold">Reservation Successfully!</h4>
+                            <p class="fw-bold mb-4">Please wait for admin confirmation.Your request has been
+                                sent to the admin for review. Thank you!</p>
+                        @endif
                     </div>
                     <br>
                     @if ($isCustomerLoggedIn)
@@ -101,7 +109,6 @@
                                         <p>No driver license uploaded.</p>
                                     @endif
                                 </div>
-
                             </div>
                         </div>
                 </div>
@@ -211,15 +218,6 @@
                             <div class="row mb-2">
                                 <div class="col-md-2 ">Total Amount:</div>
                                 <div class="col-md-10">₱{{ number_format($reservation->total, 2) }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-md-2 ">Receipt:</div>
-                                <div class="col-md-10">{{ $reservation->payment->receipt ?? 'N/A' }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-md-2 ">Amount Sent:</div>
-                                <div class="col-md-10">
-                                    ₱{{ number_format($reservation->payment->amount ?? 0, 2) }}</div>
                             </div>
                             <div class="row mb-2">
                                 <div class="col-md-2 ">GCash Number:</div>

@@ -7,6 +7,19 @@
     @include('partials.admin-link')
 </head>
 
+<style>
+    .card-category {
+
+        transition: color 0.3s ease;
+        /* Smooth transition */
+    }
+
+    .col-stats a:hover .card-category {
+        color: #007bff;
+        /* Change this to your desired hover color */
+    }
+</style>
+
 <body>
 
     @include('partials.admin-sidebar')
@@ -35,9 +48,35 @@
                                 </div>
                                 <div class="col col-stats ms-3 ms-sm-0">
                                     <div class="numbers">
+                                        <a href="{{ route('admin.user-management.users') }}"
+                                        style="text-decoration: none;">
                                         <p class="card-category">Total Users</p>
                                         <h4 class="card-title">{{ $customerCount }}</h4>
+                                    </a>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="card card-stats card-round">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-icon">
+                                    <div class="icon-big text-center icon-secondary bubble-shadow-small">
+                                        <i class="fas fa-motorcycle"></i>
+                                    </div>
+                                </div>
+                                <div class="col col-stats ms-3 ms-sm-0">
+                                    <a href="{{ route('admin.motorcycles.manage-motorcycles') }}"
+                                        style="text-decoration: none;">
+                                        <div class="numbers">
+                                            <p class="card-category">Total Motorcycles</p>
+                                            <h4 class="card-title">{{ $motorcycleCount }}</h4>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -53,29 +92,13 @@
                                     </div>
                                 </div>
                                 <div class="col col-stats ms-3 ms-sm-0">
-                                    <div class="numbers">
-                                        <p class="card-category">Total Maintenance</p>
-                                        <h4 class="card-title">{{$maintenanceMotorcycleCount}}</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="card card-stats card-round">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-icon">
-                                    <div class="icon-big text-center icon-secondary bubble-shadow-small">
-                                        <i class="fas fa-motorcycle"></i>
-                                    </div>
-                                </div>
-                                <div class="col col-stats ms-3 ms-sm-0">
-                                    <div class="numbers">
-                                        <p class="card-category">Total Motorcycles</p>
-                                        <h4 class="card-title">{{ $motorcycleCount }}</h4>
-                                    </div>
+                                    <a href="{{ route('admin.motorcycles.maintenance-motorcycles') }}"
+                                        style="text-decoration: none;">
+                                        <div class="numbers">
+                                            <p class="card-category">Maintenance Motorcycles</p>
+                                            <h4 class="card-title">{{ $maintenanceMotorcycleCount }}</h4>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -91,10 +114,12 @@
                                     </div>
                                 </div>
                                 <div class="col col-stats ms-3 ms-sm-0">
-                                    <div class="numbers">
-                                        <p class="card-category">Total Bookings</p>
-                                        <h4 class="card-title">{{ $reservationCount }}</h4>
-                                    </div>
+                                    <a href="{{ route('admin.reservation.bookings') }}" style="text-decoration: none;">
+                                        <div class="numbers">
+                                            <p class="card-category">Total Bookings</p>
+                                            <h4 class="card-title">{{ $reservationCount }}</h4>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -111,10 +136,13 @@
                                     </div>
                                 </div>
                                 <div class="col col-stats ms-3 ms-sm-0">
-                                    <div class="numbers">
-                                        <p class="card-category">Available Motorcycles</p>
-                                        <h4 class="card-title">{{ $availableMotorcycleCount }}</h4>
-                                    </div>
+                                    <a href="{{ route('admin.motorcycles.manage-motorcycles') }}"
+                                        style="text-decoration: none;">
+                                        <div class="numbers">
+                                            <p class="card-category">Available Motorcycles</p>
+                                            <h4 class="card-title">{{ $availableMotorcycleCount }}</h4>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -130,10 +158,13 @@
                                     </div>
                                 </div>
                                 <div class="col col-stats ms-3 ms-sm-0">
-                                    <div class="numbers">
-                                        <p class="card-category">Not Available Motorcycles</p>
-                                        <h4 class="card-title">{{ $notAvailableMotorcycleCount }}</h4>
-                                    </div>
+                                    <a href="{{ route('admin.motorcycles.manage-motorcycles') }}"
+                                        style="text-decoration: none;">
+                                        <div class="numbers">
+                                            <p class="card-category">Not Available Motorcycles</p>
+                                            <h4 class="card-title">{{ $notAvailableMotorcycleCount }}</h4>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -230,7 +261,7 @@
         const motorcycleReservations = @json($motorcycleReservations);
         const motorcycleNames = @json($motorcycleNames);
         const motorcycleLabels = Object.keys(motorcycleReservations).map(id => motorcycleNames[id] ||
-        'Unknown');
+            'Unknown');
         const motorcycleData = Object.values(motorcycleReservations);
 
         const ctxMotorcycle = document.getElementById('motorcycleChart').getContext('2d');

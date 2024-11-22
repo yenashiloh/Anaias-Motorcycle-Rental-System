@@ -104,21 +104,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 const notificationItem = document.createElement('li');
                 const formattedTime = formatTime(new Date(notification.created_at));
     
-                const historyUrl = `/history/view/${notification.reservation_id}`;
+                const historyUrl = `/history/view/${notification.reservation_id}#violations-section`;
     
                 let notificationItemHTML = `
-                    <a class="dropdown-item${!notification.read ? ' new-notification' : ''}" href="${historyUrl}">
+                                <a class="dropdown-item${!notification.read ? ' new-notification' : ''}" href="${historyUrl}">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-exclamation-circle fa-1x me-2 text-danger"></i>
                             <div>
-                                <p class="mb-0"><strong>Penalty</strong></p>
+                                <p class="mb-0"><strong>Admin</strong></p>
                                 <p class="mb-0 small">${notification.message}</p>
                                 <small class="time">${formattedTime}</small>
                             </div>
                         </div>
                     </a>
                 `;
-    
                 notificationItem.innerHTML = notificationItemHTML;
                 notificationList.appendChild(notificationItem);
     

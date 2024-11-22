@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>View Completed Record</title>
+    <title>View All Bookings Record</title>
     @include('partials.admin-link')
 </head>
 <style>
@@ -32,7 +32,7 @@
     <div class="container">
         <div class="page-inner">
             <div class="page-header">
-                <h3 class="fw-bold mb-3">View Completed Record</h3>
+                <h3 class="fw-bold mb-3">View Cancelled Record</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         <a href="{{ route('admin.admin-dashboard') }}">
@@ -43,7 +43,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('admin.reservation.all-bookings-record') }}">Completed Record</a>
+                        <a href="{{ route('admin.reservation.cancelled-bookings') }}">Completed Bookings</a>
                     </li>
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
@@ -270,32 +270,6 @@
                                     </div>
                                 </div>
                         </div>
-                        @endif
-
-                        @if ($reservation->violation_status === 'Violator')
-                            <div class="mb-4 mt-3">
-                                <h5 class="fw-bold mb-3 mt-5 text-danger">Violations</h5>
-                                <hr>
-                                <div class="ps-3">
-                                    <div class="row mb-2">
-                                        <div class="col-md-3 text-muted">Penalty Type:</div>
-                                        <div class="col-md-6">
-                                            <span>{{ $reservation->penalty->penalty_type ?? 'N/A' }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-md-3 text-muted">Additional Payment:</div>
-                                        <div class="col-md-6">
-                                            <span>{{ isset($reservation->penalty->additional_payment) ? '₱' . number_format($reservation->penalty->additional_payment, 2) : 'N/A' }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-5">
-                                        <div class="col-md-3 text-muted">Description:</div>
-                                        <div class="col-md-6">
-                                            <span>{{ $reservation->penalty->description ?? 'N/A' }}</span>
-                                        </div>
-                                    </div>
-                                </div>
                         @endif
                     </div>
                 </div>

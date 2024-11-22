@@ -24,6 +24,7 @@ class Reservation extends Model
         'total',
         'motor_id',
         'violation_status',
+        'cancel_reason',
     ];
 
     public function customer()
@@ -46,8 +47,6 @@ class Reservation extends Model
         // Change this to use driver_id directly
         return $this->belongsTo(DriverInformation::class, 'driver_id', 'driver_id');
     }
-
-
     public function penalty()
     {
         return $this->belongsTo(Penalty::class, 'reservation_id', 'reservation_id');
