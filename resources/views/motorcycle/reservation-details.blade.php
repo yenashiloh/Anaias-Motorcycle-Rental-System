@@ -24,12 +24,11 @@
                         <p>This is the information that will be used for the Rental Confirmation</p>
 
                         @if ($errors->any())
-                            <div class="alert alert-danger">
-                                @foreach ($errors->all() as $error)
-                                    <p>{{ $error }}</p>
-                                @endforeach
-                            </div>
+                            @foreach ($errors->all() as $error)
+                                <p class="text-danger">{{ $error }}</p>
+                            @endforeach
                         @endif
+
 
                         <input type="hidden" name="motorcycle_id" value="{{ $motorcycle->motor_id }}">
                         <input type="hidden" name="rental_dates" value="{{ $reservationData['rental_dates'] }}">

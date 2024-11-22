@@ -110,8 +110,6 @@ Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
     Route::get('/bookings/penalties', [PenaltyController::class, 'showPenaltiesPage'])->name('admin.reservation.penalties');
     Route::put('/penalties/{penaltyId}/update-status', [PenaltyController::class, 'updateStatusPenalty'])->name('penalties.updateStatus');
 
-
-
     Route::get('/export-reservations', function () {
         return Excel::download(new ReservationsExport, 'bookings.xlsx');
     })->name('export.reservations');
