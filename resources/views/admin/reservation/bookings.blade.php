@@ -47,30 +47,30 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <ul class="nav nav-tabs nav-line nav-color-secondary" id="line-tab" role="tablist">
+                        <ul class="nav nav-tabs nav-line nav-color-secondary d-flex justify-content-between w-100" id="line-tab" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" id="line-home-tab" data-bs-toggle="pill" href="#line-home"
-                                    role="tab" aria-controls="pills-home" aria-selected="true">To Review Status</a>
+                                <a class="nav-link" id="line-home-tab" data-bs-toggle="pill" href="#line-home"
+                                    role="tab" aria-controls="line-home" aria-selected="true">To Review Status</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="line-profile-tab" data-bs-toggle="pill" href="#line-profile"
-                                    role="tab" aria-controls="pills-profile" aria-selected="false">Approved
-                                    Status</a>
+                                    role="tab" aria-controls="line-profile" aria-selected="false">Approved Status</a>
+                            </li>
+                            <li class="nav-item ms-auto">
+                                <a href="{{ route('export.reservations') }}" class="btn btn-secondary btn-round">
+                                    <i class="fas fa-file-export"></i> Export
+                                </a>
                             </li>
                         </ul>
+                        
                         <div class="tab-content mt-3 mb-3" id="line-tabContent">
-                            <div class="tab-pane fade show active" id="line-home" role="tabpanel"
-                                aria-labelledby="line-home-tab">
+                            <div class="tab-pane fade" id="line-home" role="tabpanel" aria-labelledby="line-home-tab">
                                 <div class="col-md-12">
 
                                     <div class="card-header">
                                         <div class="d-flex align-items-center">
                                             <h4 class="card-title">List of To Review Bookings</h4>
-                                            <a href="{{ route('export.reservations') }}"
-                                                class="btn btn-secondary btn-round ms-auto">
-                                                <i class="fas fa-file-export"></i>
-                                                Export
-                                            </a>
+                                           
                                         </div>
                                     </div>
                                     <div class="card-body">
@@ -266,18 +266,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="line-profile" role="tabpanel"
-                                aria-labelledby="line-profile-tab">
+                            <div class="tab-pane fade" id="line-profile" role="tabpanel" aria-labelledby="line-profile-tab">
                                 <div class="col-md-12">
 
                                     <div class="card-header">
                                         <div class="d-flex align-items-center">
                                             <h4 class="card-title">List of To Approved Bookings</h4>
-                                            <a href="{{ route('export.reservations') }}"
-                                                class="btn btn-secondary btn-round ms-auto">
-                                                <i class="fas fa-file-export"></i>
-                                                Export
-                                            </a>
                                         </div>
                                     </div>
                                     <div class="card-body">
@@ -539,6 +533,31 @@
             var form = $('#cancelForm');
             form.attr('action', '/admin/bookings/cancel/' +
                 reservationId);
+        });
+    });
+
+    //nav active
+    document.addEventListener('DOMContentLoaded', function () {
+        const activeTab = localStorage.getItem('activeTab');
+
+        if (activeTab) {
+            const tabLink = document.getElementById(activeTab);
+            const tabContent = document.querySelector(tabLink.getAttribute('href'));
+
+            if (tabLink && tabContent) {
+                document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(content => content.classList.remove('show', 'active'));
+
+                tabLink.classList.add('active');
+                tabContent.classList.add('show', 'active');
+            }
+        }
+
+        const tabLinks = document.querySelectorAll('.nav-link');
+        tabLinks.forEach(tabLink => {
+            tabLink.addEventListener('click', function () {
+                localStorage.setItem('activeTab', tabLink.id);
+            });
         });
     });
 </script>

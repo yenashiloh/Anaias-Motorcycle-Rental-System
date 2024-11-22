@@ -100,18 +100,31 @@ class BookingsController extends Controller
 
     //approve the bookings reservation
     public function approve($id)
-    {
-        try {
-            $reservation = Reservation::findOrFail($id);
-            $reservation->status = 'Approved';
-            $reservation->save();
-    
-            return back()->with('success', 'Reservation Approved Successfully!');
-        } catch (\Exception $e) {
-            \Log::error('Approval Error: ' . $e->getMessage());
-            return back()->with('error', 'An error occurred while approving the reservation.');
+{
+    try {
+        $reservation = Reservation::findOrFail($id);
+
+        // Check if the payment exists and is 'Paid'
+        $payment = Payment::where('reservation_id', $reservation->reservation_id)->first();
+
+        // If no payment record or payment is not 'Paid'
+        if (!$payment || $payment->status !== 'Paid') {
+            // Return an error message if the payment is not 'Paid'
+            return back()->with('error', 'The reservation needs to be paid before it can be approved.');
         }
+
+        // Proceed to approve the reservation
+        $reservation->status = 'Approved';
+        $reservation->save();
+
+        return back()->with('success', 'Reservation Approved Successfully!');
+    } catch (\Exception $e) {
+        \Log::error('Approval Error: ' . $e->getMessage());
+        return back()->with('error', 'An error occurred while approving the reservation.');
     }
+}
+
+    
     
     //decline the bookings reservation
     public function decline($id)

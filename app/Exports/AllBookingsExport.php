@@ -19,7 +19,7 @@ class AllBookingsExport implements FromCollection, WithHeadings, WithStyles, Wit
     public function collection()
     {
         return Reservation::with(['driverInformation', 'payment', 'motorcycle'])
-            ->whereIn('status', ['Declined', 'Completed', 'Cancelled']) 
+            ->whereIn('status', ['Declined', 'Completed']) 
             ->get()
             ->map(function ($reservation) {
                 $startDate = Carbon::parse($reservation->rental_start_date);

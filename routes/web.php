@@ -95,7 +95,6 @@ Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
     Route::get('/bookings/cancelled', [BookingsController::class, 'showCancelledBookings'])->name('admin.reservation.cancelled-bookings');
     Route::get('/bookings/cancelled/view/{id}', [BookingsController::class, 'viewCancelledBookingsRecord'])->name('admin.reservation.view-cancelled-bookings');
 
-
     //change status
     Route::post('reservations/approve/{id}', [BookingsController::class, 'approve'])->name('reservations.approve');
     Route::post('reservations/decline/{id}', [BookingsController::class, 'decline'])->name('reservations.decline');

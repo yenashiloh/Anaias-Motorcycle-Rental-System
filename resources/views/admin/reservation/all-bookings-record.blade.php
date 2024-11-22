@@ -26,8 +26,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}" class="fw-bold">Completed Bookings
-                            Record</a>
+                        <a href="{{ route('admin.motorcycles.manage-motorcycles') }}" class="fw-bold">Completed Bookings</a>
                     </li>
 
                 </ul>

@@ -197,7 +197,6 @@ class HomeController extends Controller
             'pastReservation' 
         ));
     }
-    
 
     //process reservation
     public function process(Request $request)

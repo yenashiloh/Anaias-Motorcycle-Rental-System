@@ -57,8 +57,8 @@
                                             <span class="fas fa-calendar-alt"></span>
                                             <span class="ms-1">Rental Dates</span>
                                         </div>
-                                        <input type="text" id="dateRangePicker" name="rental_dates" 
-                                               class="form-control" readonly placeholder="Select rental dates">
+                                        <input type="text" id="dateRangePicker" name="rental_dates"
+                                            class="form-control" readonly placeholder="Select rental dates" required>
                                     </div>
                                 </div>
 
@@ -198,16 +198,13 @@
                 maximumFractionDigits: 2
             }));
 
-            // If 1 day rental, set drop-off time same as pick-up time
             if (days === 1) {
                 var pickUpTime = $('#pickUpTimePicker').val();
                 $('#dropOffTimePicker').val(pickUpTime).prop('disabled', true);
 
-                // Ensure drop_off is always present in form submission
                 $('form').append('<input type="hidden" name="drop_off" value="' + pickUpTime + '">');
             } else {
                 $('#dropOffTimePicker').prop('disabled', false);
-                // Remove any previously added hidden drop_off input
                 $('form input[name="drop_off"]').remove();
             }
         }
@@ -279,7 +276,7 @@
                         $hiddenDropOff.val($(this).val());
                     } else {
                         $('form').append('<input type="hidden" name="drop_off" value="' + $(this)
-                        .val() + '">');
+                            .val() + '">');
                     }
                 }
             }
@@ -321,5 +318,30 @@
                 });
             });
         }
+    });
+
+    //error message if not select a rental dates
+    document.addEventListener('DOMContentLoaded', function() {
+        const rentNowButton = document.getElementById('rent-now-button');
+        const dateRangePicker = document.getElementById('dateRangePicker');
+
+        if (rentNowButton) {
+            rentNowButton.addEventListener('click', function(event) {
+                if (!dateRangePicker.value) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: 'Rental Dates Required',
+                        text: 'Please select rental dates before proceeding.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            });
+        }
+
+        dateRangePicker.addEventListener('keypress', function(e) {
+            e.preventDefault();
+        });
     });
 </script>

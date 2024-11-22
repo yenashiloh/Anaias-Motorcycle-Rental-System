@@ -70,39 +70,58 @@
                                             <td>{{ $penalty->penalty_type }}</td>
                                             <td>{{ '₱' . number_format($penalty->additional_payment, 2) }}</td>
                                             <td>{{ $penalty->description }}</td>
-                                            <td>
-                                                @if ($penalty->status == 'Unpaid')
+                                            <td class="text-center">
+                                                @if (in_array($penalty->status, ['Pending', 'Not Paid']))
                                                     <div class="dropdown">
-                                                        <button class="badge badge-primary dropdown-toggle"
+                                                        <button
+                                                            class="badge 
+                                                                @if ($penalty->status == 'Pending') badge-warning
+                                                                @elseif ($penalty->status == 'Not Paid') badge-danger @endif"
                                                             type="button" id="statusDropdown" data-bs-toggle="dropdown"
                                                             aria-expanded="false">
                                                             {{ $penalty->status }}
+                                                            <i class="fas fa-chevron-down ms-2"></i>
                                                         </button>
                                                         <ul class="dropdown-menu" aria-labelledby="statusDropdown">
-                                                            <li>
-                                                                <form
-                                                                    action="{{ route('penalties.updateStatus', $penalty->penalty_id) }}"
-                                                                    method="POST">
-                                                                    @csrf
-                                                                    @method('PUT')
-                                                                    <button class="dropdown-item" type="submit"
-                                                                        name="status" value="Paid">
-                                                                        Paid
-                                                                    </button>
-                                                                </form>
-                                                            </li>
-                                                            <li>
-                                                                <form
-                                                                    action="{{ route('penalties.updateStatus', $penalty->penalty_id) }}"
-                                                                    method="POST">
-                                                                    @csrf
-                                                                    @method('PUT')
-                                                                    <button class="dropdown-item" type="submit"
-                                                                        name="status" value="Not Paid">
-                                                                        Not Paid
-                                                                    </button>
-                                                                </form>
-                                                            </li>
+                                                            @if ($penalty->status == 'Pending')
+                                                                <li>
+                                                                    <form
+                                                                        action="{{ route('penalties.updateStatus', $penalty->penalty_id) }}"
+                                                                        method="POST">
+                                                                        @csrf
+                                                                        @method('PUT')
+                                                                        <button class="dropdown-item" type="submit"
+                                                                            name="status" value="Paid">
+                                                                            Paid
+                                                                        </button>
+                                                                    </form>
+                                                                </li>
+                                                                <li>
+                                                                    <form
+                                                                        action="{{ route('penalties.updateStatus', $penalty->penalty_id) }}"
+                                                                        method="POST">
+                                                                        @csrf
+                                                                        @method('PUT')
+                                                                        <button class="dropdown-item" type="submit"
+                                                                            name="status" value="Not Paid">
+                                                                            Not Paid
+                                                                        </button>
+                                                                    </form>
+                                                                </li>
+                                                            @elseif ($penalty->status == 'Not Paid')
+                                                                <li>
+                                                                    <form
+                                                                        action="{{ route('penalties.updateStatus', $penalty->penalty_id) }}"
+                                                                        method="POST">
+                                                                        @csrf
+                                                                        @method('PUT')
+                                                                        <button class="dropdown-item" type="submit"
+                                                                            name="status" value="Paid">
+                                                                            Paid
+                                                                        </button>
+                                                                    </form>
+                                                                </li>
+                                                            @endif
                                                         </ul>
                                                     </div>
                                                 @else
