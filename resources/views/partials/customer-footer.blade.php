@@ -33,7 +33,7 @@
             <div class="col-md-6 col-lg-4 col-xl-3 me-5">
                 <div class="footer-item d-flex flex-column">
                     <h4 class="text-white mb-4">Contact Info</h4>
-                    <a href="#!"><i class="fa fa-map-marker-alt me-2"></i>Bacoor, Philippines</a>
+                    <a href="#!"><i class="fa fa-map-marker-alt me-2"></i>Tagaytay City, Philippines</a>
                     <a href="mailto:info@example.com"><i
                             class="fas fa-envelope me-2"></i>jpineda132020@gmail.com</a>
                     <a href="tel:09176231426"><i class="fas fa-phone me-2 mb-2"></i>0917 623 1426</a>

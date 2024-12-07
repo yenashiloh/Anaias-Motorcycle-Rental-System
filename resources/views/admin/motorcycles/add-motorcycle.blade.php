@@ -73,7 +73,7 @@
                                 <div class="row mb-4">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="name">Name</label>
+                                            <label for="name">Name<span style="color: red"> *</span></label>
                                             <input type="text"
                                                 class="form-control @error('name') is-invalid @enderror" id="name"
                                                 name="name" required value="{{ old('name') }}"
@@ -85,7 +85,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="brand">Brand</label>
+                                            <label for="brand">Brand<span style="color: red"> *</span></label>
                                             <input type="text"
                                                 class="form-control @error('brand') is-invalid @enderror" id="brand"
                                                 name="brand" required value="{{ old('brand') }}"
@@ -108,7 +108,7 @@
                                 <div class="row mb-4">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="model">Model</label>
+                                            <label for="model">Model<span style="color: red"> *</span></label>
                                             <input type="text"
                                                 class="form-control @error('model') is-invalid @enderror" id="model"
                                                 name="model" required value="{{ old('model') }}"
@@ -120,7 +120,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="cc">CC</label>
+                                            <label for="cc">CC<span style="color: red"> *</span></label>
                                             <input type="number" class="form-control @error('cc') is-invalid @enderror"
                                                 id="cc" name="cc" required value="{{ old('cc') }}"
                                                 placeholder="Enter CC" />
@@ -131,7 +131,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="year">Year</label>
+                                            <label for="year">Year<span style="color: red"> *</span></label>
                                             <select class="form-select form-control @error('year') is-invalid @enderror"
                                                 id="year" name="year" required>
                                                 @php
@@ -151,7 +151,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="gas">Gas</label>
+                                            <label for="gas">Gas<span style="color: red"> *</span></label>
                                             <input type="text"
                                                 class="form-control @error('gas') is-invalid @enderror" id="gas"
                                                 name="gas" required value="{{ old('gas') }}"
@@ -174,7 +174,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="color">Color</label>
+                                            <label for="color">Color<span style="color: red"> *</span></label>
                                             <input type="text"
                                                 class="form-control @error('color') is-invalid @enderror"
                                                 id="color" name="color" required value="{{ old('color') }}"
@@ -210,7 +210,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="price">Price</label>
+                                            <label for="price">Price<span style="color: red"> *</span></label>
                                             <input type="number"
                                                 class="form-control @error('price') is-invalid @enderror"
                                                 id="price" name="price" required value="{{ old('price') }}"
@@ -233,7 +233,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="image-description">Description</label>
+                                                <label for="image-description">Description<span style="color: red"> *</span></label>
                                                 <textarea class="form-control @error('description') is-invalid @enderror" id="image-description" rows="10"
                                                     placeholder="Enter description here" name="description" required>{{ old('description') }}</textarea>
                                                 @error('description')
@@ -243,7 +243,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="image-upload">Upload Image</label>
+                                                <label for="image-upload">Upload Image<span style="color: red"> *</span></label>
                                                 <div class="image-upload-container">
                                                     <div id="image-upload-area" class="mb-3">
                                                         <input type="file" id="image-upload" accept="image/*"

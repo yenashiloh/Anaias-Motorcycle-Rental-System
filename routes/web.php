@@ -12,10 +12,17 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middleware\PreventBackHistory;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ForgotPasswordController;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReservationsExport;
 use App\Exports\OngoingExport;
 use App\Exports\AllBookingsExport;
+use App\Exports\CancelledBookingsExport;
+use App\Exports\PenaltyExport;
+use App\Exports\MaintenanceExport;
+use App\Exports\UsersExport;
+use App\Exports\MotorcyclesExport;
+
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 
@@ -25,6 +32,17 @@ Route::post('sign-up.registration', [SignUpController::class, 'storeRegistration
 Route::get('motorcycles', [HomeController::class, 'viewMotorcycleCategories'])->name('motorcycles');
 Route::get('login', [SignUpController::class, 'showLoginCustomer'])->name('login');
 Route::post('login', [SignUpController::class, 'loginCustomer'])->name('customer.login');
+// Forgot password form
+Route::get('forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('forgot-password');
+
+// Send reset link
+Route::post('/link-reset', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
+
+// Password reset form
+Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetPasswordForm'])->name('password.reset');
+
+// Handle password reset
+Route::post('reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
 
 //OTP
 Route::get('email/otp', [SignUpController::class, 'showOtp'])->name('email.otp');
@@ -54,11 +72,18 @@ Route::middleware([PreventBackHistory::class, 'customer'])->group(function () {
     Route::get('/reservation/success/{reservation_id}', [HomeController::class, 'showSuccessPage'])->name('motorcycle.success');
     Route::get('/history/view/{reservation_id}', [HomeController::class, 'viewHistory'])->name('view.history');
 
+    Route::get('/check-penalty', [HomeController::class, 'checkPenalty'])->name('check.penalty');
+
     //Dashboard
     Route::get('/history', [CustomerDashboardController::class, 'viewDashboard'])->name('customer.customer-dashboard');
 
+
+    Route::get('/cancel-reservation/{reservationId}', [CustomerDashboardController::class, 'cancelReservation'])
+    ->name('cancel.reservation');
+    
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead']);
+
 });
 
 //ADMIN SIDE 
@@ -109,17 +134,7 @@ Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
     Route::get('/bookings/penalties', [PenaltyController::class, 'showPenaltiesPage'])->name('admin.reservation.penalties');
     Route::put('/penalties/{penaltyId}/update-status', [PenaltyController::class, 'updateStatusPenalty'])->name('penalties.updateStatus');
 
-    Route::get('/export-reservations', function () {
-        return Excel::download(new ReservationsExport, 'bookings.xlsx');
-    })->name('export.reservations');
 
-    Route::get('/export-ongoing-export', function () {
-        return Excel::download(new OngoingExport, 'ongoing-bookings.xlsx');
-    })->name('export.ongoing-bookings');
-
-    Route::get('/export-all-bookings-record', function () {
-        return Excel::download(new AllBookingsExport, 'all-bookings-record.xlsx');
-    })->name('export.all-bookings-record');
 
     Route::get('/users', [UsersController::class, 'showUsersPage'])->name('admin.user-management.users');
 
@@ -128,5 +143,34 @@ Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
     Route::get('/archived/motorcycles', [MotorcycleController::class, 'showArchivedMotorcycles'])->name('admin.motorcycles.archived-motorcycles');
     Route::post('/admin/motorcycles/restore/{id}', [MotorcycleController::class, 'restore'])->name('admin.motorcycles.restore');
     Route::get('archived/motorcycles/view/{motor_id}', [MotorcycleController::class, 'viewArchiveMotorcycle'])->name('admin.motorcycles.view-archive-motorcycle');
+    Route::get('/admin/motorcycles/status/{id}', [MotorcycleController::class, 'getStatus']);
+
   
+    //exports
+    Route::get('/export-reservations', function () {
+        return Excel::download(new ReservationsExport, 'bookings.xlsx');})->name('export.reservations');
+
+    Route::get('/export-ongoing-export', function () {
+        return Excel::download(new OngoingExport, 'ongoing-bookings.xlsx');})->name('export.ongoing-bookings');
+
+    Route::get('/export-all-bookings-record', function () {
+        return Excel::download(new AllBookingsExport, 'completed-bookings.xlsx');})->name('export.all-bookings-record');
+
+    Route::get('/export-ongoing-export', function () {
+        return Excel::download(new OngoingExport, 'ongoing-bookings.xlsx');})->name('export.ongoing-bookings');
+    
+    Route::get('/export-cancelled-export', function () {
+        return Excel::download(new CancelledBookingsExport, 'cancelled-bookings.xlsx');})->name('export.cancelled-bookings');
+
+    Route::get('/export.penalty', function () {
+        return Excel::download(new PenaltyExport, 'penalty.xlsx');})->name('export.penalty');
+
+    Route::get('/export.users', function () {
+        return Excel::download(new UsersExport, 'users.xlsx');})->name('export.users');
+        
+    Route::get('/export.maintenance', function () {
+        return Excel::download(new MaintenanceExport, 'maintenance-motorcycle.xlsx');})->name('export.maintenance');
+    
+        Route::get('/export.motorcycle', function () {
+            return Excel::download(new MotorcyclesExport, 'motorcycles.xlsx');})->name('export.motorcycle');
 });

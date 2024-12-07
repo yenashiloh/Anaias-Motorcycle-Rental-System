@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
+use App\Models\Penalty;
+use Illuminate\Support\Facades\Log;
+
 
 class HomeController extends Controller
 {
@@ -138,6 +141,24 @@ class HomeController extends Controller
         ));
     }
 
+    public function checkPenalty(Request $request)
+    {
+        try {
+            $customer = Auth::guard('customer')->user();
+            
+            $hasPenalty = Penalty::where('customer_id', $customer->id)
+                ->where('status', 'Not Paid')
+                ->exists();
+            
+            return response()->json([
+                'has_unpaid_penalty' => $hasPenalty
+            ]);
+        } catch (Exception $e) {
+            Log::error('Error checking penalty:', ['exception' => $e->getMessage()]);
+            return response()->json(['has_unpaid_penalty' => false], 500);
+        }
+    }
+
     private function checkExistingReservation($first_name, $last_name)
     {
         return Reservation::query()
@@ -216,6 +237,7 @@ class HomeController extends Controller
             'birthdate' => 'required|date',
             'gender' => 'required',
             'driver_license' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'fb_link' => 'required',
             'payment_method' => 'required|in:gcash,cash',
         ]);
 
@@ -253,6 +275,7 @@ class HomeController extends Controller
             $driverInfo->address = $validatedData['address'];
             $driverInfo->birthdate = $validatedData['birthdate'];
             $driverInfo->gender = $validatedData['gender'];
+            $driverInfo->fb_link = $validatedData['fb_link'];
             
             if ($request->hasFile('driver_license')) {
                 $path = $request->file('driver_license')->store('driver_licenses', 'public');

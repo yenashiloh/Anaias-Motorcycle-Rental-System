@@ -8,6 +8,7 @@ use App\Models\Reservation;
 use App\Models\DriverInformation;
 use App\Models\Admin;
 use App\Models\Motorcycle;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -69,6 +70,7 @@ class BookingsController extends Controller
             'created_at' => $reservation->created_at,
             'driver_name' => $driverName,
             'rental_start_date' => $reservation->rental_start_date,
+            'rental_end_date' => $reservation->rental_end_date,
             'duration' => $duration . ' ' . ((int)$duration === 1 ? 'day' : 'days'),
             'total' => $reservation->total,
             'motorcycle_image' => $firstImage,
@@ -100,32 +102,34 @@ class BookingsController extends Controller
 
     //approve the bookings reservation
     public function approve($id)
-{
-    try {
-        $reservation = Reservation::findOrFail($id);
+    {
+        try {
+            $reservation = Reservation::findOrFail($id);
 
-        // Check if the payment exists and is 'Paid'
-        $payment = Payment::where('reservation_id', $reservation->reservation_id)->first();
+            $payment = Payment::where('reservation_id', $reservation->reservation_id)->first();
 
-        // If no payment record or payment is not 'Paid'
-        if (!$payment || $payment->status !== 'Paid') {
-            // Return an error message if the payment is not 'Paid'
-            return back()->with('error', 'The reservation needs to be paid before it can be approved.');
+            if (!$payment || $payment->status !== 'Paid') {
+                return back()->with('error', 'The reservation needs to be paid before it can be approved.');
+            }
+
+            $reservation->status = 'Approved';
+            $reservation->save();
+
+            Notification::create([
+                'customer_id' => $reservation->customer_id,
+                'reservation_id' => $reservation->reservation_id,
+                'type' => 'approval',
+                'message' => "Your reservation has been approved.",
+                'read' => false
+            ]);
+
+            return back()->with('success', 'Reservation Approved Successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Approval Error: ' . $e->getMessage());
+            return back()->with('error', 'An error occurred while approving the reservation.');
         }
-
-        // Proceed to approve the reservation
-        $reservation->status = 'Approved';
-        $reservation->save();
-
-        return back()->with('success', 'Reservation Approved Successfully!');
-    } catch (\Exception $e) {
-        \Log::error('Approval Error: ' . $e->getMessage());
-        return back()->with('error', 'An error occurred while approving the reservation.');
     }
-}
 
-    
-    
     //decline the bookings reservation
     public function decline($id)
     {
@@ -134,6 +138,14 @@ class BookingsController extends Controller
             $reservation->status = 'Declined';
             $reservation->save();
     
+            Notification::create([
+                'customer_id' => $reservation->customer_id,
+                'reservation_id' => $reservation->reservation_id,
+                'type' => 'decline',
+                'message' => "Your reservation has been declined.",
+                'read' => false
+            ]);
+
             return back()->with('success', 'Reservation Declined Successfully!');
         } catch (\Exception $e) {
             \Log::error('Decline Error: ' . $e->getMessage());
@@ -149,11 +161,18 @@ class BookingsController extends Controller
         $reservation->status = 'Cancelled'; 
         $reservation->cancel_reason = $request->cancel_reason; 
         $reservation->save();
+
+        Notification::create([
+            'customer_id' => $reservation->customer_id,
+            'reservation_id' => $reservation->reservation_id,
+            'type' => 'cancellation',
+            'message' => "Your reservation has been cancelled.",
+            'read' => false
+        ]);
     
         return redirect()->back()->with('success', 'Reservation has been cancelled.');
     }
     
-
     //ongoing the bookings reservation
     public function markOngoing($reservation_id)
     {
@@ -364,6 +383,7 @@ class BookingsController extends Controller
                         'reservation_id' => $reservation->reservation_id,
                         'driver_name' => $driverName, 
                         'rental_start_date' => $reservation->rental_start_date,
+                        'rental_end_date' => $reservation->rental_end_date,
                         'created_at' => $reservation->created_at, 
                         'duration' => $duration . ' ' . ((int)$duration === 1 ? 'day' : 'days'),
                         'total' => $reservation->total,

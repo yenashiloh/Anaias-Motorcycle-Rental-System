@@ -119,7 +119,8 @@
                                                 <td style="padding: 10px;">
                                                     {{ $reservation->payment->status ?? 'N/A' }}
                                                 </td>
-                                                <td style="padding: 10px; display: flex; align-items: center;">
+                                                <td
+                                                    style="padding: 10px; display: flex; align-items: center; width: 100px;">
                                                     <a href="{{ route('view.history', ['reservation_id' => $reservation->reservation_id]) }}"
                                                         data-toggle="tooltip" title="View"
                                                         style="margin-right: 10px;">
@@ -127,10 +128,20 @@
                                                     </a>
 
                                                     <a href="{{ route('reservations.invoice', $reservation['reservation_id']) }}"
-                                                        data-toggle="tooltip" title="Download Invoice">
+                                                        data-toggle="tooltip" title="Download Invoice"
+                                                        style="margin-right: 10px;">
                                                         <i class="fas fa-download text-success"></i>
                                                     </a>
+
+                                                    @if ($reservation->status !== 'Cancelled' && $reservation->status !== 'Declined')
+                                                        <a href="#" data-toggle="modal" data-target="#cancelModal"
+                                                            data-reservation-id="{{ $reservation->reservation_id }}"
+                                                            title="Cancel Reservation">
+                                                            <i class="fas fa-times-circle"></i>
+                                                        </a>
+                                                    @endif
                                                 </td>
+
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -144,10 +155,38 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelModalLabel">Cancel Reservation</h5>
+
+                </div>
+                <form id="cancelReservationForm" method="GET" action="{{ route('cancel.reservation', ['reservationId' => $reservation->reservation_id]) }}">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="cancel_reason">Reason for Cancellation</label>
+                            <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="7" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Cancel Reservation</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <br><br>
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('assets/lib/wow/wow.min.js') }}"></script>
     <script src="{{ asset('assets/lib/easing/easing.min.js') }}"></script>
     <script src="{{ asset('assets/lib/waypoints/waypoints.min.js') }}"></script>
@@ -176,6 +215,16 @@
         $(document).ready(function() {
             $('[data-toggle="tooltip"]').tooltip();
         });
+
+        $(document).ready(function() {
+    $('#cancelModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var reservationId = button.data('reservation-id');
+        var modal = $(this);
+        
+        modal.find('#cancelReservationForm').attr('action', '/cancel-reservation/' + reservationId);
+    });
+});
     </script>
 </body>
 

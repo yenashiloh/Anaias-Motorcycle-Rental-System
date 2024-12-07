@@ -76,8 +76,8 @@ class MotorcycleController extends Controller
             'year' => 'required|integer',
             'gas' => 'required',
             'color' => 'required',
-            'body_number' => 'required',
-            'plate_number' => 'required|unique:motorcycles,plate_number',
+            'body_number' => 'nullable',
+            'plate_number' => 'nullable|unique:motorcycles,plate_number',
             'price' => 'required|numeric',
             'description' => 'required',
         ];
@@ -186,8 +186,8 @@ class MotorcycleController extends Controller
             'year' => 'required|integer',
             'gas' => 'required',
             'color' => 'required',
-            'body_number' => 'required',
-            'plate_number' => 'required',
+            'body_number' => 'nullable',
+            'plate_number' => 'nullable',
             'price' => 'required|numeric',
             'description' => 'required',
             'new_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5048',
@@ -397,24 +397,32 @@ class MotorcycleController extends Controller
         $request->validate([
             'reason' => 'required|string|max:255',
         ]);
-    
+
         try {
             $motorcycle = Motorcycle::findOrFail($id);
+            
+            if ($motorcycle->status !== 'Not Available') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only motorcycles with "Not Available" status can be archived.'
+                ], 400);
+            }
+
             $motorcycle->is_archived = true;
             $motorcycle->archive_reason = $request->input('reason'); 
-    
+
             if ($motorcycle->save()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Motorcycle archived successfully'
                 ]);
             }
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to archive motorcycle'
             ], 500);
-    
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -423,7 +431,7 @@ class MotorcycleController extends Controller
             ], 500);
         }
     }
-    
+
 
     //restore archive motorcycle
     public function restore($id)

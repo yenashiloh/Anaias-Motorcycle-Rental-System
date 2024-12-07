@@ -51,6 +51,10 @@
                     <div class="card-header">
                         <div class="d-flex align-items-center">
                             <h4 class="card-title">List of Bookings</h4>
+                             <a href="{{ route('export.cancelled-bookings') }}" class="btn btn-secondary btn-round ms-auto">
+                                <i class="fas fa-file-export"></i>
+                                Export 
+                            </a>
                         </div>
                     </div>
                     <div class="card-body">

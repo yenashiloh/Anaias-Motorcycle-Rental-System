@@ -15,7 +15,7 @@
     <style>
         .image-section {
             flex: 1;
-            background-image: url('sign-up-assets/images/bg-3.jpeg');
+            background-image: url('sign-up-assets/images/bg-example.png');
             ;
             background-size: cover;
             background-position: center;
@@ -32,53 +32,77 @@
 
                 <form method="POST" action="{{ route('customer.login') }}">
                     @csrf
+
+                    @if (session('success'))
+                    <div class="alert alert-success" style="color: green; font-size: 13px; margin-bottom:10px;">
+                        {{ session('success') }}
+                    </div>
+                @endif
                 
-                    {{-- General error message --}}
-                    @if(session('error'))
+
+                    @if (session('error'))
                         <div class="alert alert-danger" style="color: red; font-size: 13px; margin-bottom:10px;">
                             {{ session('error') }}
                         </div>
                     @endif
-                
+
                     <div class="form-group">
                         <label for="email" class="mb-2">Email Address</label>
                         <input type="email" id="email" name="email" class="form-control"
-                               placeholder="Enter your email address" required style="margin-top: 5px;">
+                            placeholder="Enter your email address" required style="margin-top: 5px;">
                         @error('email')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-                
+
                     <div class="form-group">
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" class="form-control"
-                               placeholder="Enter your password" required style="margin-top: 5px;">
+                            placeholder="Enter your password" required style="margin-top: 5px;">
                         @error('password')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-            
-                    <div class="forgot-password">
-                        <a href="#">Forgot password?</a>
+
+                    <div class="row">
+                        <div class="col-6 forgot-password">
+                            <a href="{{ route('forgot-password') }}">Forgot password?</a>
+                        </div>
+                        <div class="col-6 remember-me text-right">
+                            <input type="checkbox" id="remember" name="remember" onclick="toggleRememberMe()">
+                            <label for="remember">Remember me</label>
+                        </div>
                     </div>
-                    <div class="remember-me">
-                        <input type="checkbox" id="remember" name="remember">
-                        <label for="remember">Remember me</label>
-                    </div>
-                
+
                     <button type="submit" class="login-button btn btn-primary">LOGIN</button>
-                
+
                     <div class="signup-link mt-3">
                         Don't have an account? <a href="{{ route('sign-up') }}">Sign up</a>
                     </div>
                 </form>
-                
-                
             </div>
         </div>
         <div class="image-section"></div>
     </div>
-
 </body>
 
 </html>
+<script>
+    // remember me
+    function toggleRememberMe() {
+        const rememberCheckbox = document.getElementById('remember');
+        if (rememberCheckbox.checked) {
+            console.log('User wants to be remembered');
+            localStorage.setItem('rememberMe', 'true');
+        } else {
+            console.log('User does not want to be remembered');
+            localStorage.removeItem('rememberMe');
+        }
+    }
+
+    window.onload = function() {
+        if (localStorage.getItem('rememberMe') === 'true') {
+            document.getElementById('remember').checked = true;
+        }
+    };
+</script>

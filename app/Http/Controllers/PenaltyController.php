@@ -24,16 +24,38 @@ class PenaltyController extends Controller
         try {
             $validated = $request->validate([
                 'reservation_id' => 'required|integer|exists:reservations,reservation_id',
-                'customer_id' => 'required|integer',
-                'driver_id' => 'required|integer',
-                'penalty_type' => 'required|string|max:255',
+                'customer_id' => 'required|integer|exists:customers,customer_id',
+                'driver_id' => 'required|integer|exists:driver_information,driver_id',
+                'penalty_type' => 'required|string',
                 'description' => 'required|string',
                 'additional_payment' => 'required|numeric',
+                'penalty_image' => 'nullable|array',
+                'penalty_image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             ]);
     
-            $penalty = Penalty::create($validated);
+            $imagePaths = [];
+            if ($request->hasFile('penalty_image')) {
+                foreach ($request->file('penalty_image') as $image) {
+                    try {
+                        if (!$image->isValid()) {
+                            continue;
+                        }
     
-            Reservation::where('reservation_id', $validated['reservation_id'])
+                        $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                        $path = $image->storeAs('penalty_images', $filename);
+                        $webPath = str_replace('public/', 'storage/', $path);
+                        $imagePaths[] = $webPath;
+                    } catch (\Exception $imageException) {
+                    }
+                }
+            }
+    
+            $penaltyData = $validated;
+            $penaltyData['penalty_image'] = count($imagePaths) > 0 ? json_encode($imagePaths) : null;
+    
+            $penalty = Penalty::create($penaltyData);
+    
+            $reservationUpdate = Reservation::where('reservation_id', $validated['reservation_id'])
                 ->update(['violation_status' => 'Violator']);
     
             $notification = Notification::create([
@@ -50,7 +72,6 @@ class PenaltyController extends Controller
                 ->withErrors($e->errors())
                 ->withInput();
         } catch (\Exception $e) {
-            \Log::error('Failed to add penalty: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to add penalty. Please try again.');
         }
     }

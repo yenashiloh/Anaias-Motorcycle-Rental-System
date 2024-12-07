@@ -60,7 +60,10 @@
                     <div class="card-header">
                         <div class="d-flex align-items-center">
                             <h4 class="card-title">List of Motorcycle Maintenance</h4>
-
+                            <a href="{{ route('export.maintenance') }}" class="btn btn-secondary btn-round ms-auto">
+                                <i class="fas fa-file-export"></i>
+                                Export 
+                            </a>
                         </div>
                     </div>
                     <div class="card-body">

@@ -774,7 +774,7 @@ video {
                 <div class="text-sm text-neutral-600">
                     <p class="font-bold">Anaia's Motorcycle Rental</p>
                     <p>09176231426</p>
-                    <p>Bacoor, Philippines</p>
+                    <p>Tagaytay City, Philippines</p>
                     <p>jpineda132020@gmail.com</p>
                 </div>
               </td>

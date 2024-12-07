@@ -63,7 +63,8 @@
                                     required>
                             </div>
                             <div class="col-md-6">
-                                <label for="phone" class="form-label">Contact Number</label>
+                                <label for="phone" class="form-label">Contact Number<span
+                                    class="text-danger"> *</span></label>
                                 <input type="tel" class="form-control" name="contact_number" id="phone"
                                     value="{{ old('contact_number', $pastReservation ? $pastReservation->contact_number : '') }}">
                             </div>
@@ -106,6 +107,18 @@
                                     accept="image/*" {{ $pastReservation ? '' : 'required' }}>
                             </div>
                         </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="fb_link" class="form-label">Facebook Link<span
+                                        class="text-danger"> *</span></label>
+                                <input type="text" class="form-control" name="fb_link" id="fb_link"
+                                    {{ old('fb_link', $pastReservation ? $pastReservation->fb_link : '') }} required>
+                            </div>
+                         
+                        </div>
+
+                        
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="termsCheck" required>
                             <label class="form-check-label" for="termsCheck">

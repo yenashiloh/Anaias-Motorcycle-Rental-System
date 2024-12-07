@@ -322,26 +322,49 @@
 
     //error message if not select a rental dates
     document.addEventListener('DOMContentLoaded', function() {
-        const rentNowButton = document.getElementById('rent-now-button');
-        const dateRangePicker = document.getElementById('dateRangePicker');
+    const rentNowButton = document.getElementById('rent-now-button');
+    const dateRangePicker = document.getElementById('dateRangePicker');
 
-        if (rentNowButton) {
-            rentNowButton.addEventListener('click', function(event) {
-                if (!dateRangePicker.value) {
-                    event.preventDefault();
-                    Swal.fire({
-                        title: 'Rental Dates Required',
-                        text: 'Please select rental dates before proceeding.',
-                        icon: 'error',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#d33'
-                    });
-                }
+    rentNowButton.addEventListener('click', function(event) {
+        // Check for rental dates
+        if (!dateRangePicker.value) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Rental Dates Required',
+                text: 'Please select rental dates before proceeding.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#d33'
             });
+            return;
         }
 
-        dateRangePicker.addEventListener('keypress', function(e) {
-            e.preventDefault();
-        });
+        // Check for unpaid penalty
+        fetch('/check-penalty')
+            .then(response => response.json())
+            .then(data => {
+                if (data.has_unpaid_penalty) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: 'Penalty Outstanding',
+                        text: 'You have an unpaid penalty. Please pay the penalty before renting again.',
+                        icon: 'warning',
+                        confirmButtonText: 'Go to Penalties',
+                        showCancelButton: true,
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/penalties';
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error checking penalty:', error);
+                Logger.error('Error checking penalty:', error);  // Log the error
+            });
     });
+});
 </script>

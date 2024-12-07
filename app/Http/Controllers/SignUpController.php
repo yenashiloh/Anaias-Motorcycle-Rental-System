@@ -182,12 +182,12 @@ class SignUpController extends Controller
         if (Auth::guard('customer')->attempt($credentials, $request->remember)) {
             $customer = Auth::guard('customer')->user();
             $penalty = Penalty::where('customer_id', $customer->customer_id)
-                ->where('status', 'Not Paid')
+                ->where('status', 'Banned')
                 ->exists(); 
     
             if ($penalty) {
                 Auth::guard('customer')->logout(); 
-                return back()->with('error', 'Your account is blocked due to unpaid penalties. Please resolve the issue to log in.');
+                return back()->with('error', 'Your account has been permanently blocked due to multiple penalties.');
             }
     
             $request->session()->regenerate();

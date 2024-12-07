@@ -65,6 +65,7 @@
                                         <th>Motorcycle</th>
                                         <th>Driver Name</th>
                                         <th>Rental Start Date</th>
+                                        <th>Rental End Date</th>
                                         <th>Duration</th>
                                         <th>Total Price</th>
                                         <th>Status</th>
@@ -82,8 +83,8 @@
                                                     alt="Motorcycle Image" style="width: 100px; height: auto;">
                                             </td>
                                             <td>{{ $booking['driver_name'] }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($booking['rental_start_date'])->format('F d, Y') }}
-                                            </td>
+                                            <td>{{ \Carbon\Carbon::parse($booking['rental_start_date'])->format('F d, Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($booking['rental_end_date'])->format('F d, Y') }}</td>
                                             <td>{{ $booking['duration'] }}</td>
                                             <td>&#8369;{{ number_format($booking['total'], 2) }}</td>
                                             <td>
@@ -97,7 +98,7 @@
                                                 <div class="form-button-action d-flex align-items-center">
                                                     <form action="{{ route('reservations.completed', $booking['reservation_id']) }}" method="POST" class="m-0">
                                                         @csrf
-                                                        <button type="submit" class="btn btn-link btn-success" data-bs-toggle="tooltip" title="Complete Reservation">
+                                                        <button type="submit" class="btn btn-link btn-success" data-bs-toggle="tooltip" title="Returned">
                                                             <i class="fas fa-check"></i>
                                                         </button>
                                                     </form>

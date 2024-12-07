@@ -56,15 +56,21 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="d-flex align-items-center">
-                            <h4 class="card-title">List of Motorcycle</h4>
-                            <a href="{{ route('admin.motorcycles.add-motorcycle') }}"
-                                class="btn btn-secondary btn-round ms-auto">
-                                <i class="fa fa-plus"></i>
-                                Add Motorcycle
-                            </a>
+                        <div class="d-flex justify-content-between w-100">
+                            <h4 class="card-title">List of Motorcycles</h4>
+                            <div>
+                                <a href="{{ route('admin.motorcycles.add-motorcycle') }}" class="btn btn-primary btn-round me-2">
+                                    <i class="fa fa-plus"></i>
+                                    Add Motorcycle
+                                </a>
+                                <a href="{{ route('export.motorcycle') }}" class="btn btn-secondary btn-round">
+                                    <i class="fas fa-file-export"></i>
+                                    Export 
+                                </a>
+                            </div>
                         </div>
                     </div>
+                    
                     <div class="card-body">
                         <div class="table-responsive">
                             <table id="basic-datatables" class="display table table-striped table-hover">
@@ -177,11 +183,13 @@
                                                     </button>
                                             
                                                     <button type="button"
-                                                        class="btn btn-link btn-danger archive-motorcycle"
-                                                        title="Archive" data-bs-toggle="tooltip"
-                                                        data-id="{{ $motorcycle->motor_id }}">
-                                                        <i class="fa fa-archive"></i>
-                                                    </button>
+                                                    class="btn btn-link btn-danger archive-motorcycle"
+                                                    title="Archive" 
+                                                    data-bs-toggle="tooltip"
+                                                    data-id="{{ $motorcycle->motor_id }}"
+                                                    data-status="{{ $motorcycle->status }}">
+                                                    <i class="fa fa-archive"></i>
+                                                </button>
                                                 </div>
                                             </td>
                                             
@@ -233,73 +241,79 @@
 
 </html>
 <script>
-    $(document).ready(function() {
-        const dataTable = $("#basic-datatables").DataTable();
+  $(document).ready(function() {
+    const dataTable = $("#basic-datatables").DataTable();
 
-        let motorId;
+    let motorId;
+    let motorStatus;
 
-        // archive modal
-        $(document).on('click', '.archive-motorcycle', function() {
-            motorId = $(this).data('id');
-            $('#archiveMotorId').val(motorId);
-            $('#archiveReasonModal').modal('show');
-        });
+    $(document).on('click', '.archive-motorcycle', function() {
+        motorId = $(this).data('id');
+        motorStatus = $(this).data('status'); 
 
-        $('#confirmArchive').on('click', function() {
-            const reason = $('#archiveReason').val().trim();
-            if (!reason) {
-                Swal.fire('Error', 'Please provide a reason for archiving.', 'error');
-                return;
-            }
+        if (motorStatus !== 'Not Available') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Cannot Archive',
+                text: 'Only motorcycles with "Not Available" status can be archived.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
 
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        $('#archiveMotorId').val(motorId);
+        $('#archiveReasonModal').modal('show');
+    });
 
-            fetch(`/admin/motorcycles/archive/${motorId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        reason: reason
-                    })
+    $('#confirmArchive').on('click', function() {
+        const reason = $('#archiveReason').val().trim();
+        if (!reason) {
+            Swal.fire('Error', 'Please provide a reason for archiving.', 'error');
+            return;
+        }
+
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch(`/admin/motorcycles/archive/${motorId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    reason: reason
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire(
-                            'Archived!',
-                            'The motorcycle has been archived successfully.',
-                            'success'
-                        );
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire(
+                        'Archived!',
+                        'The motorcycle has been archived successfully.',
+                        'success'
+                    );
 
-                        $('#archiveReasonModal').modal('hide');
-                        const row = $(`#motorcycle-${motorId}`).closest('tr');
-                        dataTable.row(row).remove().draw();
+                    $('#archiveReasonModal').modal('hide');
+                    const row = $(`#motorcycle-${motorId}`).closest('tr');
+                    dataTable.row(row).remove().draw();
 
-                    } else {
-                        Swal.fire(
-                            'Error!',
-                            'Failed to archive the motorcycle.',
-                            'error'
-                        );
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                } else {
                     Swal.fire(
                         'Error!',
-                        'An error occurred during the archive process.',
+                        data.message || 'Failed to archive the motorcycle.',
                         'error'
                     );
-                });
-        });
-
-        function updateRowNumbers() {
-            $('#basic-datatables tbody tr').each(function(index) {
-                $(this).find('td:first').text(index + 1);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire(
+                    'Error!',
+                    'An error occurred during the archive process.',
+                    'error'
+                );
             });
-        }
     });
+});
 </script>

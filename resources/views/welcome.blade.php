@@ -192,12 +192,11 @@
                         <div class="col-12 wow fadeInUp" data-wow-delay="0.1s">
                             <div class="feature-item justify-content-end">
                                 <div class="text-end me-4">
-                                    <h5 class="mb-3">Roadside Assistance</h5>
-                                    <p class="mb-0">Enjoy your ride with confidence knowing that our 24/7 roadside
-                                        assistance will support you in case of emergencies.</p>
+                                    <h5 class="mb-3">Easy Booking Process</h5>
+                                    <p class="mb-0">Book your ride effortlessly with our user-friendly platform, ensuring a hassle-free experience.</p>
                                 </div>
                                 <div class="feature-icon">
-                                    <span class="fa fa-life-ring fa-2x"></span>
+                                    <span class="fa fa-book fa-2x"></span>
                                 </div>
                             </div>
                         </div>
@@ -278,8 +277,8 @@
                 </div>
                 <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
                     <div class="steps-item p-4 mb-4">
-                        <h4> Receive Confirmation</h4>
-                        <p class="mb-0">Get an email confirmation with your reservation details.</p>
+                        <h4>Receive Notifications</h4>
+                        <p class="mb-0">Get an email with your reservation details.</p>
                         <div class="setps-number">06.</div>
                     </div>
                 </div>

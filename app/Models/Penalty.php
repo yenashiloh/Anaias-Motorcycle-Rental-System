@@ -22,7 +22,12 @@ class Penalty extends Model
         'penalty_type',
         'description',
         'additional_payment',
+        'penalty_image',
         'status'
+    ];
+
+    protected $casts = [
+        'penalty_image' => 'array',
     ];
 
     public function reservation()

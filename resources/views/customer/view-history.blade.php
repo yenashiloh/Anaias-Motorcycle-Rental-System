@@ -261,6 +261,7 @@
                     </div>
                     <div class="mb-4 mt-3">
                         <div class="ps-3">
+                            <button class="btn btn-secondary mt-2 mb-2">Pay Now</button>
                             <div class="row mb-2">
                                 <div class="col-md-2 fw-bold">Penalty Type:</div>
                                 <div class="col-md-10">
@@ -273,10 +274,28 @@
                                     <span>{{ isset($reservation->penalty->additional_payment) ? '₱' . number_format($reservation->penalty->additional_payment, 2) : 'N/A' }}</span>
                                 </div>
                             </div>
-                            <div class="row mb-5">
+                            <div class="row mb-2">
                                 <div class="col-md-2 fw-bold">Description:</div>
                                 <div class="col-md-10">
                                     <span>{{ $reservation->penalty->description ?? 'N/A' }}</span>
+                                </div>
+                            </div>
+                            <div class="row mb-2 mb-5">
+                                <div class="col-md-2 fw-bold">Penalty Image:</div>
+                                <div class="col-md-10">
+                                    @if ($reservation->penalty->penalty_image)
+                                        @php
+                                            $images = json_decode($reservation->penalty->penalty_image, true);
+                                        @endphp
+                                        @foreach ($images as $image)
+                                            <a href="{{ asset('storage/' . $image) }}" target="_blank">
+                                                <img src="{{ asset('storage/' . $image) }}" alt="Penalty Image"
+                                                    style="max-height: 200px;">
+                                            </a>
+                                        @endforeach
+                                    @else
+                                        <span>No images available</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>

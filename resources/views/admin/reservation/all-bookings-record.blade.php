@@ -109,6 +109,7 @@
                                             </td>
                                             <td>
                                                 <div class="form-button-action">
+                                                    @if ($booking['status'] != 'Declined' && $booking['violation_status'] != 'Violator')
                                                     <a href="#" class="btn btn-link btn-secondary"
                                                         data-bs-toggle="modal" data-bs-target="#addPenaltyModal"
                                                         data-reservation-id="{{ $booking['reservation_id'] }}"
@@ -118,6 +119,7 @@
                                                         title="Add Penalty">
                                                         <i class="fas fa-plus-circle"></i>
                                                     </a>
+                                                @endif
                                                     <a href="{{ route('admin.reservation.view-all-bookings', $booking['reservation_id']) }}"
                                                         class="btn btn-link btn-primary" data-bs-toggle="tooltip"
                                                         title="View Bookings">
@@ -150,7 +152,7 @@
                     <h5 class="modal-title" id="addPenaltyModalLabel">Add Penalty</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('penalties.store') }}" method="POST" id="penaltyForm">
+                <form action="{{ route('penalties.store') }}" method="POST" id="penaltyForm" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <input type="hidden" id="reservation_id" name="reservation_id">
@@ -181,6 +183,14 @@
                             </label>
                             <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="penalty_image" class="form-label fw-bold">
+                                Upload Image (Optional)
+                            </label>
+                            <input type="file" class="form-control" name="penalty_image[]" multiple accept="image/*">
+                        </div>
+                        
 
                     </div>
                     <div class="modal-footer">

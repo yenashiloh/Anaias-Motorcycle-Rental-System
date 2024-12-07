@@ -84,6 +84,7 @@
                                                         <th>Motorcycle</th>
                                                         <th>Name</th>
                                                         <th>Rental Start Date</th>
+                                                        <th>Rental End Date</th>
                                                         <th>Duration</th>
                                                         <th>Total Price</th>
                                                         <th>Booking Status</th>
@@ -103,8 +104,8 @@
                                                                     style="width: 100px; height: auto;">
                                                             </td>
                                                             <td>{{ $booking['driver_name'] }}</td>
-                                                            <td>{{ \Carbon\Carbon::parse($booking['rental_start_date'])->format('F d, Y') }}
-                                                            </td>
+                                                            <td>{{ \Carbon\Carbon::parse($booking['rental_start_date'])->format('F d, Y') }}</td> 
+                                                            <td>{{ \Carbon\Carbon::parse($booking['rental_end_date'])->format('F d, Y') }}</td> 
                                                             <td>{{ $booking['duration'] }}</td>
                                                             <td>&#8369;{{ number_format($booking['total'], 2) }}</td>
                                                             <td>
