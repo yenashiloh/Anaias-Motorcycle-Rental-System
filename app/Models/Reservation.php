@@ -27,6 +27,13 @@ class Reservation extends Model
         'cancel_reason',
     ];
 
+    public function cancelReservation($reason)
+    {
+        $this->status = 'Cancelled';
+        $this->cancel_reason = $reason;
+        $this->save();
+    }
+    
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id');

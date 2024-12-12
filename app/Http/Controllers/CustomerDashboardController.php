@@ -22,7 +22,7 @@ class CustomerDashboardController extends Controller
         $customerEmail = null;
         $reservations = collect();
         $notifications = [];
-
+    
         if ($isCustomerLoggedIn) {
             $customer = Auth::guard('customer')->user();
             $customerEmail = $customer->email;
@@ -30,54 +30,73 @@ class CustomerDashboardController extends Controller
             $reservations = Reservation::where('customer_id', $customer->customer_id)
                 ->with(['motorcycle', 'driverInformation', 'payment']) 
                 ->orderBy('created_at', 'desc')
-                ->get();
-
+                ->get()
+                ->map(function ($reservation) {
+                    $reservation->displayStatus = $this->normalizeReservationStatus($reservation);
+                    return $reservation;
+                });
+    
             $notifications = Notification::where('customer_id', $customer->id)
                 ->orderBy('created_at', 'desc')
                 ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
         }
-
+    
         return view('customer.customer-dashboard', compact('isCustomerLoggedIn', 'customerEmail', 'reservations', 'notifications'));
     }
+    
+    //normalize status
+    public function normalizeReservationStatus($reservation)
+    {
+        $statusMap = [
+            'to_review' => 'To Review', 
+            'approved' => 'Approved',
+            'declined' => 'Declined',
+            'ongoing' => 'Ongoing',
+            'completed' => 'Completed',
+            'cancelled' => 'Cancelled',
+        ];
 
-
-    public function cancelReservation(Request $request, $reservationId)
-{
-    // Get the logged-in customer
-    $customer = Auth::guard('customer')->user();
-    if (!$customer) {
-        return redirect()->back()->with('error', 'Please log in to cancel a reservation.');
+        return $statusMap[strtolower($reservation->status)] ?? 'Unknown Status'; 
     }
 
-    // Find the reservation
-    $reservation = Reservation::where('customer_id', $customer->customer_id)
-        ->where('reservation_id', $reservationId)
-        ->first();
+    //cancel reservation
+    public function cancelReservation(Request $request, $reservation_id)
+    {
+        $request->validate([
+            'cancel_reason' => 'required|string|max:500'
+        ]);
 
-    // Validate reservation
-    if (!$reservation) {
-        return redirect()->back()->with('error', 'Reservation not found.');
+        try {
+            $reservation = Reservation::findOrFail($reservation_id);
+
+            $customer = Auth::guard('customer')->user();
+            if ($reservation->customer_id !== $customer->customer_id) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Unauthorized to cancel this reservation.'
+                ], 403);
+            }
+
+            if (in_array($reservation->status, ['Cancelled', 'Completed'])) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'This reservation cannot be cancelled.'
+                ], 400);
+            }
+
+            $reservation->cancelReservation($request->cancel_reason);
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Reservation cancelled successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Reservation Cancellation Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'An error occurred while cancelling the reservation.'
+            ], 500);
+        }
     }
-
-    // Check if cancellable
-    if (!in_array($reservation->status, ['Pending', 'Confirmed'])) {
-        return redirect()->back()->with('error', 'This reservation cannot be cancelled.');
-    }
-
-    // Get cancellation reason
-    $cancelReason = $request->input('cancel_reason');
-    if (empty($cancelReason)) {
-        return redirect()->back()->with('error', 'Cancellation reason is required.');
-    }
-
-    // Update reservation
-    $reservation->update([
-        'status' => 'Cancelled',
-        'cancel_reason' => $cancelReason
-    ]);
-
-    // Return to dashboard
-    return redirect()->route('customer.dashboard')
-        ->with('success', 'Reservation successfully cancelled.');
-}
 }

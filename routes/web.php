@@ -78,8 +78,9 @@ Route::middleware([PreventBackHistory::class, 'customer'])->group(function () {
     Route::get('/history', [CustomerDashboardController::class, 'viewDashboard'])->name('customer.customer-dashboard');
 
 
-    Route::get('/cancel-reservation/{reservationId}', [CustomerDashboardController::class, 'cancelReservation'])
-    ->name('cancel.reservation');
+    Route::post('/reservations/cancel/{reservation_id}', [CustomerDashboardController::class, 'cancelReservation'])
+     ->name('reservations.cancel');
+
     
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead']);

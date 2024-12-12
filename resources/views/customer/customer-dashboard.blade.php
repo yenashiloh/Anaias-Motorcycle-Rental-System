@@ -79,7 +79,7 @@
                                             <tr style="border-bottom: 1px solid #ddd;">
                                                 <td>{{ $index + 1 }}</td>
                                                 <td style="padding: 10px;">
-                                                    {{ $reservation->created_at->format('F d, Y, g:i A') }}
+                                                    {{ \Carbon\Carbon::parse($reservation->created_at)->format('F d, Y, g:i A') }}
                                                 </td>
                                                 <td style="padding: 10px;">
                                                     @if ($reservation->motorcycle && $reservation->motorcycle->images)
@@ -115,7 +115,13 @@
                                                 </td>
                                                 <td style="padding: 10px;">₱{{ number_format($reservation->total, 2) }}
                                                 </td>
-                                                <td style="padding: 10px;">{{ $reservation->status }}</td>
+                                                <td style="padding: 10px;">
+                                                    {{ $reservation->status }}
+                                                    @if ($reservation->status === 'Cancelled')
+                                                        <br>Reason: {{ $reservation->cancel_reason }}
+                                                    @endif
+                                                </td>
+                                                
                                                 <td style="padding: 10px;">
                                                     {{ $reservation->payment->status ?? 'N/A' }}
                                                 </td>
@@ -133,11 +139,12 @@
                                                         <i class="fas fa-download text-success"></i>
                                                     </a>
 
-                                                    @if ($reservation->status !== 'Cancelled' && $reservation->status !== 'Declined')
-                                                        <a href="#" data-toggle="modal" data-target="#cancelModal"
+                                                    @if ($reservation->status !== 'Cancelled')
+                                                        <a href="#" class="cancel-reservation" data-toggle="modal"
+                                                            data-target="#cancelReservationModal"
                                                             data-reservation-id="{{ $reservation->reservation_id }}"
                                                             title="Cancel Reservation">
-                                                            <i class="fas fa-times-circle"></i>
+                                                            <i class="fas fa-times text-danger"></i>
                                                         </a>
                                                     @endif
                                                 </td>
@@ -156,27 +163,31 @@
         </div>
     </div>
 
-    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="cancelReservationModal" tabindex="-1" role="dialog"
+        aria-labelledby="cancelReservationModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="cancelModalLabel">Cancel Reservation</h5>
-
+                    <h5 class="modal-title" id="cancelReservationModalLabel">Cancel Reservation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <form id="cancelReservationForm" method="GET" action="{{ route('cancel.reservation', ['reservationId' => $reservation->reservation_id]) }}">
-                    @csrf
-                    <div class="modal-body">
+                <div class="modal-body">
+                    <form id="cancelReservationForm">
+                        @csrf
+                        <input type="hidden" name="reservation_id" id="cancelReservationId">
                         <div class="form-group">
                             <label for="cancel_reason">Reason for Cancellation</label>
-                            <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="7" required></textarea>
+                            <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="3" required></textarea>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-danger">Cancel Reservation</button>
-                    </div>
-                </form>
+                        <div id="cancelReservationError" class="alert alert-danger" style="display:none;"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" id="confirmCancelReservation">Confirm Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -217,14 +228,45 @@
         });
 
         $(document).ready(function() {
-    $('#cancelModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var reservationId = button.data('reservation-id');
-        var modal = $(this);
-        
-        modal.find('#cancelReservationForm').attr('action', '/cancel-reservation/' + reservationId);
-    });
-});
+            let reservationIdToCancel = null;
+
+            $('.cancel-reservation').on('click', function() {
+                reservationIdToCancel = $(this).data('reservation-id');
+                $('#cancelReservationId').val(reservationIdToCancel);
+                $('#cancelReservationError').hide();
+            });
+
+            $('#confirmCancelReservation').on('click', function() {
+                const cancelReason = $('#cancel_reason').val().trim();
+
+                if (!cancelReason) {
+                    $('#cancelReservationError')
+                        .text('Please provide a reason for cancellation')
+                        .show();
+                    return;
+                }
+
+                $.ajax({
+                    url: `/reservations/cancel/${reservationIdToCancel}`,
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        cancel_reason: cancelReason
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function(xhr) {
+                        const errorMessage = xhr.responseJSON.message || 'An error occurred';
+                        $('#cancelReservationError')
+                            .text(errorMessage)
+                            .show();
+                    }
+                });
+            });
+        });
     </script>
 </body>
 
