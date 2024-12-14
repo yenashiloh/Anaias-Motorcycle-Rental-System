@@ -96,17 +96,26 @@
                                 </div>
                                 <div class="col-12">
                                     @guest('customer')
-                                        <a href="{{ route('login') }}" class="btn btn-light w-100 py-2">Login to Rent
-                                            Now</a>
+                                        <a href="{{ route('login') }}" class="btn btn-light w-100 py-2">Login to Rent Now</a>
                                     @else
                                         @if ($status === 'Available')
-                                            <button type="submit" class="btn btn-light w-100 py-2 mb-2"
-                                                id="rent-now-button">
-                                                Rent Now
-                                            </button>
+                                            @if (!$canRent)
+                                                @if ($penaltyStatus === 'Not Paid')
+                                                    <button type="button" class="btn btn-light w-100 py-2 mb-2" id="penalty-not-paid-button">
+                                                        Pay Penalty
+                                                    </button>
+                                                @elseif ($penaltyStatus === 'Banned')
+                                                    <button type="button" class="btn btn-light w-100 py-2 mb-2" id="customer-banned-button">
+                                                        Account Suspended
+                                                    </button>
+                                                @endif
+                                            @else
+                                                <button type="submit" class="btn btn-light w-100 py-2 mb-2" id="rent-now-button">
+                                                    Rent Now
+                                                </button>
+                                            @endif
                                         @else
-                                            <button type="button" class="btn btn-light w-100 py-2 mb-2"
-                                                id="not-available-button">
+                                            <button type="button" class="btn btn-light w-100 py-2 mb-2" id="not-available-button">
                                                 Rent Now
                                             </button>
                                         @endif
@@ -322,49 +331,71 @@
 
     //error message if not select a rental dates
     document.addEventListener('DOMContentLoaded', function() {
+    // Penalty and banned account handling
+    @if (isset($penaltyStatus) && $penaltyStatus === 'Not Paid')
+        const penaltyNotPaidBtn = document.getElementById('penalty-not-paid-button');
+        if (penaltyNotPaidBtn) {
+            penaltyNotPaidBtn.addEventListener('click', function() {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Payment Required',
+                    text: 'You have an outstanding penalty. Please settle the payment to book again.',
+                    confirmButtonText: 'Pay Penalty',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Redirect to penalty payment page
+                        window.location.href = "{{ route('motorcycle.details-motorcycle') }}";
+                    }
+                });
+            });
+        }
+    @endif
+
+    @if (isset($penaltyStatus) && $penaltyStatus === 'Banned')
+        const customerBannedBtn = document.getElementById('customer-banned-button');
+        if (customerBannedBtn) {
+            customerBannedBtn.addEventListener('click', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Account Suspended',
+                    text: 'Your account is currently banned. Please contact customer support.',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+    @endif
+    // Existing code for rent now button
     const rentNowButton = document.getElementById('rent-now-button');
     const dateRangePicker = document.getElementById('dateRangePicker');
 
-    rentNowButton.addEventListener('click', function(event) {
-        // Check for rental dates
-        if (!dateRangePicker.value) {
-            event.preventDefault();
-            Swal.fire({
-                title: 'Rental Dates Required',
-                text: 'Please select rental dates before proceeding.',
-                icon: 'error',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#d33'
-            });
-            return;
-        }
+    if (rentNowButton) {
+        rentNowButton.addEventListener('click', function(event) {
+            // Additional check for rental dates
+            if (!dateRangePicker.value) {
+                event.preventDefault();
+                Swal.fire({
+                    title: 'Rental Dates Required',
+                    text: 'Please select rental dates before proceeding.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33'
+                });
+                return;
+            }
 
-        // Check for unpaid penalty
-        fetch('/check-penalty')
-            .then(response => response.json())
-            .then(data => {
-                if (data.has_unpaid_penalty) {
-                    event.preventDefault();
-                    Swal.fire({
-                        title: 'Penalty Outstanding',
-                        text: 'You have an unpaid penalty. Please pay the penalty before renting again.',
-                        icon: 'warning',
-                        confirmButtonText: 'Go to Penalties',
-                        showCancelButton: true,
-                        cancelButtonText: 'Cancel',
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '/penalties';
-                        }
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error checking penalty:', error);
-                Logger.error('Error checking penalty:', error);  // Log the error
-            });
-    });
+            // Prevent renting if penalty is not paid or account is banned
+            @if (isset($penaltyStatus) && ($penaltyStatus === 'Not Paid' || $penaltyStatus === 'Banned'))
+                event.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: '{{ $penaltyStatus === 'Not Paid' ? 'Penalty Outstanding' : 'Account Suspended' }}',
+                    text: '{{ $penaltyStatus === 'Not Paid' ? 'Please settle your outstanding penalty before renting.' : 'Your account is currently suspended. Contact customer support.' }}',
+                    confirmButtonText: 'OK'
+                });
+            @endif
+        });
+    }
 });
 </script>

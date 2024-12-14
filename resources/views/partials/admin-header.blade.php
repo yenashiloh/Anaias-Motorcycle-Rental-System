@@ -1,3 +1,18 @@
+<style>
+.unread {
+    background-color: #e6f2ff; 
+}
+
+.read {
+    background-color: #f8f9fa; 
+    opacity: 0.7; 
+}
+
+.notif-item:hover {
+    background-color: #f1f3f5;
+    cursor: pointer;
+}
+</style>
 <div class="main-panel">
   <div class="main-header">
     <div class="main-header-logo">
@@ -37,85 +52,26 @@
         </nav>
 
         <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-          {{-- <li class="nav-item topbar-icon dropdown hidden-caret">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="notifDropdown"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              <i class="fa fa-bell"></i>
-              <span class="notification">4</span>
+          <li class="nav-item topbar-icon dropdown hidden-caret">
+            <a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-bell"></i>
+                <span class="notification" id="notifCount" style="display: none;">0</span>
             </a>
-            <ul
-              class="dropdown-menu notif-box animated fadeIn"
-              aria-labelledby="notifDropdown"
-            >
-              <li>
-                <div class="dropdown-title">
-                  You have 4 new notification
-                </div>
-              </li>
-              <li>
-                <div class="notif-scroll scrollbar-outer">
-                  <div class="notif-center">
-                    <a href="#">
-                      <div class="notif-icon notif-primary">
-                        <i class="fa fa-user-plus"></i>
-                      </div>
-                      <div class="notif-content">
-                        <span class="block"> New user registered </span>
-                        <span class="time">5 minutes ago</span>
-                      </div>
-                    </a>
-                    <a href="#">
-                      <div class="notif-icon notif-success">
-                        <i class="fa fa-comment"></i>
-                      </div>
-                      <div class="notif-content">
-                        <span class="block">
-                          Rahmad commented on Admin
-                        </span>
-                        <span class="time">12 minutes ago</span>
-                      </div>
-                    </a>
-                    <a href="#">
-                      <div class="notif-img">
-                        <img
-                          src="../../../../admin-assets-final/img/profile2.jpg"
-                          alt="Img Profile"
-                        />
-                      </div>
-                      <div class="notif-content">
-                        <span class="block">
-                          Reza send messages to you
-                        </span>
-                        <span class="time">12 minutes ago</span>
-                      </div>
-                    </a>
-                    <a href="#">
-                      <div class="notif-icon notif-danger">
-                        <i class="fa fa-heart"></i>
-                      </div>
-                      <div class="notif-content">
-                        <span class="block"> Farrah liked Admin </span>
-                        <span class="time">17 minutes ago</span>
-                      </div>
-                    </a>
-                  </div>
-                </div>
-              </li>
-              <li>
-                <a class="see-all" href="javascript:void(0);"
-                  >See all notifications<i class="fa fa-angle-right"></i>
-                </a>
-              </li>
+            <ul class="dropdown-menu notif-box animated fadeIn" aria-labelledby="notifDropdown">
+                <li>
+                    <div class="dropdown-title">
+                        Notifications
+                    </div>
+                </li>
+                <li>
+                    <div class="notif-scroll scrollbar-outer">
+                        <div class="notif-center" id="notifList">
+                        </div>
+                    </div>
+                </li>
             </ul>
-          </li> --}}
-
+        </li>
+      
           <li class="nav-item topbar-user dropdown hidden-caret">
             <a
               class="dropdown-toggle profile-pic"
@@ -141,22 +97,20 @@
                     <div class="u-text">
                       <h4>{{ $admin->first_name }} {{ $admin->last_name }}</h4>
                       <p class="text-muted">{{ $admin->email }}</p>
-                      <a
+                      {{-- <a
                         href="profile.html"
                         class="btn btn-xs btn-secondary btn-sm"
                         >View Profile</a
-                      >
+                      > --}}
                     </div>
                   </div>
                 </li>
                 <li>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="#">My Profile</a>
-                  {{-- <a class="dropdown-item" href="#">My Balance</a>
-                  <a class="dropdown-item" href="#">Inbox</a> --}}
+                  {{-- <a class="dropdown-item" href="#">My Profile</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="#">Account Setting</a>
-                  <div class="dropdown-divider"></div>
+                  <div class="dropdown-divider"></div> --}}
                   <a class="dropdown-item" href="#" id="logoutLink">Logout</a>
                 </li>
               </div>
@@ -168,3 +122,116 @@
   <!-- End Navbar -->
   </div>
 
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+       const notifCount = document.getElementById("notifCount");
+       const notifList = document.getElementById("notifList");
+       const notifDropdownTitle = document.querySelector('.dropdown-title');
+       let notifications = [];
+   
+       notifCount.style.display = 'none';
+   
+       function fetchNotifications() {
+           fetch("{{ route('admin.notifications') }}")
+               .then(response => response.json())
+               .then(data => {
+                   notifications = data;
+                   notifList.innerHTML = '';
+                   let unreadCount = 0;
+   
+                   if (notifications.length === 0) {
+                       notifList.innerHTML = `<li><div class="notif-content text-center">No new notifications.</div></li>`;
+                       notifDropdownTitle.textContent = 'Notifications';
+                   } else {
+                       notifDropdownTitle.textContent = `Notifications`;
+   
+                       notifications.forEach(notification => {
+                           if (!notification.read) {
+                               unreadCount++;
+                           }
+   
+                           const createdAt = new Date(notification.created_at);
+                           const timeDiff = new Date() - createdAt;
+                           let formattedTime = getRelativeTime(timeDiff);
+   
+                           const notifItem = document.createElement("li");
+                           notifItem.classList.add(notification.read ? 'read' : 'unread');
+                           notifItem.innerHTML = `
+                               <a href="#" class="notif-item">
+                                   <div class="notif-icon notif-primary">
+                                       <i class="fa fa-user"></i>
+                                   </div>
+                                   <div class="notif-content">
+                                       <span class="block">${notification.message}</span>
+                                       <span class="time">${formattedTime}</span>
+                                   </div>
+                               </a>
+                           `;
+   
+                           notifItem.addEventListener("click", function() {
+                               markNotificationAsRead(notification.id);
+                           });
+   
+                           notifList.appendChild(notifItem);
+                       });
+   
+                       notifCount.textContent = unreadCount > 0 ? unreadCount : '';
+                       notifCount.style.display = unreadCount > 0 ? 'inline' : 'none';
+                   }
+               })
+               .catch(error => console.error('Error fetching notifications:', error));
+       }
+   
+       document.getElementById("notifDropdown").addEventListener("click", function() {
+       markAllAsRead();
+   });
+   
+   function markAllAsRead() {
+       fetch('/admin/notifications/markAllRead', {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+           }
+       })
+       .then(response => response.json())
+       .then(data => {
+           if (data.success) {
+               notifCount.textContent = '';
+               notifCount.style.display = 'none';
+               fetchNotifications();
+           }
+       })
+       .catch(error => console.error('Error marking all notifications as read:', error));
+   }
+   
+       function getRelativeTime(timeDiff) {
+           const seconds = Math.floor(timeDiff / 1000);
+           const minutes = Math.floor(seconds / 60);
+           const hours = Math.floor(minutes / 60);
+           const days = Math.floor(hours / 24);
+   
+           if (seconds < 60) {
+               return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
+           } else if (minutes < 60) {
+               return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+           } else if (hours < 24) {
+               return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+           } else if (days < 7) {
+               return `${days} day${days !== 1 ? 's' : ''} ago`;
+           } else {
+               return new Date(timeDiff).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+           }
+       }
+   
+       document.getElementById("notifDropdown").addEventListener("click", function() {
+           markAllAsRead();
+       });
+   
+       setInterval(fetchNotifications, 30000);
+       fetchNotifications();
+   });
+   
+   </script>
+   
+    

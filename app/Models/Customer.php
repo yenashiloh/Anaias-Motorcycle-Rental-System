@@ -38,6 +38,12 @@ class Customer extends Authenticatable implements CanResetPasswordContract
     {
         return $this->hasOne(DriverInformation::class, 'customer_id', 'customer_id');
     }
+
+    public function penalties()
+    {
+        return $this->hasMany(Penalty::class, 'customer_id', 'customer_id');
+    }
+
 }
 
 

@@ -139,7 +139,7 @@
                                                         <i class="fas fa-download text-success"></i>
                                                     </a>
 
-                                                    @if ($reservation->status !== 'Cancelled')
+                                                    @if ($reservation->status !== 'Cancelled' && $reservation->status !== 'Completed')
                                                         <a href="#" class="cancel-reservation" data-toggle="modal"
                                                             data-target="#cancelReservationModal"
                                                             data-reservation-id="{{ $reservation->reservation_id }}"
@@ -148,7 +148,6 @@
                                                         </a>
                                                     @endif
                                                 </td>
-
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -169,9 +168,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="cancelReservationModalLabel">Cancel Reservation</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
                     <form id="cancelReservationForm">
@@ -179,7 +175,7 @@
                         <input type="hidden" name="reservation_id" id="cancelReservationId">
                         <div class="form-group">
                             <label for="cancel_reason">Reason for Cancellation</label>
-                            <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="3" required></textarea>
+                            <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="6" required></textarea>
                         </div>
                         <div id="cancelReservationError" class="alert alert-danger" style="display:none;"></div>
                     </form>

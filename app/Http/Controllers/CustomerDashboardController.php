@@ -10,6 +10,7 @@ use App\Models\Motorcycle;
 use App\Models\Payment;
 use App\Models\DriverInformation;
 use App\Models\Notification;
+use App\Models\NotificationAdmin;
 use Illuminate\Support\Facades\Log;
 
 class CustomerDashboardController extends Controller
@@ -86,10 +87,22 @@ class CustomerDashboardController extends Controller
 
             $reservation->cancelReservation($request->cancel_reason);
 
-            return response()->json([
-                'success' => true, 
-                'message' => 'Reservation cancelled successfully.'
+            $driver = $reservation->driverInformation;
+
+            $driverName = $driver ? $driver->first_name . ' ' . $driver->last_name : 'Unknown Driver';
+
+            NotificationAdmin::create([
+                'customer_id' => $customer->customer_id,
+                'reservation_id' => $reservation->reservation_id,
+                'type' => 'Reservation Cancelled',
+                'message' => $driverName . ' cancelled the reservation.',
+                'read' => false,  
             ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Reservation Cancelled Successfully!'
+            ]);            
 
         } catch (\Exception $e) {
             Log::error('Reservation Cancellation Error: ' . $e->getMessage());

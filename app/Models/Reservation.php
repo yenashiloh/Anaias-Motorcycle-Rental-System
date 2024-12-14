@@ -51,11 +51,16 @@ class Reservation extends Model
 
     public function driverInformation() 
     {
-        // Change this to use driver_id directly
         return $this->belongsTo(DriverInformation::class, 'driver_id', 'driver_id');
     }
     public function penalty()
     {
         return $this->belongsTo(Penalty::class, 'reservation_id', 'reservation_id');
     }
+
+    public function penaltyPayment()
+    {
+        return $this->hasOne(PenaltyPayment::class, 'reservation_id', 'reservation_id');
+    }
+
 }

@@ -67,12 +67,13 @@
                                         <th>Penalty Type</th>
                                         <th>Additional Payment</th>
                                         <th>Description</th>
-                                        <th>Images</th>
+                                        <th>Damage </th>
                                         <th>Status</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($penalties as $penalty)
+                                    @foreach($penalties as $penalty)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $penalty->driver->first_name ?? '' }}
@@ -94,7 +95,7 @@
                                                         </a>
                                                     @endforeach
                                                 @else
-                                                    <span>No images available</span>
+                                                    <span>N/A</span>
                                                 @endif
                                             </td>
                                             <td class="text-center">
@@ -162,6 +163,27 @@
                                                     </span>
                                                 @endif
                                             </td>
+                                            <td>
+                                                <div class="form-button-action d-flex justify-content-center">
+                                                    <a href="javascript:void(0)" class="btn btn-link btn-primary" 
+                                                       data-bs-toggle="modal" 
+                                                       data-bs-target="#viewPenaltyModal"
+                                                       data-penalty-id="{{ $penalty->penalty_id }}"
+                                                       data-driver-name="{{ $penalty->driver->first_name . ' ' . $penalty->driver->last_name }}"
+                                                       data-penalty-type="{{ $penalty->penalty_type }}"
+                                                       data-description="{{ $penalty->description }}"
+                                                       data-additional-payment="{{ '₱' . number_format($penalty->additional_payment, 2) }}"
+                                                       data-penalty-image="{{ json_encode($penalty->penalty_image) }}"
+                                                       data-status="{{ $penalty->status }}"
+                                                       data-payment-method="{{ optional($penalty->penaltyPayment)->payment_method }}"
+                                                       data-gcash-name="{{ optional($penalty->penaltyPayment)->gcash_name }}"
+                                                       data-gcash-number="{{ optional($penalty->penaltyPayment)->gcash_number }}"
+                                                       data-image-receipt="{{ optional($penalty->penaltyPayment)->image_receipt }}">
+                                                        <i class="fa fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                           
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -173,6 +195,40 @@
         </div>
     </div>
 
+    <!-- View Penalty Modal -->
+    <div class="modal fade" id="viewPenaltyModal" tabindex="-1" aria-labelledby="viewPenaltyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="viewPenaltyModalLabel">Penalty Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Driver:</strong> <span id="driver-name"></span></p>
+                    <p><strong>Penalty Type:</strong> <span id="penalty-type"></span></p>
+                    <p><strong>Description:</strong> <span id="description"></span></p>
+                    <p><strong>Additional Payment:</strong> <span id="additional-payment"></span></p>
+                    <p><strong>Status:</strong> <span id="status"></span></p>
+                    
+                    <hr>
+                    <p id="payment-method-container"><strong>Payment Method:</strong> <span id="payment-method"></span></p>
+
+                    <p id="gcash-name-container"><strong>Gcash Name:</strong> <span id="gcash-name"></span></p>
+
+                    <p id="gcash-number-container"><strong>Gcash Number:</strong> <span id="gcash-number"></span></p>
+
+                    <div id="penalty-image-container">
+                    </div>
+
+                    <div id="image-receipt-container">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -184,5 +240,55 @@
 <script>
     $(document).ready(function() {
         $("#basic-datatables").DataTable();
+    });
+
+    $('#viewPenaltyModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); 
+        var penaltyId = button.data('penalty-id');
+        var driverName = button.data('driver-name');
+        var penaltyType = button.data('penalty-type');
+        var description = button.data('description');
+        var additionalPayment = button.data('additional-payment');
+        var status = button.data('status');
+        var paymentMethod = button.data('payment-method');
+        var gcashName = button.data('gcash-name');
+        var gcashNumber = button.data('gcash-number');
+        var imageReceipt = button.data('image-receipt');
+
+        var modal = $(this);
+        modal.find('#driver-name').text(driverName);
+        modal.find('#penalty-type').text(penaltyType);
+        modal.find('#description').text(description);
+        modal.find('#additional-payment').text(additionalPayment);
+        modal.find('#status').text(status);
+
+        if (!paymentMethod || paymentMethod === 'Cash') {
+            modal.find('#payment-method-container').hide(); 
+        } else {
+            modal.find('#payment-method-container').show(); 
+            modal.find('#payment-method').text(paymentMethod);
+        }
+
+        if (!gcashName) {
+            modal.find('#gcash-name-container').hide(); 
+        } else {
+            modal.find('#gcash-name-container').show(); 
+            modal.find('#gcash-name').text(gcashName);
+        }
+
+        if (!gcashNumber) {
+            modal.find('#gcash-number-container').hide(); 
+        } else {
+            modal.find('#gcash-number-container').show(); 
+            modal.find('#gcash-number').text(gcashNumber);
+        }
+
+        if (imageReceipt) {
+            var imageReceiptContainer = modal.find('#image-receipt-container');
+            imageReceiptContainer.html('<a href="/storage/' + imageReceipt + '" target="_blank">View Receipt</a>');
+            modal.find('#image-receipt-container').show(); 
+        } else {
+            modal.find('#image-receipt-container').hide(); 
+        }
     });
 </script>

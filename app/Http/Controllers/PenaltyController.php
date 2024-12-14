@@ -8,13 +8,16 @@ use App\Models\DriverInformation;
 use App\Models\Admin;
 use App\Models\Motorcycle;
 use App\Models\Penalty;
+use App\Models\PenaltyPayment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Events\PenaltyAdded;
 use App\Models\Notification;
 use Illuminate\Validation\ValidationException;
-
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class PenaltyController extends Controller
 {
@@ -84,11 +87,12 @@ class PenaltyController extends Controller
         }
     
         $admin = Auth::guard('admin')->user();
-
-        $penalties = Penalty::with('driver')->get();
+    
+        $penalties = Penalty::with(['driver', 'penaltyPayment'])->get();
     
         return view('admin.reservation.penalties', compact('admin', 'penalties'));
     }
+    
     
     //update the status of penalty
     public function updateStatusPenalty(Request $request, $penalty_id)
@@ -103,5 +107,65 @@ class PenaltyController extends Controller
         }
 
         return redirect()->back()->with('error', 'Penalty not found!');
+    }
+
+    //submit payment penalty
+    public function submitPayment(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'payment_method' => 'required|in:Cash,Gcash',
+                'penalty_id' => [
+                    'required', 
+                    Rule::exists('penalty', 'penalty_id')->where(function ($query) use ($request) {
+                        return $query->where('penalty_id', $request->penalty_id);
+                    })
+                ],
+                'customer_id' => 'required|exists:customers,customer_id',
+                'driver_id' => 'required|exists:driver_information,driver_id',
+                'reservation_id' => 'required|exists:reservations,reservation_id',
+                'gcash_name' => 'required_if:payment_method,Gcash',
+                'gcash_number' => 'required_if:payment_method,Gcash',
+                'image_receipt' => 'required_if:payment_method,Gcash|image|mimes:jpg,jpeg,png',
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false, 
+                    'errors' => $validator->errors(),
+                    'debug_penalty_id' => $request->penalty_id 
+                ], 422);
+            }
+    
+            $payment = new PenaltyPayment();
+            $payment->penalty_id = $request->penalty_id;
+            $payment->customer_id = $request->customer_id;
+            $payment->driver_id = $request->driver_id;
+            $payment->reservation_id = $request->reservation_id;
+            $payment->payment_method = $request->payment_method;
+    
+            if ($request->payment_method === 'gcash') {
+                $payment->gcash_name = $request->gcash_name;
+                $payment->gcash_number = $request->gcash_number;
+    
+                if ($request->hasFile('image_receipt')) {
+                    $imagePath = $request->file('image_receipt')->store('penalty_receipts', 'public');
+                    $payment->image_receipt = $imagePath;
+                }
+            }
+    
+            $payment->save();
+    
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('Payment submission error: ' . $e->getMessage());
+            \Log::error('Request data: ' . json_encode($request->all()));
+    
+            return response()->json([
+                'success' => false, 
+                'message' => 'An unexpected error occurred',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

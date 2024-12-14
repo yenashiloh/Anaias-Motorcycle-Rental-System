@@ -85,6 +85,8 @@ Route::middleware([PreventBackHistory::class, 'customer'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead']);
 
+    Route::post('/submit-payment', [PenaltyController::class, 'submitPayment'])->name('submit.payment');
+
 });
 
 //ADMIN SIDE 
@@ -145,6 +147,11 @@ Route::middleware([PreventBackHistory::class, 'admin'])->group(function () {
     Route::post('/admin/motorcycles/restore/{id}', [MotorcycleController::class, 'restore'])->name('admin.motorcycles.restore');
     Route::get('archived/motorcycles/view/{motor_id}', [MotorcycleController::class, 'viewArchiveMotorcycle'])->name('admin.motorcycles.view-archive-motorcycle');
     Route::get('/admin/motorcycles/status/{id}', [MotorcycleController::class, 'getStatus']);
+
+    //Notification
+
+    Route::get('/admin/notifications', [NotificationController::class, 'getAdminNotifications'])->name('admin.notifications');
+    Route::post('/admin/notifications/markAllRead', [NotificationController::class, 'markAllNotificationsAsRead']);
 
   
     //exports

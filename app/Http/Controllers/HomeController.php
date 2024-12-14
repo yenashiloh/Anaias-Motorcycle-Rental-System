@@ -13,10 +13,10 @@ use App\Models\Payment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Notification;
+use App\Models\NotificationAdmin;
 use Illuminate\Support\Facades\DB;
 use App\Models\Penalty;
 use Illuminate\Support\Facades\Log;
-
 
 class HomeController extends Controller
 {
@@ -105,13 +105,18 @@ class HomeController extends Controller
         return view('motorcycle.motorcycle_list', compact('motorcycles'))->render();
     }
     
-    //view details motorcycle
+
+
     public function viewDetailsMotorcycle($id)
     {
+        // Retrieve the motorcycle by its ID
         $motorcycle = Motorcycle::findOrFail($id);
+        // Check if the customer is logged in
         $isCustomerLoggedIn = Auth::guard('customer')->check();
+        // Get the motorcycle status
         $status = $motorcycle->status;
-        
+    
+        // Get reserved dates for this motorcycle
         $reservedDates = Reservation::where('motor_id', $id)
             ->whereIn('status', ['Approved', 'Ongoing'])
             ->select('rental_start_date', 'rental_end_date')
@@ -123,24 +128,88 @@ class HomeController extends Controller
                 ];
             });
     
-         if ($isCustomerLoggedIn) {
+        // Initialize penalty status and rental ability
+        $penaltyStatus = null;
+        $canRent = true; // Flag to control rental ability
+    
+    // Check if the user is logged in to fetch penalty status
+        if ($isCustomerLoggedIn) {
             $user = Auth::guard('customer')->user();
+    
+            // Log to see if the user is correctly authenticated
+            Log::info('Authenticated customer data:', ['user' => $user]);
+    
+            // Fetch notifications for the logged-in customer
             $notifications = Notification::where('customer_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
+    
+            // Fetch all penalties for the customer
+            Log::info('Fetching penalties for customer:', ['customer_id' => $user->id]);
+            $penalties = Penalty::where('customer_id', $user->id)
+                ->get();
+            Log::info('Penalties retrieved:', ['penalties' => $penalties->toArray()]);
+    
+            if ($penalties->isNotEmpty()) {
+                // Log all the penalties
+                Log::info('Penalties for customer:', $penalties->toArray());
+    
+                // Check if there are any unpaid penalties
+                $unpaidPenalty = $penalties->where('status', 'Not Paid')->first();
+    
+                if ($unpaidPenalty) {
+                    $penaltyStatus = 'Not Paid';
+                    $canRent = false;
+    
+                    // Log the unpaid penalty
+                    Log::info('Unpaid penalty detected', [
+                        'customer_id' => $user->id,
+                        'penalty_status' => $penaltyStatus,
+                        'can_rent' => $canRent
+                    ]);
+                } elseif ($user->status === 'Banned') {
+                    $penaltyStatus = 'Banned';
+                    $canRent = false;
+    
+                    // Log the banned status
+                    Log::warning('Banned customer attempted to view motorcycle details', [
+                        'customer_id' => $user->id,
+                        'penalty_status' => $penaltyStatus,
+                        'can_rent' => $canRent
+                    ]);
+                } else {
+                    // Log no issues for the customer
+                    Log::info('Customer has no penalty issues', [
+                        'customer_id' => $user->id,
+                        'penalty_status' => $penaltyStatus,
+                        'can_rent' => $canRent
+                    ]);
+                }
+            } else {
+                // Log no penalties for the customer
+                Log::info('Customer has no penalties', [
+                    'customer_id' => $user->id
+                ]);
+            }
         } else {
+            // If the customer is not logged in, skip penalty checks and set empty notifications
             $notifications = [];
+            Log::info('Unauthenticated access attempt to view motorcycle details', [
+                'motorcycle_id' => $id
+            ]);
         }
-
+    
+        // Return the view with all the necessary data
         return view('motorcycle.details-motorcycle', compact(
-            'motorcycle', 
-            'status', 
+            'motorcycle',
+            'status',
             'isCustomerLoggedIn',
             'reservedDates',
-            'notifications'
+            'notifications',
+            'penaltyStatus',
+            'canRent' // Pass the new canRent flag to the view
         ));
     }
-
     public function checkPenalty(Request $request)
     {
         try {
@@ -319,6 +388,16 @@ class HomeController extends Controller
             }
             
             $payment->save();
+
+            $notificationMessage = $driverInfo->first_name . ' ' . $driverInfo->last_name . ' reserved a motorcycle.';
+        
+            NotificationAdmin::create([
+                'customer_id' => Auth::guard('customer')->id(),
+                'reservation_id' => $reservation->reservation_id,
+                'type' => 'Reservation',
+                'message' => $notificationMessage,
+                'read' => false, // set to false initially
+            ]);
             
             DB::commit();
             return redirect()->route('motorcycle.success', ['reservation_id' => $reservation->reservation_id]);
@@ -470,7 +549,7 @@ class HomeController extends Controller
     {
         $isCustomerLoggedIn = Auth::guard('customer')->check();
     
-        $reservation = Reservation::with(['customer', 'motorcycle', 'payment', 'driverInformation'])
+        $reservation = Reservation::with(['customer', 'motorcycle', 'payment', 'driverInformation', 'penaltyPayment'])
             ->where('reservation_id', $reservation_id)
             ->first();
     
@@ -495,7 +574,7 @@ class HomeController extends Controller
         } else {
             $notifications = [];
         }
-
+    
         return view('customer.view-history', compact(
             'reservation',
             'isCustomerLoggedIn',
@@ -505,4 +584,5 @@ class HomeController extends Controller
             'notifications'
         ));
     }
+    
 }

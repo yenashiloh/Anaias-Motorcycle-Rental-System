@@ -106,6 +106,15 @@
                                     </div>
                                 </div>
 
+                                <div class="row mb-2 align-items-center">
+                                    <div class="col-md-2 text-muted">Facebook Link:</div>
+                                    <div class="col-md-10">
+                                        <a href="{{ $reservation->driverInformation->fb_link }}" target="_blank" rel="noopener noreferrer">
+                                            {{ $reservation->driverInformation->fb_link }}
+                                        </a>
+                                    </div>
+                                </div>
+
                                 <div class="row mb-2">
                                     <div class="col-md-2 text-muted">Driver License:</div>
                                     <div class="col-md-10">

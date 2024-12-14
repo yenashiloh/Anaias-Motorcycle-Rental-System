@@ -7,6 +7,7 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.css">
     @include('partials.customer-link')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
 </head>
 <style>
@@ -93,6 +94,16 @@
                                     {{ $reservation->driverInformation->gender }}
                                 </div>
                             </div>
+                            
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-md-2 fw-bold">Facebook Link:</div>
+                                <div class="col-md-10">
+                                    <a href="{{ $reservation->driverInformation->fb_link }}" target="_blank" rel="noopener noreferrer" style="color: rgb(0, 126, 230);">
+                                        {{ $reservation->driverInformation->fb_link }}
+                                    </a>
+                                </div>
+                            </div>
+                            
                             <div class="row mb-2">
                                 <div class="col-md-2 fw-bold">Driver License:</div>
                                 <div class="col-md-10">
@@ -115,6 +126,10 @@
                     <h5 class="fw-bold mb-3 mt-5">Trip Information</h5>
                     <hr>
                     <div class="ps-3">
+                        <div class="row mb-2">
+                            <div class="col-md-2 fw-bold">Reservation Status:</div>
+                            <div class="col-md-10">{{ $reservation->status }}</div>
+                        </div>
                         <div class="row mb-2">
                             <div class="col-md-2 fw-bold">Riding:</div>
                             <div class="col-md-10">{{ $reservation->riding }}</div>
@@ -251,7 +266,7 @@
                 </div>
                 @endif
 
-                @if ($reservation->violation_status === 'Violator')
+                @if ($reservation->violation_status === 'Violator' && $reservation->penalty)
                     <div class="col-md-12" id="violations-section">
                         <div class="bg-light-blue text-dark rounded p-3 ">
                             <h6 class="mb-0" style="font-weight: bold; font-size: 18px; color:red;">Violations</h6>
@@ -261,7 +276,6 @@
                     </div>
                     <div class="mb-4 mt-3">
                         <div class="ps-3">
-                            <button class="btn btn-secondary mt-2 mb-2">Pay Now</button>
                             <div class="row mb-2">
                                 <div class="col-md-2 fw-bold">Penalty Type:</div>
                                 <div class="col-md-10">
@@ -280,10 +294,10 @@
                                     <span>{{ $reservation->penalty->description ?? 'N/A' }}</span>
                                 </div>
                             </div>
-                            <div class="row mb-2 mb-5">
-                                <div class="col-md-2 fw-bold">Penalty Image:</div>
-                                <div class="col-md-10">
-                                    @if ($reservation->penalty->penalty_image)
+                            @if ($reservation->penalty->penalty_image)
+                                <div class="row mb-2 mb-5">
+                                    <div class="col-md-2 fw-bold">Penalty Image:</div>
+                                    <div class="col-md-10">
                                         @php
                                             $images = json_decode($reservation->penalty->penalty_image, true);
                                         @endphp
@@ -293,16 +307,116 @@
                                                     style="max-height: 200px;">
                                             </a>
                                         @endforeach
-                                    @else
-                                        <span>No images available</span>
-                                    @endif
+                                    </div>
+                                </div>
+                            @endif
+                            @if (!$reservation->penaltyPayment)
+                            <button class="btn btn-secondary mt-2 mb-2" data-bs-toggle="modal" data-bs-target="#paymentModal">Pay Now</button>
+                         @endif
+                            <hr>
+
+                            @if ($reservation->penaltyPayment)
+                            <div class="row mb-2">
+                                <div class="col-md-2 fw-bold">Payment Method:</div>
+                                <div class="col-md-10">
+                                    <span>{{ ucfirst($reservation->penaltyPayment->payment_method) }}</span>
                                 </div>
                             </div>
+                            <div class="row mb-2">
+                                <div class="col-md-2 fw-bold">Status:</div>
+                                <div class="col-md-10">
+                                    <span>{{ $reservation->penalty->status ?? 'N/A' }}</span>
+                                </div>
+                            </div>
+                            
+                                @if ($reservation->penaltyPayment->payment_method === 'gcash')
+                               
+                                    <div class="row mb-2">
+                                        <div class="col-md-2 fw-bold">GCash Name:</div>
+                                        <div class="col-md-10">
+                                            <span>{{ $reservation->penaltyPayment->gcash_name ?? 'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                
+                                    <div class="row mb-2">
+                                        <div class="col-md-2 fw-bold">GCash Number:</div>
+                                        <div class="col-md-10">
+                                            <span>{{ $reservation->penaltyPayment->gcash_number ?? 'N/A' }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-2 mb-5">
+                                        <div class="col-md-2 fw-bold">Receipt Image:</div>
+                                        <div class="col-md-10">
+                                            @if ($reservation->penaltyPayment && $reservation->penaltyPayment->image_receipt)
+                                                <a href="{{ asset('storage/penalty_receipts/' . basename($reservation->penaltyPayment->image_receipt)) }}"
+                                                    target="_blank">
+                                                    <img src="{{ asset('storage/penalty_receipts/' . basename($reservation->penaltyPayment->image_receipt)) }}"
+                                                        alt="Receipt Image" class="img-fluid"
+                                                        style="max-height: 250px;">
+                                                </a>
+                                            @else
+                                                <span>No receipt image available</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    
+                                @endif
+                            </div>
                         </div>
+                    </div>
+                @endif
                 @endif
             </div>
         </div>
         @endif
+
+        <!-- Modal for Payment Options -->
+        <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="paymentModalLabel">Choose Payment Method</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Payment method selection -->
+                        <div class="form-group">
+                            <label><input type="radio" name="payment_method" value="cash" id="cashOption"> Cash</label>
+                            <br>
+                            <label><input type="radio" name="payment_method" value="gcash" id="gcashOption"> Pay via Gcash</label>
+                        </div>
+        
+                        <!-- Gcash Field -->
+                        <div id="gcashFields" style="display: none;">
+                            <div class="d-flex justify-content-center">
+                                <img src="{{ asset('../../assets/img/gcash.jpg') }}" alt="GCash" class="img-fluid" style="max-width: 60%;">
+                            </div>
+        
+                            <div class="form-group mb-3 mt-3">
+                                <label for="gcash_name">Gcash Name</label>
+                                <input type="text" class="form-control" id="gcash_name" name="gcash_name"
+                                    placeholder="Enter Gcash name">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="gcash_number">Gcash Number</label>
+                                <input type="number" class="form-control" id="gcash_number" name="gcash_number"
+                                    placeholder="Enter Gcash number">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="image_receipt">Receipt Image</label>
+                                <input type="file" class="form-control" id="image_receipt" name="image_receipt" accept="image/*">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" id="submitPayment">Submit Payment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         </div>
         <br>
     </section>
@@ -328,5 +442,103 @@
     <!-- Template Javascript -->
     <script src="{{ asset('assets/js/main.js') }}"></script>
     <script src="{{ asset('assets/js/notifications.js') }}"></script>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cashOption = document.getElementById('cashOption');
+            const gcashOption = document.getElementById('gcashOption');
+            const gcashFields = document.getElementById('gcashFields');
+            const submitButton = document.getElementById('submitPayment');
+    
+            if (!document.getElementById('toastContainer')) {
+                const toastContainer = document.createElement('div');
+                toastContainer.id = 'toastContainer';
+                toastContainer.classList.add('position-fixed', 'bottom-0', 'end-0', 'p-3');
+                toastContainer.style.zIndex = '1100';
+                document.body.appendChild(toastContainer);
+            }
+    
+            gcashOption.addEventListener('change', function() {
+                gcashFields.style.display = 'block';
+            });
+    
+            cashOption.addEventListener('change', function() {
+                gcashFields.style.display = 'none';
+            });
+    
+            function showToast(message, type = 'success') {
+                const toastContainer = document.getElementById('toastContainer');
+                const toastHTML = `
+                    <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                `;
+    
+                toastContainer.innerHTML = toastHTML;
+                const toast = new bootstrap.Toast(toastContainer.querySelector('.toast'));
+                toast.show();
+            }
+    
+            submitButton.addEventListener('click', function() {
+                let paymentMethod = cashOption.checked ? 'Cash' : 'Gcash';
+                let paymentData = {
+                    payment_method: paymentMethod,
+                    penalty_id: {!! json_encode($reservation->penalty ? $reservation->penalty->penalty_id : null) !!},
+                    customer_id: {!! json_encode($reservation->customer_id) !!},
+                    driver_id: {!! json_encode($reservation->driver_id) !!},
+                    reservation_id: {!! json_encode($reservation->reservation_id) !!},
+                };
+    
+                if (paymentMethod === 'Gcash') {
+                    paymentData.gcash_name = document.getElementById('gcash_name').value;
+                    paymentData.gcash_number = document.getElementById('gcash_number').value;
+                    paymentData.image_receipt = document.getElementById('image_receipt').files[0];
+                }
+    
+                let formData = new FormData();
+                for (const key in paymentData) {
+                    formData.append(key, paymentData[key]);
+                }
+    
+                fetch('/submit-payment', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errorData => {
+                                throw new Error(JSON.stringify(errorData));
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            localStorage.setItem('paymentSuccess', 'true');
+    
+                            location.reload();
+                        } else {
+                            showToast('An error occurred: ' + (data.message || 'Unknown error'), 'danger');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred: ' + error.message, 'danger');
+                    });
+            });
+    
+            if (localStorage.getItem('paymentSuccess') === 'true') {
+                showToast('Payment Processed Successfully!');
+                localStorage.removeItem('paymentSuccess');
+            }
+        });
+    </script>
 </body>

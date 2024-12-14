@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Notification;
 use Illuminate\Http\Request;
-
+use App\Models\NotificationAdmin;
 use Illuminate\Support\Facades\Log;
+
 class NotificationController extends Controller
 {
     //get notification
@@ -54,5 +55,28 @@ class NotificationController extends Controller
        }
    
        return response()->json(['message' => 'User not authenticated'], 401);
-   }  
+   }
+   
+   //get notification admin
+   public function getAdminNotifications(Request $request)
+   {
+       $notifications = NotificationAdmin::orderBy('created_at', 'desc')
+           ->take(5)  // Fetch the latest 5 notifications
+           ->get();
+   
+       return response()->json($notifications);
+   }
+   
+   
+
+   public function markAllNotificationsAsRead()
+   {
+       // Mark all unread notifications as read
+       NotificationAdmin::where('read', false)
+           ->update(['read' => true]);
+   
+       return response()->json(['success' => true]);
+   }
+   
+
 }
