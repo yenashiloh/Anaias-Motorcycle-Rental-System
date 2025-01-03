@@ -88,14 +88,17 @@
                                             <td>{{ $booking['duration'] }}</td>
                                             <td>&#8369;{{ number_format($booking['total'], 2) }}</td>
                                             <td class="text-center">
-                                                <span
-                                                    class="badge 
+                                                <span class="badge 
                                                     @if ($booking['status'] == 'Completed') badge-success 
                                                     @elseif($booking['status'] == 'Declined') badge-danger 
                                                     @elseif($booking['status'] == 'Cancelled') badge-warning
                                                     @else badge-secondary @endif">
                                                     {{ $booking['status'] }}
                                                 </span>
+                                            
+                                                @if ($booking['status'] == 'Declined')
+                                                    <br>Reason: {{ $booking['decline_reason'] }}
+                                                @endif
                                             </td>
                                             
                                             <td class="text-center">

@@ -198,14 +198,10 @@
                                                                                 <i class="fa fa-check"></i>
                                                                             </button>
                                                                         </form>
-                                                                        <form
-                                                                            action="{{ route('reservations.decline', $booking['reservation_id']) }}"
-                                                                            method="POST" style="display: inline;">
+                                                                        <form action="{{ route('reservations.decline', $booking['reservation_id']) }}" method="POST" style="display: inline;">
                                                                             @csrf
-                                                                            <button type="submit"
-                                                                                class="btn btn-link btn-danger"
-                                                                                data-bs-toggle="tooltip"
-                                                                                title="Decline">
+                                                                            <button type="button" class="btn btn-link btn-danger" data-bs-toggle="modal" 
+                                                                                    data-bs-target="#declineModal{{ $booking['reservation_id'] }}" title="Decline">
                                                                                 <i class="fa fa-times"></i>
                                                                             </button>
                                                                         </form>
@@ -476,8 +472,33 @@
         </div>
     </div>
 
+    <!-- Decline Modal -->
+    @foreach($toReviewBookings as $booking)
+        <div class="modal fade" id="declineModal{{ $booking['reservation_id'] }}" tabindex="-1" aria-labelledby="declineModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="declineModalLabel">Decline Reservation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('reservations.decline', $booking['reservation_id']) }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="decline_reason" class="form-label">Decline Reason</label>
+                                <textarea class="form-control" id="decline_reason" name="decline_reason" rows="6" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-secondary">Decline Reservation</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
-    <!-- Modal for Cancel Reason -->
     <!-- Cancel Modal -->
     <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -504,7 +525,6 @@
         </div>
     </div>
     </div>
-
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
@@ -539,26 +559,48 @@
 
     //nav active
     document.addEventListener('DOMContentLoaded', function () {
-        const activeTab = localStorage.getItem('activeTab');
+        const tabButtons = document.querySelectorAll('[data-bs-toggle="pill"]');
 
-        if (activeTab) {
-            const tabLink = document.getElementById(activeTab);
-            const tabContent = document.querySelector(tabLink.getAttribute('href'));
-
-            if (tabLink && tabContent) {
-                document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
-                document.querySelectorAll('.tab-pane').forEach(content => content.classList.remove('show', 'active'));
-
-                tabLink.classList.add('active');
-                tabContent.classList.add('show', 'active');
+        function activateTab(tabElement) {
+            const tab = new bootstrap.Tab(tabElement);
+            tab.show();
+            
+            document.querySelectorAll('[data-bs-toggle="pill"]').forEach(t => {
+                t.setAttribute('aria-selected', 'false');
+            });
+            tabElement.setAttribute('aria-selected', 'true');
+            
+            localStorage.setItem('activeTab', tabElement.id);
+        }
+        
+        const storedTabId = localStorage.getItem('activeTab');
+        if (storedTabId) {
+            const storedTab = document.getElementById(storedTabId);
+            if (storedTab) {
+                activateTab(storedTab);
+            }
+        } else {
+            const firstTab = document.querySelector('[data-bs-toggle="pill"]');
+            if (firstTab) {
+                activateTab(firstTab);
             }
         }
-
-        const tabLinks = document.querySelectorAll('.nav-link');
-        tabLinks.forEach(tabLink => {
-            tabLink.addEventListener('click', function () {
-                localStorage.setItem('activeTab', tabLink.id);
+        
+        tabButtons.forEach(tabButton => {
+            tabButton.addEventListener('click', function (e) {
+                localStorage.setItem('activeTab', this.id);
+            });
+        });
+        
+        document.querySelectorAll('[data-bs-toggle="pill"]').forEach(tabEl => {
+            tabEl.addEventListener('shown.bs.tab', function (e) {
+                const targetId = e.target.getAttribute('href');
+                const targetPane = document.querySelector(targetId);
+                if (targetPane) {
+                    targetPane.classList.add('show', 'active');
+                }
             });
         });
     });
+
 </script>

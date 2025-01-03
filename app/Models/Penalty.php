@@ -9,11 +9,11 @@ class Penalty extends Model
 {
     use HasFactory;
 
-    protected $table = 'penalty';
+    protected $table = 'penalty'; 
 
-    // protected $primaryKey = 'penalty_id';
+    protected $primaryKey = 'penalty_id'; 
 
-    // public $incrementing = true;
+    public $incrementing = false;
 
     protected $fillable = [
         'penalty_id',
@@ -52,5 +52,4 @@ class Penalty extends Model
     {
         return $this->hasOne(PenaltyPayment::class, 'penalty_id', 'penalty_id');
     }
-
 }

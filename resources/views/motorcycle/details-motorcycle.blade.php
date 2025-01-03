@@ -279,7 +279,6 @@
                 if (days === 1) {
                     $('#dropOffTimePicker').val($(this).val()).prop('disabled', true);
 
-                    // Update or add hidden input
                     var $hiddenDropOff = $('form input[name="drop_off"]');
                     if ($hiddenDropOff.length) {
                         $hiddenDropOff.val($(this).val());
@@ -329,9 +328,7 @@
         }
     });
 
-    //error message if not select a rental dates
     document.addEventListener('DOMContentLoaded', function() {
-    // Penalty and banned account handling
     @if (isset($penaltyStatus) && $penaltyStatus === 'Not Paid')
         const penaltyNotPaidBtn = document.getElementById('penalty-not-paid-button');
         if (penaltyNotPaidBtn) {
@@ -345,7 +342,6 @@
                     cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Redirect to penalty payment page
                         window.location.href = "{{ route('motorcycle.details-motorcycle') }}";
                     }
                 });
@@ -366,13 +362,11 @@
             });
         }
     @endif
-    // Existing code for rent now button
     const rentNowButton = document.getElementById('rent-now-button');
     const dateRangePicker = document.getElementById('dateRangePicker');
 
     if (rentNowButton) {
         rentNowButton.addEventListener('click', function(event) {
-            // Additional check for rental dates
             if (!dateRangePicker.value) {
                 event.preventDefault();
                 Swal.fire({
@@ -385,7 +379,6 @@
                 return;
             }
 
-            // Prevent renting if penalty is not paid or account is banned
             @if (isset($penaltyStatus) && ($penaltyStatus === 'Not Paid' || $penaltyStatus === 'Banned'))
                 event.preventDefault();
                 Swal.fire({

@@ -131,27 +131,29 @@ class BookingsController extends Controller
     }
 
     //decline the bookings reservation
-    public function decline($id)
+    public function decline(Request $request, $id)
     {
         try {
             $reservation = Reservation::findOrFail($id);
             $reservation->status = 'Declined';
+            $reservation->decline_reason = $request->input('decline_reason'); // Save the decline reason
             $reservation->save();
     
             Notification::create([
                 'customer_id' => $reservation->customer_id,
                 'reservation_id' => $reservation->reservation_id,
                 'type' => 'decline',
-                'message' => "Your reservation has been declined.",
+                'message' => "Your reservation has been declined. Reason: " . $reservation->decline_reason,
                 'read' => false
             ]);
-
+    
             return back()->with('success', 'Reservation Declined Successfully!');
         } catch (\Exception $e) {
             \Log::error('Decline Error: ' . $e->getMessage());
             return back()->with('error', 'An error occurred while declining the reservation.');
         }
     }
+    
     
     //cancel the bookings reservation
     public function cancel(Request $request, $reservation_id)
@@ -258,30 +260,31 @@ class BookingsController extends Controller
         if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.admin-login');
         }
-        
+    
         $admin = Auth::guard('admin')->user();
-        
+    
         try {
             $bookings = Reservation::with(['motorcycle', 'driverInformation'])
-                ->whereIn('status', ['Completed', 'Declined']) 
+                ->whereIn('status', ['Completed', 'Declined'])
                 ->get()
                 ->map(function ($reservation) {
                     $startDate = Carbon::parse($reservation->rental_start_date);
                     $endDate = Carbon::parse($reservation->rental_end_date);
-                    
+    
                     $duration = $startDate->diffInDays($endDate) ?: 1;
-                    
+    
                     $images = json_decode($reservation->motorcycle->images, true);
                     $firstImage = $images[0] ?? 'images/placeholder.jpg';
-                    
-                    $driverName = $reservation->driverInformation 
+    
+                    $driverName = $reservation->driverInformation
                         ? $reservation->driverInformation->first_name . ' ' . $reservation->driverInformation->last_name
                         : 'N/A';
-                    
-                    $driverId = $reservation->driverInformation 
-                        ? $reservation->driverInformation->driver_id 
+    
+                    $driverId = $reservation->driverInformation
+                        ? $reservation->driverInformation->driver_id
                         : null;
-                    
+    
+                    // Ensure decline_reason is included
                     return [
                         'reservation_id' => $reservation->reservation_id,
                         'customer_id' => $reservation->customer_id,
@@ -293,10 +296,11 @@ class BookingsController extends Controller
                         'total' => $reservation->total,
                         'motorcycle_image' => $firstImage,
                         'status' => $reservation->status,
-                        'violation_status' => $reservation->violation_status
+                        'violation_status' => $reservation->violation_status,
+                        'decline_reason' => $reservation->decline_reason // Add this line
                     ];
                 });
-                
+    
             return view('admin.reservation.all-bookings-record', compact('admin', 'bookings'));
         } catch (\Exception $e) {
             \Log::error('Booking Error: ' . $e->getMessage());

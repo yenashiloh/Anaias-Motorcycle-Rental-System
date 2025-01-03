@@ -13,26 +13,29 @@ document.addEventListener("DOMContentLoaded", function() {
                 notifications = data;
                 notifList.innerHTML = '';
                 let unreadCount = 0;
-
+    
                 if (notifications.length === 0) {
                     notifList.innerHTML = `<li><div class="notif-content text-center">No new notifications.</div></li>`;
                     notifDropdownTitle.textContent = 'Notifications';
                 } else {
                     notifDropdownTitle.textContent = `Notifications`;
-
+    
                     notifications.forEach(notification => {
                         if (!notification.read) {
                             unreadCount++;
                         }
-
+    
                         const createdAt = new Date(notification.created_at);
                         const timeDiff = new Date() - createdAt;
                         let formattedTime = getRelativeTime(timeDiff);
-
+    
                         const notifItem = document.createElement("li");
                         notifItem.classList.add(notification.read ? 'read' : 'unread');
+    
+                        const notificationLink = `{{ route('admin.reservation.view-bookings', ':id') }}`.replace(':id', notification.reservation_id);
+    
                         notifItem.innerHTML = `
-                            <a href="#" class="notif-item">
+                            <div class="notif-item" data-href="${notificationLink}">
                                 <div class="notif-icon notif-primary">
                                     <i class="fa fa-user"></i>
                                 </div>
@@ -40,22 +43,32 @@ document.addEventListener("DOMContentLoaded", function() {
                                     <span class="block">${notification.message}</span>
                                     <span class="time">${formattedTime}</span>
                                 </div>
-                            </a>
+                            </div>
                         `;
-
-                        notifItem.addEventListener("click", function() {
+    
+                        // Add the event listener here, right after setting the innerHTML
+                        notifItem.addEventListener("click", function(e) {
+                            // Prevent default dropdown behavior
+                            e.stopPropagation();
+                            
+                            // Mark notification as read
                             markNotificationAsRead(notification.id);
+                            
+                            // Get the URL from data-href and navigate
+                            const url = this.querySelector('.notif-item').dataset.href;
+                            window.location.href = url;
                         });
-
+    
                         notifList.appendChild(notifItem);
                     });
-
+    
                     notifCount.textContent = unreadCount > 0 ? unreadCount : '';
                     notifCount.style.display = unreadCount > 0 ? 'inline' : 'none';
                 }
             })
             .catch(error => console.error('Error fetching notifications:', error));
     }
+    
 
     document.getElementById("notifDropdown").addEventListener("click", function() {
         markAllAsRead();

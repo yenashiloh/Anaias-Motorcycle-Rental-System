@@ -105,18 +105,12 @@ class HomeController extends Controller
         return view('motorcycle.motorcycle_list', compact('motorcycles'))->render();
     }
     
-
-
     public function viewDetailsMotorcycle($id)
     {
-        // Retrieve the motorcycle by its ID
         $motorcycle = Motorcycle::findOrFail($id);
-        // Check if the customer is logged in
         $isCustomerLoggedIn = Auth::guard('customer')->check();
-        // Get the motorcycle status
         $status = $motorcycle->status;
     
-        // Get reserved dates for this motorcycle
         $reservedDates = Reservation::where('motor_id', $id)
             ->whereIn('status', ['Approved', 'Ongoing'])
             ->select('rental_start_date', 'rental_end_date')
@@ -128,40 +122,31 @@ class HomeController extends Controller
                 ];
             });
     
-        // Initialize penalty status and rental ability
         $penaltyStatus = null;
-        $canRent = true; // Flag to control rental ability
+        $canRent = true;
     
-    // Check if the user is logged in to fetch penalty status
         if ($isCustomerLoggedIn) {
             $user = Auth::guard('customer')->user();
-    
-            // Log to see if the user is correctly authenticated
             Log::info('Authenticated customer data:', ['user' => $user]);
     
-            // Fetch notifications for the logged-in customer
             $notifications = Notification::where('customer_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
     
-            // Fetch all penalties for the customer
             Log::info('Fetching penalties for customer:', ['customer_id' => $user->id]);
             $penalties = Penalty::where('customer_id', $user->id)
                 ->get();
             Log::info('Penalties retrieved:', ['penalties' => $penalties->toArray()]);
     
             if ($penalties->isNotEmpty()) {
-                // Log all the penalties
                 Log::info('Penalties for customer:', $penalties->toArray());
     
-                // Check if there are any unpaid penalties
                 $unpaidPenalty = $penalties->where('status', 'Not Paid')->first();
     
                 if ($unpaidPenalty) {
                     $penaltyStatus = 'Not Paid';
                     $canRent = false;
     
-                    // Log the unpaid penalty
                     Log::info('Unpaid penalty detected', [
                         'customer_id' => $user->id,
                         'penalty_status' => $penaltyStatus,
@@ -170,15 +155,13 @@ class HomeController extends Controller
                 } elseif ($user->status === 'Banned') {
                     $penaltyStatus = 'Banned';
                     $canRent = false;
-    
-                    // Log the banned status
+
                     Log::warning('Banned customer attempted to view motorcycle details', [
                         'customer_id' => $user->id,
                         'penalty_status' => $penaltyStatus,
                         'can_rent' => $canRent
                     ]);
                 } else {
-                    // Log no issues for the customer
                     Log::info('Customer has no penalty issues', [
                         'customer_id' => $user->id,
                         'penalty_status' => $penaltyStatus,
@@ -186,20 +169,17 @@ class HomeController extends Controller
                     ]);
                 }
             } else {
-                // Log no penalties for the customer
                 Log::info('Customer has no penalties', [
                     'customer_id' => $user->id
                 ]);
             }
         } else {
-            // If the customer is not logged in, skip penalty checks and set empty notifications
             $notifications = [];
             Log::info('Unauthenticated access attempt to view motorcycle details', [
                 'motorcycle_id' => $id
             ]);
         }
     
-        // Return the view with all the necessary data
         return view('motorcycle.details-motorcycle', compact(
             'motorcycle',
             'status',
@@ -207,9 +187,10 @@ class HomeController extends Controller
             'reservedDates',
             'notifications',
             'penaltyStatus',
-            'canRent' // Pass the new canRent flag to the view
+            'canRent'
         ));
     }
+    
     public function checkPenalty(Request $request)
     {
         try {

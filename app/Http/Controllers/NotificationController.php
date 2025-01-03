@@ -12,12 +12,18 @@ class NotificationController extends Controller
     //get notification
     public function getNotifications(Request $request)
     {
-        $notifications = Notification::orderBy('created_at', 'desc')
-            ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at', 'reservation_id']); 
+        $user = auth()->guard('customer')->user();
+        
+        if ($user) {
+            $notifications = Notification::where('customer_id', $user->customer_id) 
+                ->orderBy('created_at', 'desc')
+                ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at', 'reservation_id']); 
+            
+            return response()->json($notifications);
+        }
     
-        return response()->json($notifications);
+        return response()->json(['message' => 'User not authenticated'], 401);
     }
-    
 
    // mark as read
    public function markAsRead(Request $request)

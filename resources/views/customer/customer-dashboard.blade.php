@@ -119,9 +119,10 @@
                                                     {{ $reservation->status }}
                                                     @if ($reservation->status === 'Cancelled')
                                                         <br>Reason: {{ $reservation->cancel_reason }}
+                                                    @elseif ($reservation->status === 'Declined')
+                                                        <br>Reason: {{ $reservation->decline_reason }}
                                                     @endif
                                                 </td>
-                                                
                                                 <td style="padding: 10px;">
                                                     {{ $reservation->payment->status ?? 'N/A' }}
                                                 </td>

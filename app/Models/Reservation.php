@@ -25,6 +25,7 @@ class Reservation extends Model
         'motor_id',
         'violation_status',
         'cancel_reason',
+        'decline_reason'
     ];
 
     public function cancelReservation($reason)
