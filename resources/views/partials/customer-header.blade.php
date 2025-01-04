@@ -61,7 +61,8 @@
                     <div class="d-flex align-items-center">
                         @if (Auth::guard('customer')->check())
                             <!-- Display Notification Bell and List -->
-                            <div class="me-3 position-relative">
+                            <div class="d-flex justify-content-end w-100">
+                                <div class="me-3 position-relative">
                                 <a href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-bell notification-bell" style="color: black;"></i>
                                     
@@ -71,7 +72,7 @@
                               </span>
 
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" id="notificationList">
+                                <ul class="dropdown-menu " aria-labelledby="notificationDropdown" id="notificationList">
                                     <li>
                                         <div class="dropdown-title text-center">Notifications</div>
                                     </li>
@@ -102,6 +103,8 @@
                                     </li>
                                 </ul>
                             </div>
+
+                        </div>
 
 
                             <!-- User Dropdown -->

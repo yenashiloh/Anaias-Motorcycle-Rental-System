@@ -5,88 +5,7 @@
     <meta charset="utf-8">
     <title>Motorcycles</title>
     @include('partials.customer-link')
-
-    <style>
-        .rental-card {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            overflow: hidden;
-            transition: 0.3s;
-        }
-
-        .rental-card:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .rental-card img {
-            max-height: 200px;
-            object-fit: cover;
-        }
-
-        .rental-card-body {
-            padding: 15px;
-        }
-
-
-        /* Style for the input field */
-        #searchInput {
-            border-radius: 25px;
-            padding: 12px 20px;
-            font-size: 16px;
-            border: 1px solid #ced4da;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        #searchInput:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-        .form-select {
-            border-radius: 25px;
-            padding: 10px 15px;
-            font-size: 16px;
-            border: 1px solid #ced4da;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-            /* Reduced shadow */
-            transition: all 0.3s ease;
-        }
-
-        .form-select:focus {
-            border-color: #007bff !important;
-            /* Change border color when focused */
-            outline: none !important;
-            /* Remove outline */
-            box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
-            /* Soft glow effect on focus */
-        }
-
-        /* Optional: Change border color on selection */
-        .form-select option:checked {
-            background-color: #e9ecef;
-            /* Optional: Set a background color for selected option */
-            color: #495057;
-            /* Optional: Change text color for selected option */
-        }
-
-
-        /* Style for the button */
-        #filterBtn {
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            padding: 10px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            border-color: #007bff;
-        }
-
-        #filterBtn:hover {
-            background-color: #0056b3;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
-        }
-    </style>
+    <link href="{{ asset('assets/css/motorcycles.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -101,11 +20,11 @@
 
             <!-- Search and Filter Section -->
             <div class="row mb-4">
-                <div class="col-md-4">
+                <div class="col-md-4 mb-2">
                     <input type="text" id="searchInput" class="form-control" placeholder="Search Motorcycles..."
                         value="{{ old('searchQuery', $searchQuery) }}">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 mb-2">
                     <select class="form-select" id="priceFilter">
                         <option value="">Select Price Range</option>
                         <option value="100-500">₱100 - ₱500</option>
@@ -117,7 +36,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-4 mb-2">
                     <select class="form-select" id="statusFilter">
                         <option value="">All Motorcycle Status</option>
                         <option value="Available">Available</option>

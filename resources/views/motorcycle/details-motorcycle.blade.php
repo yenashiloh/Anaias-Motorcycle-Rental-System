@@ -102,11 +102,11 @@
                                             @if (!$canRent)
                                                 @if ($penaltyStatus === 'Not Paid')
                                                     <button type="button" class="btn btn-light w-100 py-2 mb-2" id="penalty-not-paid-button">
-                                                        Pay Penalty
+                                                       Rent Now
                                                     </button>
                                                 @elseif ($penaltyStatus === 'Banned')
                                                     <button type="button" class="btn btn-light w-100 py-2 mb-2" id="customer-banned-button">
-                                                        Account Suspended
+                                                        Rent Now
                                                     </button>
                                                 @endif
                                             @else
@@ -283,8 +283,7 @@
                     if ($hiddenDropOff.length) {
                         $hiddenDropOff.val($(this).val());
                     } else {
-                        $('form').append('<input type="hidden" name="drop_off" value="' + $(this)
-                            .val() + '">');
+                        $('form').append('<input type="hidden" name="drop_off" value="' + $(this).val() + '">');
                     }
                 }
             }
@@ -313,6 +312,7 @@
         generateTimeOptions('dropOffTimePicker');
     };
 
+    //not available
     document.addEventListener('DOMContentLoaded', function() {
         const notAvailableBtn = document.getElementById('not-available-button');
         if (notAvailableBtn) {
@@ -322,33 +322,37 @@
                     text: 'Sorry, this motorcycle is currently not available for rent. Please check back later or browse our other available motorcycles.',
                     icon: 'info',
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#3085d6'
+                    confirmButtonColor: '#1f2e4e'
                 });
             });
         }
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
+    //not paid
     @if (isset($penaltyStatus) && $penaltyStatus === 'Not Paid')
+
         const penaltyNotPaidBtn = document.getElementById('penalty-not-paid-button');
         if (penaltyNotPaidBtn) {
             penaltyNotPaidBtn.addEventListener('click', function() {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Payment Required',
-                    text: 'You have an outstanding penalty. Please settle the payment to book again.',
-                    confirmButtonText: 'Pay Penalty',
+                    title: 'Outstanding Penalty',
+                    text: 'You need to settle your unpaid penalty before proceeding with the rental.',
                     showCancelButton: true,
-                    cancelButtonText: 'Cancel'
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#1f2e4e',
+                    customClass: {
+                        actions: 'swal2-actions-right' 
+                    },
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = "{{ route('motorcycle.details-motorcycle') }}";
+                    if (result.isDismissed) {
                     }
                 });
             });
         }
     @endif
 
+    // Banned Account Handler
     @if (isset($penaltyStatus) && $penaltyStatus === 'Banned')
         const customerBannedBtn = document.getElementById('customer-banned-button');
         if (customerBannedBtn) {
@@ -357,14 +361,17 @@
                     icon: 'error',
                     title: 'Account Suspended',
                     text: 'Your account is currently banned. Please contact customer support.',
-                    confirmButtonText: 'OK'
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#1f2e4e'
                 });
             });
         }
     @endif
+
     const rentNowButton = document.getElementById('rent-now-button');
     const dateRangePicker = document.getElementById('dateRangePicker');
 
+    //select rental dates
     if (rentNowButton) {
         rentNowButton.addEventListener('click', function(event) {
             if (!dateRangePicker.value) {
@@ -374,7 +381,7 @@
                     text: 'Please select rental dates before proceeding.',
                     icon: 'error',
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#d33'
+                    confirmButtonColor: '#1f2e4e'
                 });
                 return;
             }
@@ -390,5 +397,4 @@
             @endif
         });
     }
-});
 </script>

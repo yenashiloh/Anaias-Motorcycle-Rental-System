@@ -127,14 +127,14 @@ class HomeController extends Controller
     
         if ($isCustomerLoggedIn) {
             $user = Auth::guard('customer')->user();
-            Log::info('Authenticated customer data:', ['user' => $user]);
+            Log::info('Authenticated customer data:', ['user' => $user->toArray()]); // Changed to include full user data
     
-            $notifications = Notification::where('customer_id', $user->id)
+            $notifications = Notification::where('customer_id', $user->customer_id) // Changed from $user->id to $user->customer_id
                 ->orderBy('created_at', 'desc')
                 ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
     
-            Log::info('Fetching penalties for customer:', ['customer_id' => $user->id]);
-            $penalties = Penalty::where('customer_id', $user->id)
+            Log::info('Fetching penalties for customer:', ['customer_id' => $user->customer_id]); // Changed from $user->id
+            $penalties = Penalty::where('customer_id', $user->customer_id) // Changed from $user->id
                 ->get();
             Log::info('Penalties retrieved:', ['penalties' => $penalties->toArray()]);
     
@@ -148,29 +148,28 @@ class HomeController extends Controller
                     $canRent = false;
     
                     Log::info('Unpaid penalty detected', [
-                        'customer_id' => $user->id,
+                        'customer_id' => $user->customer_id, // Changed from $user->id
                         'penalty_status' => $penaltyStatus,
                         'can_rent' => $canRent
                     ]);
                 } elseif ($user->status === 'Banned') {
                     $penaltyStatus = 'Banned';
                     $canRent = false;
-
                     Log::warning('Banned customer attempted to view motorcycle details', [
-                        'customer_id' => $user->id,
+                        'customer_id' => $user->customer_id, // Changed from $user->id
                         'penalty_status' => $penaltyStatus,
                         'can_rent' => $canRent
                     ]);
                 } else {
                     Log::info('Customer has no penalty issues', [
-                        'customer_id' => $user->id,
+                        'customer_id' => $user->customer_id, // Changed from $user->id
                         'penalty_status' => $penaltyStatus,
                         'can_rent' => $canRent
                     ]);
                 }
             } else {
                 Log::info('Customer has no penalties', [
-                    'customer_id' => $user->id
+                    'customer_id' => $user->customer_id // Changed from $user->id
                 ]);
             }
         } else {

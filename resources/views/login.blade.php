@@ -6,84 +6,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="icon" href="../../assets/img/logo.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+
     <link rel="icon" href="assets/img/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
-    <!-- Style -->
-    <style>
-        .image-section {
-            flex: 1;
-            background-image: url('sign-up-assets/images/bg-example.png');
-            ;
-            background-size: cover;
-            background-position: center;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('assets/css/carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap-login.min.css') }}">
 </head>
 
 <body>
-    <div class="container">
-        <div class="login-section">
-            <div class="login-form">
-                <div class="logo"></div>
-                <img src="assets/img/logo.png" alt="Logo" class="logo-login">
+    <div class="d-lg-flex half">
+        <div class="bg order-1 order-md-2" style="background-image: url('sign-up-assets/images/bg-example.png');"></div>
+        <div class="contents order-2 order-md-1">
+    
+          <div class="container">
+            <div class="row align-items-center justify-content-center">
+              <div class="col-md-7">
+                <img src="assets/img/logo.png" alt="Logo" class="logo-login img-fluid w-25">
 
                 <form method="POST" action="{{ route('customer.login') }}">
                     @csrf
 
                     @if (session('success'))
-                    <div class="alert alert-success" style="color: green; font-size: 13px; margin-bottom:10px;">
+                    <div class="alert alert-success mt-3" >
                         {{ session('success') }}
                     </div>
                 @endif
                 
-
                     @if (session('error'))
-                        <div class="alert alert-danger" style="color: red; font-size: 13px; margin-bottom:10px;">
+                        <div class="alert alert-danger mt-3" >
                             {{ session('error') }}
                         </div>
                     @endif
 
-                    <div class="form-group">
-                        <label for="email" class="mb-2">Email Address</label>
-                        <input type="email" id="email" name="email" class="form-control"
-                            placeholder="Enter your email address" required style="margin-top: 5px;">
+                    <div class="form-group first mt-2">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" name="email" placeholder="Enter your email address" id="email" required>
                         @error('email')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
-                    <div class="form-group">
+                    
+                    <div class="form-group last mb-3">
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" class="form-control"
-                            placeholder="Enter your password" required style="margin-top: 5px;">
+                        <input type="password" id="password" name="password" class="form-control" required>
                         @error('password')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
-                    <div class="row">
-                        <div class="col-6 forgot-password">
-                            <a href="{{ route('forgot-password') }}">Forgot password?</a>
-                        </div>
-                        <div class="col-6 remember-me text-right">
-                            <input type="checkbox" id="remember" name="remember" onclick="toggleRememberMe()">
-                            <label for="remember">Remember me</label>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="login-button btn btn-primary">LOGIN</button>
-
-                    <div class="signup-link mt-3">
-                        Don't have an account? <a href="{{ route('sign-up') }}">Sign up</a>
-                    </div>
+                    
+                  <div class="d-flex mb-5 align-items-center">
+                    <label class="control control--checkbox mb-0"><span class="caption">Remember me</span>
+                      <input type="checkbox" id="remember" name="remember" onclick="toggleRememberMe()" />
+                      <div class="control__indicator"></div>
+                    </label>
+                    <span class="ml-auto"><a href="{{ route('forgot-password') }}" class="forgot-pass">Forgot Password</a></span> 
+                  </div>
+    
+                  <input type="submit" value="Log In" class="btn btn-block btn-primary">
+                  
+                  <div class="signup-link mt-3 text-center">
+                    Don't have an account? <a href="{{ route('sign-up') }}">Sign up</a>
+                </div>
                 </form>
+              </div>
             </div>
+          </div>
         </div>
-        <div class="image-section"></div>
-    </div>
 </body>
 
 </html>
