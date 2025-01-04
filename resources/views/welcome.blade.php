@@ -18,7 +18,8 @@
                     <img src="assets/img/hero-bg.jpg" class="img-fluid w-100" alt="First slide" />
                     <div class="carousel-caption">
                         <div class="container py-4">
-                            <div class="col-lg-6 d-none d-lg-flex fadeInRight animated" data-animation="fadeInRight"
+                            <!-- Adjusted for smaller devices -->
+                            <div class="col-lg-6 col-12 d-flex fadeInRight animated" data-animation="fadeInRight"
                                 data-delay="1s" style="animation-delay: 1s;">
                                 <div class="text-start">
                                     <h1 class="display-5 text-white">Anaia's Motorcycle Rental</h1>
@@ -35,6 +36,8 @@
                     </div>
                 </div>
             </div>
+        </div>
+        
             <div class="carousel-item">
                 <img src="assets/img/carousel-1.jpg" class="img-fluid w-100" alt="First slide" />
                 <div class="carousel-caption">
