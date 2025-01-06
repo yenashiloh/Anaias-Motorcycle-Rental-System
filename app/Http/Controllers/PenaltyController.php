@@ -126,14 +126,13 @@ class PenaltyController extends Controller
                 'reservation_id' => 'required|exists:reservations,reservation_id',
                 'gcash_name' => 'required_if:payment_method,Gcash',
                 'gcash_number' => 'required_if:payment_method,Gcash',
-                'image_receipt' => 'required_if:payment_method,Gcash|image|mimes:jpg,jpeg,png',
+                'image_receipt' => 'required_if:payment_method,Gcash|image|mimes:jpg,jpeg,png,webp',
             ]);
     
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false, 
                     'errors' => $validator->errors(),
-                    'debug_penalty_id' => $request->penalty_id 
                 ], 422);
             }
     
@@ -144,7 +143,7 @@ class PenaltyController extends Controller
             $payment->reservation_id = $request->reservation_id;
             $payment->payment_method = $request->payment_method;
     
-            if ($request->payment_method === 'gcash') {
+            if ($request->payment_method === 'Gcash') {
                 $payment->gcash_name = $request->gcash_name;
                 $payment->gcash_number = $request->gcash_number;
     

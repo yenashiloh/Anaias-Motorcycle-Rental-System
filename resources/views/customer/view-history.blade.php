@@ -329,7 +329,7 @@
                                 </div>
                             </div>
                             
-                                @if ($reservation->penaltyPayment->payment_method === 'gcash')
+                                @if ($reservation->penaltyPayment->payment_method === 'Gcash')
                                
                                     <div class="row mb-2">
                                         <div class="col-md-2 fw-bold">GCash Name:</div>
@@ -379,7 +379,7 @@
                         <h5 class="modal-title" id="paymentModalLabel">Choose Payment Method</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                    <div class="modal-body" style="max-height: 400px; overflow-y: auto;"  enctype="multipart/form-data">
                         <!-- Payment method selection -->
                         <div class="form-group">
                             <label><input type="radio" name="payment_method" value="cash" id="cashOption"> Cash</label>
@@ -485,54 +485,44 @@
     
             submitButton.addEventListener('click', function() {
                 let paymentMethod = cashOption.checked ? 'Cash' : 'Gcash';
-                let paymentData = {
-                    payment_method: paymentMethod,
-                    penalty_id: {!! json_encode($reservation->penalty ? $reservation->penalty->penalty_id : null) !!},
-                    customer_id: {!! json_encode($reservation->customer_id) !!},
-                    driver_id: {!! json_encode($reservation->driver_id) !!},
-                    reservation_id: {!! json_encode($reservation->reservation_id) !!},
-                };
-    
-                if (paymentMethod === 'Gcash') {
-                    paymentData.gcash_name = document.getElementById('gcash_name').value;
-                    paymentData.gcash_number = document.getElementById('gcash_number').value;
-                    paymentData.image_receipt = document.getElementById('image_receipt').files[0];
-                }
-    
                 let formData = new FormData();
-                for (const key in paymentData) {
-                    formData.append(key, paymentData[key]);
+                
+                formData.append('payment_method', paymentMethod);
+                formData.append('penalty_id', {!! json_encode($reservation->penalty ? $reservation->penalty->penalty_id : null) !!});
+                formData.append('customer_id', {!! json_encode($reservation->customer_id) !!});
+                formData.append('driver_id', {!! json_encode($reservation->driver_id) !!});
+                formData.append('reservation_id', {!! json_encode($reservation->reservation_id) !!});
+
+                if (paymentMethod === 'Gcash') {
+                    formData.append('gcash_name', document.getElementById('gcash_name').value);
+                    formData.append('gcash_number', document.getElementById('gcash_number').value);
+                    
+                    const receiptFile = document.getElementById('image_receipt').files[0];
+                    if (receiptFile) {
+                        formData.append('image_receipt', receiptFile);
+                    }
                 }
-    
+
                 fetch('/submit-payment', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content')
-                        },
-                        body: formData
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(errorData => {
-                                throw new Error(JSON.stringify(errorData));
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            localStorage.setItem('paymentSuccess', 'true');
-    
-                            location.reload();
-                        } else {
-                            showToast('An error occurred: ' + (data.message || 'Unknown error'), 'danger');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('An error occurred: ' + error.message, 'danger');
-                    });
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: formData 
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        localStorage.setItem('paymentSuccess', 'true');
+                        location.reload();
+                    } else {
+                        showToast('An error occurred: ' + (data.message || 'Unknown error'), 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('An error occurred: ' + error.message, 'danger');
+                });
             });
     
             if (localStorage.getItem('paymentSuccess') === 'true') {

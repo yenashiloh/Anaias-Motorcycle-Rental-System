@@ -18,6 +18,7 @@
         color: #007bff;
         /* Change this to your desired hover color */
     }
+    
 </style>
 
 <body>
@@ -104,7 +105,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-4">
+                 <div class="col-12 col-md-4">
                     <div class="card card-stats card-round">
                         <div class="card-body">
                             <div class="row align-items-center">
@@ -114,7 +115,8 @@
                                     </div>
                                 </div>
                                 <div class="col col-stats ms-3 ms-sm-0">
-                                    <a href="{{ route('admin.reservation.bookings') }}" style="text-decoration: none;">
+                                    <a href="{{ route('admin.reservation.bookings') }}"
+                                        style="text-decoration: none;">
                                         <div class="numbers">
                                             <p class="card-category">Total Bookings</p>
                                             <h4 class="card-title">{{ $reservationCount }}</h4>
@@ -125,7 +127,7 @@
                         </div>
                     </div>
                 </div>
-
+               
                 <div class="col-12 col-md-4">
                     <div class="card card-stats card-round">
                         <div class="card-body">
@@ -173,29 +175,30 @@
 
             </div>
 
-            <div class="row">
-                <div class="col-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Customer's Gender</h4>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="genderChart" style="width: 50%; height: auto;"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">Customer's Age</h4>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="ageChart" style="width: 50%; height: auto;"></canvas>
-                        </div>
-                    </div>
-                </div>
+           <div class="row">
+    <div class="col-12 col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Customer's Gender</h4>
             </div>
+            <div class="card-body">
+                <canvas id="genderChart" style="width: 50%; height: auto;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Customer's Age</h4>
+            </div>
+            <div class="card-body">
+                <canvas id="ageChart" style="width: 50%; height: auto;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 

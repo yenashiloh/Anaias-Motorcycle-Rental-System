@@ -281,7 +281,7 @@
                 <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.5s">
                     <div class="steps-item p-4 mb-4">
                         <h4>Receive Notifications</h4>
-                        <p class="mb-0">Get an email with your reservation details.</p>
+                        <p class="mb-0">Get an update regarding your reservation.</p>
                         <div class="setps-number">06.</div>
                     </div>
                 </div>

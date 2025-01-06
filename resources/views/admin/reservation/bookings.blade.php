@@ -96,7 +96,7 @@
                                                     @foreach ($toReviewBookings as $index => $booking)
                                                         <tr>
                                                             <td>{{ $index + 1 }}</td>
-                                                            <td>{{ \Carbon\Carbon::parse($booking['created_at'])->format('F d, Y, g:i A') }}
+                                                            <td>{{ \Carbon\Carbon::parse($booking['created_at'])->setTimezone('Asia/Manila')->format('F d, Y, g:i A') }}</td>
                                                             </td>
                                                             <td>
                                                                 <img src="{{ asset('storage/' . $booking['motorcycle_image']) }}"
