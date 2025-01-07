@@ -282,23 +282,20 @@
     function handleImageUpload(event) {
         const files = event.target.files;
         const previewContainer = document.getElementById('image-preview-container');
-        const maxFileSize = 2 * 1024 * 1024; // 2MB
+        const maxFileSize = 2 * 1024 * 1024; 
         const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
 
-        // clear previous error messages
         clearErrorMessages();
 
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            // validate file type
             if (!allowedTypes.includes(file.type)) {
                 showError(
                     `File "${file.name}" is not a valid image type. Allowed types are: JPEG, PNG, JPG, GIF, WEBP`);
                 continue;
             }
 
-            // validate file size
             if (file.size > maxFileSize) {
                 showError(`File "${file.name}" is too large. Maximum file size is 2MB`);
                 continue;
@@ -342,7 +339,6 @@
             imageUpload.addEventListener('change', handleImageUpload);
         }
 
-        // add drag and drop functionality
         const uploadArea = document.getElementById('image-upload-area');
         if (uploadArea) {
             uploadArea.addEventListener('dragover', function(e) {
@@ -361,12 +357,10 @@
                 const files = e.dataTransfer.files;
                 const input = document.getElementById('image-upload');
 
-                // update the input's files
                 const dataTransfer = new DataTransfer();
                 Array.from(files).forEach(file => dataTransfer.items.add(file));
                 input.files = dataTransfer.files;
 
-                // trigger the handleImageUpload function
                 handleImageUpload({
                     target: {
                         files: files
@@ -375,7 +369,6 @@
             });
         }
 
-        // initialize validation on page load
         validateImageCount();
     });
 
@@ -387,7 +380,6 @@
         input.onchange = function(event) {
             const file = event.target.files[0];
             if (file) {
-                // validate file size and type
                 if (file.size > 2 * 1024 * 1024) {
                     showError('Replacement image is too large. Maximum file size is 2MB');
                     return;
@@ -477,7 +469,6 @@
         document.querySelectorAll('.image-error').forEach(error => error.remove());
     }
 
-    // form submission validation
     document.querySelector('form').addEventListener('submit', function(event) {
         if (!validateImageCount()) {
             event.preventDefault();
@@ -489,7 +480,6 @@
         });
     });
 
-    // initialize validation on page load
     document.addEventListener('DOMContentLoaded', function() {
         validateImageCount();
     });

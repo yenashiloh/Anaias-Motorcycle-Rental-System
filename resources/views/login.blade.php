@@ -52,7 +52,7 @@
                     
                     <div class="form-group last mb-3">
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" class="form-control" required>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
                         @error('password')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror

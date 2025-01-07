@@ -100,7 +100,7 @@
                                     @else
                                         @if ($status === 'Available')
                                             @if (!$canRent)
-                                                @if ($penaltyStatus === 'Not Paid')
+                                                @if (in_array($penaltyStatus, ['Not Paid', 'Pending']))
                                                     <button type="button" class="btn btn-light w-100 py-2 mb-2" id="penalty-not-paid-button">
                                                        Rent Now
                                                     </button>
@@ -329,7 +329,7 @@
     });
 
     //not paid
-    @if (isset($penaltyStatus) && $penaltyStatus === 'Not Paid')
+    @if (isset($penaltyStatus) && ($penaltyStatus === 'Not Paid' || $penaltyStatus === 'Pending'))
 
         const penaltyNotPaidBtn = document.getElementById('penalty-not-paid-button');
         if (penaltyNotPaidBtn) {

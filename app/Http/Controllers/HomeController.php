@@ -105,6 +105,7 @@ class HomeController extends Controller
         return view('motorcycle.motorcycle_list', compact('motorcycles'))->render();
     }
     
+    //view motorcycle
     public function viewDetailsMotorcycle($id)
     {
         $motorcycle = Motorcycle::findOrFail($id);
@@ -122,63 +123,73 @@ class HomeController extends Controller
                 ];
             });
     
-        $penaltyStatus = null;
-        $canRent = true;
-    
-        if ($isCustomerLoggedIn) {
-            $user = Auth::guard('customer')->user();
-            Log::info('Authenticated customer data:', ['user' => $user->toArray()]); // Changed to include full user data
-    
-            $notifications = Notification::where('customer_id', $user->customer_id) // Changed from $user->id to $user->customer_id
-                ->orderBy('created_at', 'desc')
-                ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
-    
-            Log::info('Fetching penalties for customer:', ['customer_id' => $user->customer_id]); // Changed from $user->id
-            $penalties = Penalty::where('customer_id', $user->customer_id) // Changed from $user->id
-                ->get();
-            Log::info('Penalties retrieved:', ['penalties' => $penalties->toArray()]);
-    
-            if ($penalties->isNotEmpty()) {
-                Log::info('Penalties for customer:', $penalties->toArray());
-    
-                $unpaidPenalty = $penalties->where('status', 'Not Paid')->first();
-    
-                if ($unpaidPenalty) {
-                    $penaltyStatus = 'Not Paid';
-                    $canRent = false;
-    
-                    Log::info('Unpaid penalty detected', [
-                        'customer_id' => $user->customer_id, // Changed from $user->id
-                        'penalty_status' => $penaltyStatus,
-                        'can_rent' => $canRent
-                    ]);
-                } elseif ($user->status === 'Banned') {
-                    $penaltyStatus = 'Banned';
-                    $canRent = false;
-                    Log::warning('Banned customer attempted to view motorcycle details', [
-                        'customer_id' => $user->customer_id, // Changed from $user->id
-                        'penalty_status' => $penaltyStatus,
-                        'can_rent' => $canRent
-                    ]);
+            $penaltyStatus = null;
+            $canRent = true;
+            
+            if ($isCustomerLoggedIn) {
+                $user = Auth::guard('customer')->user();
+                Log::info('Authenticated customer data:', ['user' => $user->toArray()]);
+            
+                $notifications = Notification::where('customer_id', $user->customer_id) 
+                    ->orderBy('created_at', 'desc')
+                    ->get(['id', 'type', 'message', 'read', 'created_at', 'updated_at']);
+            
+                Log::info('Fetching penalties for customer:', ['customer_id' => $user->customer_id]); 
+                $penalties = Penalty::where('customer_id', $user->customer_id) 
+                    ->get();
+                Log::info('Penalties retrieved:', ['penalties' => $penalties->toArray()]);
+            
+                if ($penalties->isNotEmpty()) {
+                    Log::info('Penalties for customer:', $penalties->toArray());
+            
+                    $unpaidPenalty = $penalties->where('status', 'Not Paid')->first();
+                    $pendingPenalty = $penalties->where('status', 'Pending')->first();
+            
+                    if ($unpaidPenalty) {
+                        $penaltyStatus = 'Not Paid';
+                        $canRent = false;
+            
+                        Log::info('Unpaid penalty detected', [
+                            'customer_id' => $user->customer_id, 
+                            'penalty_status' => $penaltyStatus,
+                            'can_rent' => $canRent
+                        ]);
+                    } elseif ($pendingPenalty) {
+                        $penaltyStatus = 'Pending';
+                        $canRent = false;
+            
+                        Log::info('Pending penalty detected', [
+                            'customer_id' => $user->customer_id, 
+                            'penalty_status' => $penaltyStatus,
+                            'can_rent' => $canRent
+                        ]);
+                    } elseif ($user->status === 'Banned') {
+                        $penaltyStatus = 'Banned';
+                        $canRent = false;
+                        Log::warning('Banned customer attempted to view motorcycle details', [
+                            'customer_id' => $user->customer_id, 
+                            'penalty_status' => $penaltyStatus,
+                            'can_rent' => $canRent
+                        ]);
+                    } else {
+                        Log::info('Customer has no penalty issues', [
+                            'customer_id' => $user->customer_id, 
+                            'penalty_status' => $penaltyStatus,
+                            'can_rent' => $canRent
+                        ]);
+                    }
                 } else {
-                    Log::info('Customer has no penalty issues', [
-                        'customer_id' => $user->customer_id, // Changed from $user->id
-                        'penalty_status' => $penaltyStatus,
-                        'can_rent' => $canRent
+                    Log::info('Customer has no penalties', [
+                        'customer_id' => $user->customer_id 
                     ]);
                 }
             } else {
-                Log::info('Customer has no penalties', [
-                    'customer_id' => $user->customer_id // Changed from $user->id
+                $notifications = [];
+                Log::info('Unauthenticated access attempt to view motorcycle details', [
+                    'motorcycle_id' => $id
                 ]);
             }
-        } else {
-            $notifications = [];
-            Log::info('Unauthenticated access attempt to view motorcycle details', [
-                'motorcycle_id' => $id
-            ]);
-        }
-    
+            
         return view('motorcycle.details-motorcycle', compact(
             'motorcycle',
             'status',
@@ -376,7 +387,7 @@ class HomeController extends Controller
                 'reservation_id' => $reservation->reservation_id,
                 'type' => 'Reservation',
                 'message' => $notificationMessage,
-                'read' => false, // set to false initially
+                'read' => false, 
             ]);
             
             DB::commit();
@@ -464,6 +475,9 @@ class HomeController extends Controller
         ]);
     
         $reservation = Reservation::findOrFail($validatedData['reservation_id']);
+        $customer = Customer::findOrFail($reservation->customer_id); 
+    
+        $driverInfo = DriverInformation::where('customer_id', $customer->customer_id)->first();
     
         $payment = new Payment();
         $payment->reservation_id = $reservation->reservation_id;
@@ -482,6 +496,20 @@ class HomeController extends Controller
     
         $motorcycle = Motorcycle::findOrFail($payment->motor_id);
         $motorcycle->save();
+    
+        if ($driverInfo) {
+            $notificationMessage = $driverInfo->first_name . ' ' . $driverInfo->last_name . ' reserved a motorcycle.';
+        } else {
+            $notificationMessage = 'A customer reserved a motorcycle, but their name could not be retrieved.';
+        }
+    
+        NotificationAdmin::create([
+            'customer_id' => Auth::guard('customer')->id(),
+            'reservation_id' => $reservation->reservation_id,
+            'type' => 'Reservation',
+            'message' => $notificationMessage,
+            'read' => false,
+        ]);
     
         return response()->json([
             'success' => true,

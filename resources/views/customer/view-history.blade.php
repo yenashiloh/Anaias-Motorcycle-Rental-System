@@ -396,16 +396,16 @@
                             <div class="form-group mb-3 mt-3">
                                 <label for="gcash_name">Gcash Name</label>
                                 <input type="text" class="form-control" id="gcash_name" name="gcash_name"
-                                    placeholder="Enter Gcash name">
+                                    placeholder="Enter Gcash name" required>
                             </div>
                             <div class="form-group mb-3">
                                 <label for="gcash_number">Gcash Number</label>
                                 <input type="number" class="form-control" id="gcash_number" name="gcash_number"
-                                    placeholder="Enter Gcash number">
+                                    placeholder="Enter Gcash number" required>
                             </div>
                             <div class="form-group mb-3">
-                                <label for="image_receipt">Receipt Image</label>
-                                <input type="file" class="form-control" id="image_receipt" name="image_receipt" accept="image/*">
+                                <label for="image_receipt">Receipt </label>
+                                <input type="file" class="form-control" id="image_receipt" name="image_receipt" accept="image/*" required>
                             </div>
                         </div>
                     </div>
@@ -494,13 +494,28 @@
                 formData.append('reservation_id', {!! json_encode($reservation->reservation_id) !!});
 
                 if (paymentMethod === 'Gcash') {
-                    formData.append('gcash_name', document.getElementById('gcash_name').value);
-                    formData.append('gcash_number', document.getElementById('gcash_number').value);
-                    
-                    const receiptFile = document.getElementById('image_receipt').files[0];
-                    if (receiptFile) {
-                        formData.append('image_receipt', receiptFile);
+                    let gcashName = document.getElementById('gcash_name').value.trim();
+                    let gcashNumber = document.getElementById('gcash_number').value.trim();
+                    let receiptFile = document.getElementById('image_receipt').files[0];
+
+                    if (!gcashName) {
+                        showToast('Gcash Name is required.', 'danger');
+                        return;
                     }
+
+                    if (!gcashNumber) {
+                        showToast('Gcash Number is required.', 'danger');
+                        return;
+                    }
+
+                    if (!receiptFile) {
+                        showToast('Receipt is required.', 'danger');
+                        return;
+                    }
+
+                    formData.append('gcash_name', gcashName);
+                    formData.append('gcash_number', gcashNumber);
+                    formData.append('image_receipt', receiptFile);
                 }
 
                 fetch('/submit-payment', {
@@ -524,6 +539,7 @@
                     showToast('An error occurred: ' + error.message, 'danger');
                 });
             });
+
     
             if (localStorage.getItem('paymentSuccess') === 'true') {
                 showToast('Payment Processed Successfully!');
