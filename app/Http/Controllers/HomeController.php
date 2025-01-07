@@ -476,8 +476,10 @@ class HomeController extends Controller
     
         $reservation = Reservation::findOrFail($validatedData['reservation_id']);
         $customer = Customer::findOrFail($reservation->customer_id); 
-    
-        $driverInfo = DriverInformation::where('customer_id', $customer->customer_id)->first();
+        
+        $driverInfo = DriverInformation::where('customer_id', $customer->customer_id)
+            ->latest() 
+            ->first();
     
         $payment = new Payment();
         $payment->reservation_id = $reservation->reservation_id;
@@ -516,6 +518,7 @@ class HomeController extends Controller
             'redirectUrl' => route('motorcycle.success', ['reservation_id' => $payment->reservation_id])
         ]);
     }
+    
     
     //show success reservation page
     public function showSuccessPage($reservation_id)
