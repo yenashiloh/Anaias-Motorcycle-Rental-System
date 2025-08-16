@@ -1,4 +1,4 @@
-<h1>📄 MIT License</h1>
+<h1>MIT License</h1>
 
 <p><strong>Copyright (c) 2025 Anaia's Motorcycle Rental System</strong></p>
 
@@ -22,7 +22,7 @@ SOFTWARE.</strong></p>
 
 <hr>
 
-<h2>📚 <strong>Third-Party Libraries and Dependencies</strong></h2>
+<h2><strong>Third-Party Libraries and Dependencies</strong></h2>
 
 <p>This project uses the following open-source libraries and frameworks:</p>
 
@@ -43,21 +43,16 @@ SOFTWARE.</strong></p>
     <li><strong>MySQL</strong> - GPL License (for server) / Commercial License available</li>
 </ul>
 
-<h3><strong>Payment Integration</strong></h3>
-<ul>
-    <li><strong>GCash Integration</strong> - Subject to GCash Terms of Service</li>
-</ul>
-
 <h3><strong>Real-time Features</strong></h3>
 <ul>
     <li><strong>Pusher/WebSocket Libraries</strong> - Subject to respective service terms</li>
 </ul>
 
-<h2>⚠️ <strong>Usage Notice</strong></h2>
+<h2><strong>Usage Notice</strong></h2>
 
 <p>This software is designed specifically for <strong>Anaia's Motorcycle Rental</strong> business operations in <em>Cavite and Laguna, Philippines</em>. While the source code is available under the MIT License, any commercial use should respect the business identity and branding of Anaia's Motorcycle Rental.</p>
 
-<h2>🚨 <strong>Disclaimer</strong></h2>
+<h2><strong>Disclaimer</strong></h2>
 
 <p>The authors and contributors of this software are <strong>not responsible</strong> for any damages, losses, or legal issues that may arise from the use of this software in production environments. Users are responsible for ensuring compliance with local laws and regulations regarding:</p>
 
@@ -68,7 +63,7 @@ SOFTWARE.</strong></p>
     <li>Local business licensing requirements</li>
 </ul>
 
-<h2>📞 <strong>Contact</strong></h2>
+<h2><strong>Contact</strong></h2>
 
 <p>For questions regarding licensing or commercial use, please contact the project maintainers through the repository's issue tracker or official communication channels.</p>
 
