@@ -208,5 +208,5 @@ anaia-motorcycle-rental/
 
 <h2>📝 <strong>LICENSE</strong></h2>
 
-<p>This project is licensed under the MIT License - see the <a href="LICENSE.md">LICENSE.md</a> file for details.</p>
+<p>This project is licensed under the MIT License - see the <a href="https://github.com/yenashiloh/anaias-motorcycle-reservation-system/blob/main/LICENSE.md">LICENSE.md</a> file for details.</p>
 
