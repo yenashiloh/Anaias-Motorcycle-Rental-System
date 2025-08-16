@@ -45,8 +45,6 @@
 
 <h3><strong>For Administrators</strong></h3>
 
-<img src="images/admin-dashboard.png" alt="Admin Dashboard" width="500" align="left">
-
 <ul>
     <li><strong>Admin Management System</strong> - Comprehensive administrative control panel</li>
     <li><strong>Customer Management</strong> - Manage customer accounts, bookings, and rental history</li>
