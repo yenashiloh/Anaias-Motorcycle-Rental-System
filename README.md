@@ -8,10 +8,6 @@
 
 <p>The rental service caters to various customer needs, from daily commuting solutions to weekend adventure trips, particularly popular among those visiting Tagaytay's tourist attractions or needing reliable transportation in urban areas like Bacoor and Sta. Rosa. The business maintains a fleet of well-maintained motorcycles and vehicles, ensuring customer safety and satisfaction across all rental locations.</p>
 
-<div align="center">
-    <img src="images/homepage-screenshot.png" alt="Anaia's Rental Homepage" width="600">
-</div>
-
 <h2>📋 <strong>PROJECT OVERVIEW</strong></h2>
 <br>
 
@@ -33,13 +29,7 @@
 
 <h2>🚀 <strong>FEATURES</strong></h2>
 
-<div align="center">
-    <img src="images/features-overview.png" alt="Features Overview" width="700">
-</div>
-
 <h3><strong>For Customers</strong></h3>
-
-<img src="images/customer-dashboard.png" alt="Customer Dashboard" width="500" align="right">
 
 <ul>
     <li><strong>User Registration & Login System</strong> - Secure account creation with email verification notification</li>
@@ -97,7 +87,7 @@
 <strong>1. Clone the repository</strong>
 <pre>
 <code>
-git clone https://github.com/yourusername/anaia-motorcycle-rental.git
+git clone https://github.com/yenashiloh/anaias-motorcycle-reservation-system.git
 cd anaia-motorcycle-rental
 </code>
 </pre>
@@ -203,65 +193,6 @@ anaia-motorcycle-rental/
 </code>
 </pre>
 
-<h2>🎯 <strong>USAGE</strong></h2>
-
-<h3><strong>For Customers</strong></h3>
-
-<ul>
-    <li><strong>Register</strong> for a new account and verify email</li>
-    <li><strong>Browse</strong> available motorcycles and vehicles by location</li>
-    <li><strong>Select</strong> rental dates and vehicle type</li>
-    <li><strong>Book</strong> your preferred vehicle</li>
-    <li><strong>Pay</strong> using GCash QR code scanning</li>
-    <li><strong>Track</strong> your rental status in real-time</li>
-    <li><strong>Receive</strong> notifications for booking updates</li>
-</ul>
-
-<h3><strong>For Administrators</strong></h3>
-
-<ul>
-    <li><strong>Login</strong> to the admin dashboard</li>
-    <li><strong>Manage</strong> vehicle fleet and availability</li>
-    <li><strong>Process</strong> customer bookings and payments</li>
-    <li><strong>Monitor</strong> real-time rental activities</li>
-    <li><strong>Update</strong> content and pricing information</li>
-    <li><strong>Manage</strong> multiple location inventories</li>
-    <li><strong>Generate</strong> rental and financial reports</li>
-</ul>
-
-<h2>📧 <strong>NOTIFICATION SYSTEM</strong></h2>
-
-<p>The system provides real-time notifications for:</p>
-
-<h3><strong>Customer Notifications</strong></h3>
-<ul>
-    <li>Account registration confirmation</li>
-    <li>Email verification status</li>
-    <li>Booking confirmation and updates</li>
-    <li>Payment confirmation</li>
-    <li>Rental start and end reminders</li>
-    <li>Vehicle return confirmations</li>
-</ul>
-
-<h3><strong>Admin Notifications</strong></h3>
-<ul>
-    <li>New customer registrations</li>
-    <li>Incoming booking requests</li>
-    <li>Payment notifications</li>
-    <li>Vehicle return alerts</li>
-    <li>System maintenance reminders</li>
-</ul>
-
-<h2>💳 <strong>PAYMENT SYSTEM</strong></h2>
-
-<p>Secure payment processing through:</p>
-<ul>
-    <li><strong>GCash QR Code Integration</strong> - Customers scan QR codes for instant payment</li>
-    <li><strong>Payment Verification</strong> - Automatic payment confirmation system</li>
-    <li><strong>Transaction Tracking</strong> - Complete payment history and receipts</li>
-    <li><strong>Refund Management</strong> - Automated refund processing for cancellations</li>
-</ul>
-
 <h2>🔒 <strong>SECURITY FEATURES</strong></h2>
 
 <ul>
@@ -275,26 +206,7 @@ anaia-motorcycle-rental/
     <li>Real-time activity monitoring</li>
 </ul>
 
-<h2>🏍️ <strong>RENTAL LOCATIONS</strong></h2>
-
-<p>Anaia's Motorcycle Rental operates in the following locations:</p>
-<ul>
-    <li><strong>Bacoor, Cavite</strong> - Urban area rentals and commuter solutions</li>
-    <li><strong>Molino, Cavite</strong> - Residential area coverage</li>
-    <li><strong>Sta. Rosa, Laguna</strong> - Commercial district rentals</li>
-    <li><strong>Tagaytay, Cavite</strong> - Tourist and leisure rentals</li>
-    <li><strong>Naic, Cavite</strong> - Coastal area and local transportation</li>
-</ul>
-
 <h2>🤝 <strong>CONTRIBUTING</strong></h2>
-
-<ul>
-    <li>Fork the repository</li>
-    <li>Create a feature branch (<code>git checkout -b feature/AmazingFeature</code>)</li>
-    <li>Commit your changes (<code>git commit -m 'Add some AmazingFeature'</code>)</li>
-    <li>Push to the branch (<code>git push origin feature/AmazingFeature</code>)</li>
-    <li>Open a Pull Request</li>
-</ul>
 
 <h2>📝 <strong>LICENSE</strong></h2>
 
