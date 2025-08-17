@@ -1,6 +1,6 @@
 <h1>MIT License</h1>
 
-<p><strong>Copyright (c) 2025 Anaia's Motorcycle Rental System</strong></p>
+<p><strong>Copyright (c) 2025 Anaia</strong></p>
 
 <p>Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
