@@ -11,7 +11,9 @@
 <div align="center">
 
  <img src="https://raw.githubusercontent.com/yenashiloh/Anaias-Motorcycle-Reservation-System/main/public/assets/img/screenshot-anaia-hero.png" alt="Hero Section" width="800">
-<img src="https://github.com/yenashiloh/Anaias-Motorcycle-Reservation-System/blob/main/public/assets/img/screenshot-anaia-features.png" alt="Hero Section" width="800">
+ <img src="https://github.com/yenashiloh/Anaias-Motorcycle-Reservation-System/blob/main/public/assets/img/screenshot-anaia-features.png" alt="Features" width="800">
+ <img src="https://github.com/yenashiloh/Anaias-Motorcycle-Reservation-System/blob/main/public/assets/img/screenshot-anaia-process.png" alt="Features" width="800">
+
 
   <br><br>
 </div>
