@@ -8,6 +8,13 @@
 
 <p>The rental service caters to various customer needs, from daily commuting solutions to weekend adventure trips, particularly popular among those visiting Tagaytay's tourist attractions or needing reliable transportation in urban areas like Bacoor and Sta. Rosa. The business maintains a fleet of well-maintained motorcycles and motorcycles, ensuring customer safety and satisfaction across all rental locations.</p>
 
+<div align="center">
+
+  <img src="https://github.com/yenashiloh/Anaias-Motorcycle-Reservation-System/main/public/assets/img/screenshot-anaia-hero.png" alt="Hero Section" width="800">
+
+  <br><br>
+</div>
+
 <h2>📋 <strong>PROJECT OVERVIEW</strong></h2>
 <br>
 
