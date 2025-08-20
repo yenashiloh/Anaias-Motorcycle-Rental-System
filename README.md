@@ -65,7 +65,6 @@
     <li><strong>Payment Tracking</strong> - Monitor GCash payments and transaction history</li>
     <li><strong>Real-time Notifications</strong> - Instant alerts for new bookings, payments, and rental activities</li>
     <li><strong>Content Management</strong> - Update website content, pricing, and promotional materials</li>
-    <li><strong>Location Management</strong> - Manage rental locations across Cavite and Laguna</li>
 </ul>
 
 <br clear="all">
